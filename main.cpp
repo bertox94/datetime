@@ -181,40 +181,26 @@ public:
     }
 };
 
-class transaction {
+class row {
 public:
-    transaction(const string &name, const date &initialDate, bool ends, const date &finalDate, int f1, const string &f2,
-                double amount) : name(name),
-                                 initial_date(
-                                         initialDate),
-                                 ends(ends),
-                                 final_date(
-                                         finalDate),
-                                 f1(f1),
-                                 f2(f2),
-                                 amount(amount) {}
-
-    transaction(const string &name, const date &initialDate, int f1, const string &f2,
-                double amount) : name(name),
-                                 initial_date(
-                                         initialDate),
-                                 f1(f1),
-                                 f2(f2),
-                                 amount(amount) {}
+    row(const string &name, const date &initialDate, int f1, const string &f2, double amount) : name(name),
+                                                                                                initial_date(
+                                                                                                        initialDate),
+                                                                                                f1(f1),
+                                                                                                f2(f2),
+                                                                                                amount(amount) {}
 
 public:
 
     string name;
     date initial_date;
-    bool ends;
-    date final_date;
     int f1;
     string f2;
     double amount;
 };
 
 
-bool is_today(transaction &row, date today) {
+bool is_today(row &row, date today) {
     date start_date = row.initial_date;
     string f2 = row.f2;
     int f1 = row.f1;
@@ -257,7 +243,7 @@ bool is_today(transaction &row, date today) {
 int main() {
 
     //attenzione, non considera che il refill non accade al sabato o alla domenica!!!
-    vector<transaction> vec;
+    vector<row> vec;
     vec.emplace_back("Rent", date(25, 1, 2022), 1, "months", -1070);
     vec.emplace_back("Rundfunkbeitrag", date(15, 11, 2021), 3, "months", -55.08);
     vec.emplace_back("Netflix", date(2, 2, 2022), 1, "months", -17.99);
@@ -276,7 +262,6 @@ int main() {
     vec.emplace_back("Kautz", date(18, 6, 2022), 20, "years", -1000);
     vec.emplace_back("Refill", date(10, 3, 2022), 1, "months", 1700); //lo fai il 5 dunque assumi che arriva il 10
 
-    cout << vec[0].final_date.self() << endl;
 
     ofstream myfile;
     myfile.open("schedule.asm");
