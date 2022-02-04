@@ -20,6 +20,16 @@ public:
         d = mktime(tm);
     }
 
+    date(const date &dt) {
+        this->d = dt.d;
+    }
+
+    //v =t is same as v func(t), func as =
+    date &operator=(date &dt) {
+        this->d = dt.d;
+        return *this;
+    }
+
     bool operator==(date &d2) {
         return get_month() == d2.get_month() && get_day() == d2.get_day() && get_year() == d2.get_year();
     }
@@ -179,41 +189,87 @@ public:
         }
         return res;
     }
+
+    bool is_working_day() {
+        return !(get_wday() == 6 || get_wday() == 0);
+    }
+
+    date next_working_day() {
+        date dt = *this;
+        if (get_wday() == 6)
+            dt.after_days(2);
+        else if (get_wday() == 0)
+            dt.after_days(1);
+        return dt;
+    }
 };
 
-class row {
+class transaction {
 public:
-    row(const string &name, const date &initialDate, int f1, const string &f2, double amount) : name(name),
-                                                                                                initial_date(
-                                                                                                        initialDate),
-                                                                                                f1(f1),
-                                                                                                f2(f2),
-                                                                                                amount(amount) {}
+    transaction(const string &name, const date &initialDate, int f1, const string &f2, double amount) : name(name),
+                                                                                                        initial_date(
+                                                                                                                initialDate),
+                                                                                                        ends(false),
+                                                                                                        f1(f1),
+                                                                                                        f2(f2),
+                                                                                                        amount(amount) {}
+
+    transaction(const string &name, const date &initialDate, bool ends, const date &finalDate, int f1, const string &f2,
+                double amount)
+            : name(name),
+              initial_date(
+                      initialDate),
+              ends(ends),
+              final_date(
+                      finalDate),
+              f1(f1),
+              f2(f2),
+              amount(amount) {}
 
 public:
 
     string name;
     date initial_date;
+    bool ends;
+    date final_date;
     int f1;
     string f2;
     double amount;
 };
 
+std::vector<transaction> waiting_queue;
 
-bool is_today(row &row, date today) {
+bool execute(date today, const transaction &row) {
+    if (today.is_working_day())
+        return true;
+    else {
+        date dt = today.next_working_day();
+        waiting_queue.emplace_back(row.name, dt, true, dt, row.f1, row.f2, row.amount);
+        return false;
+    }
+}
+
+bool is_today(transaction &row, date today) {
     date start_date = row.initial_date;
     string f2 = row.f2;
     int f1 = row.f1;
     string d1 = today.self();
     string d2 = start_date.self();
 
-    if (today.d < start_date.d)
+    //if the first occurrence is in the future
+    if (today < start_date)
         return false;
+
+    //if the end date is in the past
+    if (row.ends) {
+        if (today > row.final_date)
+            return false;
+    }
 
     if (f2 == "weeks") {
         if (start_date.days_between(today) % (f1 * 7) != 0)
             return false;
-        return true;
+        return execute(today, row);
     }
 
 
@@ -222,7 +278,7 @@ bool is_today(row &row, date today) {
             return false;
         if (start_date.months_between(today) % f1 != 0)
             return false;
-        return true;
+        return execute(today, row);
     }
 
     if (f2 == "years") {
@@ -232,18 +288,31 @@ bool is_today(row &row, date today) {
             return false;
         if (start_date.years_between(today) % f1 != 0)
             return false;
-        return true;
+        return execute(today, row);
     }
 
 
     return false;
 }
 
+void process(ofstream &myfile, date &today, double &var, transaction &el) {
+    if (is_today(el, today)) {
+        var += el.amount;
+        myfile << left << setw(20) << today.self() << setw(20) << el.name << setw(20) << el.amount
+               << setw(20);
+        if (var <= 0) {
+            myfile << "=============================> ";
+            //cout << "Failure detected at: " << today.self();
+        }
+        myfile << var << endl;
+    }
+
+}
 
 int main() {
 
-    //attenzione, non considera che il refill non accade al sabato o alla domenica!!!
-    vector<row> vec;
+    //attenzione, non considera che il refill non considera le feste nazionali
+    vector<transaction> vec;
     vec.emplace_back("Rent", date(25, 1, 2022), 1, "months", -1070);
     vec.emplace_back("Rundfunkbeitrag", date(15, 11, 2021), 3, "months", -55.08);
     vec.emplace_back("Netflix", date(2, 2, 2022), 1, "months", -17.99);
@@ -257,10 +326,10 @@ int main() {
     vec.emplace_back("Kas VPN", date(19, 12, 2021), 1, "years", -29.95);
     vec.emplace_back("Night Eye", date(17, 12, 2021), 1, "years", -9.55);
     vec.emplace_back("Cerberus", date(7, 8, 2021), 1, "years", -5);
-    vec.emplace_back("Mamma", date(18, 6, 2022), 20, "years", -400);
-    vec.emplace_back("Lina", date(18, 6, 2022), 20, "years", -500);
-    vec.emplace_back("Kautz", date(18, 6, 2022), 20, "years", -1000);
-    vec.emplace_back("Refill", date(10, 3, 2022), 1, "months", 1700); //lo fai il 5 dunque assumi che arriva il 10
+    vec.emplace_back("Mamma", date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -400);
+    vec.emplace_back("Lina", date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -500);
+    vec.emplace_back("Kautz", date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -1000);
+    vec.emplace_back("Refill", date(10, 3, 2022), 1, "months", 1239); //lo fai il 5 dunque assumi che arriva il 10
 
 
     ofstream myfile;
@@ -270,17 +339,11 @@ int main() {
     date today(4, 2, 2022);
     double var = 1301.06;
     while (today.get_year() <= 2022) {
+        for (auto &el:waiting_queue) {
+            process(myfile, today, var, el);
+        }
         for (auto &el:vec) {
-            if (is_today(el, today)) {
-                var += el.amount;
-                myfile << left << setw(20) << today.self() << setw(20) << el.name << setw(20) << el.amount
-                       << setw(20);
-                if (var <= 0) {
-                    myfile << "=============================> ";
-                    //cout << "Failure detected at: " << today.self();
-                }
-                myfile << var << endl;
-            }
+            process(myfile, today, var, el);
         }
         today.after_days(1);
     }
@@ -291,3 +354,5 @@ int main() {
 
     return 0;
 }
+
+
