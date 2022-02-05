@@ -377,8 +377,8 @@ void f2() {
 void f3(ostream &myfile) {
     for (auto &el:transactions_of_the_day) {
         account_balance += el.amount;
-        myfile << left << setw(20) << today.self() << setw(20) << el.name << setw(20) << el.amount
-               << setw(20);
+        myfile << right << setw(16) << today.self() << setw(20) << el.name << setw(10) << el.amount
+               << setw(10);
         if (account_balance <= 0) {
             myfile << "=============================> ";
         }
@@ -408,13 +408,14 @@ int main() {
     orders.emplace_back("Cerberus", false, date(7, 8, 2021), 1, "years", -5);
     orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
     orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
-    orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
-    orders.emplace_back("Refill", true, date(10, 3, 2022), 1, "months",
-                        1180); //lo fai il 5 dunque assumi che arriva il 10
+    orders.emplace_back("Kaution", true, date(18, 6, 2022), -1000);
+    orders.emplace_back("Refill", true, date(10, 3, 2022), date(10, 5, 2022), 1, "months", 1480);
+    orders.emplace_back("Refill", true, date(10, 6, 2022), 1, "months", 1180);
+
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(4, 2, 2022);
+    today = date(5, 2, 2022);
     account_balance = 1301.06;
 
     while (today.get_year() <= 2022) {
