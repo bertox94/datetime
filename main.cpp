@@ -356,7 +356,8 @@ void f1() {
                 dt.first_working_day();
             it->execution_date = dt;
 
-            cout << left << "Scheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date << endl;
+            cout << right << setw(14) << "Scheduled " << setw(20) << it->name << " on: " << setw(17)
+                 << it->execution_date << " for: " << setw(8) << it->amount << endl;
 
             order current = *it;
             it = orders.erase(it);
@@ -368,7 +369,7 @@ void f1() {
 
 void reschedule(std::vector<order>::iterator &it) {
     if (it->once) {
-        cout << left << "Cancelled " << setw(20) << it->name << endl;
+        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << endl;
         return;
     }
 
@@ -389,12 +390,13 @@ void reschedule(std::vector<order>::iterator &it) {
         dt.first_working_day();
 
     if (it->ends && it->final_date < dt) {
-        cout << left << "Cancelled " << setw(20) << it->name << endl;
+        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << endl;
         return;
     }
 
     it->execution_date = dt;
-    cout << left << "Rescheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date << endl;
+    cout << right << setw(14) << "Rescheduled " << setw(20) << it->name << " on: " << setw(17) << it->execution_date
+         << " for: " << setw(8) << it->amount << endl;
 
     order current = *it;
     orders.push_back(current);
@@ -470,7 +472,7 @@ int main() {
         today.after_days(1);
     }
 
-    cout << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
+    cout << endl << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
 
     myfile.close();
 
