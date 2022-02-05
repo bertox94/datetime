@@ -227,6 +227,7 @@ public:
           int f1, string f2,
           double amount)
             : name(std::move(name)), is_wire_transfer(is_wire_transfer),
+              once(false),
               initial_date(initialDate), ends(true), final_date(finalDate),
               f1(f1), f2(std::move(f2)),
               amount(amount) {}
@@ -237,6 +238,7 @@ public:
           int f1, string f2,
           double amount)
             : name(std::move(name)), is_wire_transfer(is_wire_transfer),
+              once(false),
               initial_date(initialDate), ends(false),
               f1(f1), f2(std::move(f2)),
               amount(amount) {}
@@ -255,16 +257,10 @@ public:
 
 class transaction {
 public:
-    transaction(string name, bool is_wire_transfer,
-                const date &execution_date,
-                double amount) :
-            name(std::move(name)), is_wire_transfer(is_wire_transfer),
-            execution_date(execution_date),
-            amount(amount) {}
+    transaction(string name, double amount) :
+            name(std::move(name)), amount(amount) {}
 
     string name;
-    bool is_wire_transfer;
-    date execution_date;
     double amount;
 };
 
@@ -276,28 +272,21 @@ std::list<transaction> transactions_of_the_day;
 //TODO: do checks functions to check all possibilites of wrong definition of input
 
 //we assume that the holidays are known in advance, here the execution date is always "today"
-void insert_in_order(string &name, bool is_wire_transfer, double amount) {
+void insert_in_order(string &name, double amount) {
     auto it = transactions_of_the_day.begin();
+
+    if (it == transactions_of_the_day.end()) {
+        transactions_of_the_day.emplace(it, name, amount);
+        return;
+    }
 
     while (it != transactions_of_the_day.end()) {
         if (it->amount > amount) {
-            transactions_of_the_day.emplace(it, name, is_wire_transfer, today, amount);
+            transactions_of_the_day.emplace(it, name, amount);
             return;
         }
         ++it;
     }
-}
-
-void f12(vector<order>::iterator &it, date dt) {
-    if (it->f2 == "weeks")
-        dt.after_days(it->f1 * 7);
-    if (it->f2 == "months")
-        dt.after_months(it->f1);
-    if (it->f2 == "years")
-        dt.after_years(it->f1);
-
-    dt.first_working_day();
-    it->execution_date = dt;
 }
 
 void f1() {
@@ -307,7 +296,13 @@ void f1() {
     while (it != orders.end()) {
         if (it->execution_date.is_null()) {
             //TODO:check if it ends or if it is the past, or the end date is in the past...
-            f12(it, it->initial_date);
+
+            date dt = it->initial_date;
+            if (it->is_wire_transfer)
+                dt.first_working_day();
+            it->execution_date = dt;
+            cout << "Scheduled " << it->name << " for: " << it->execution_date << endl;
+
             order current = *it;
             it = orders.erase(it);
             orders.push_back(current);
@@ -316,17 +311,46 @@ void f1() {
     }
 }
 
+bool reschedule(std::vector<order>::iterator &it) {
+    if (it->once)
+        return false;
+
+    if (!it->ends)
+        return true;
+    else {
+        if (it->final_date > today)
+            return true;
+        else
+            return false;
+    }
+}
 
 void f2() {
     auto it = orders.begin();
 
     while (it != orders.end()) {
         if (it->execution_date == today) {
-            insert_in_order(it->name, it->is_wire_transfer, it->amount);
-            f12(it, today);
-            order current = *it;
+            insert_in_order(it->name, it->amount);
+            if (reschedule(it)) {
+
+                date dt = today;
+                if (it->f2 == "weeks")
+                    dt.after_days(it->f1 * 7);
+                if (it->f2 == "months")
+                    dt.after_months(it->f1);
+                if (it->f2 == "years")
+                    dt.after_years(it->f1);
+
+                if (it->is_wire_transfer)
+                    dt.first_working_day();
+                it->execution_date = dt;
+
+                cout << "Rescheduled " << it->name << " for: " << it->execution_date << endl;
+
+                order current = *it;
+                orders.push_back(current);
+            }
             it = orders.erase(it);
-            orders.push_back(current);
         } else
             ++it;
     }
@@ -342,6 +366,7 @@ void f3(ostream &myfile) {
         }
         myfile << account_balance << endl;
     }
+    transactions_of_the_day.clear();
 }
 
 
@@ -374,7 +399,10 @@ int main() {
     today = date(4, 2, 2022);
     account_balance = 1301.06;
 
-    while (today.get_year() <= 2030) {
+    while (today.get_year() <= 2022) {
+        date dt(10, 3, 2022);
+        if (today == dt)
+            dt.after_days(0);
         cout << today << endl;
         f1();
         f2();
