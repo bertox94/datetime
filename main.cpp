@@ -298,9 +298,20 @@ void f1() {
             //TODO:check if it ends or if it is the past, or the end date is in the past...
 
             date dt = it->initial_date;
+            if (it->f2 == "weeks")
+                while (dt < today)
+                    dt.after_days(it->f1 * 7);
+            if (it->f2 == "months")
+                while (dt < today)
+                    dt.after_months(it->f1);
+            if (it->f2 == "years")
+                while (dt < today)
+                    dt.after_years(it->f1);
+
             if (it->is_wire_transfer)
                 dt.first_working_day();
             it->execution_date = dt;
+
             cout << "Scheduled " << it->name << " for: " << it->execution_date << endl;
 
             order current = *it;
@@ -333,13 +344,16 @@ void f2() {
             insert_in_order(it->name, it->amount);
             if (reschedule(it)) {
 
-                date dt = today;
+                date dt = it->initial_date;
                 if (it->f2 == "weeks")
-                    dt.after_days(it->f1 * 7);
+                    while (dt <= today)
+                        dt.after_days(it->f1 * 7);
                 if (it->f2 == "months")
-                    dt.after_months(it->f1);
+                    while (dt <= today)
+                        dt.after_months(it->f1);
                 if (it->f2 == "years")
-                    dt.after_years(it->f1);
+                    while (dt <= today)
+                        dt.after_years(it->f1);
 
                 if (it->is_wire_transfer)
                     dt.first_working_day();
@@ -388,9 +402,9 @@ int main() {
     orders.emplace_back("Kaspersky VPN", false, date(19, 12, 2021), 1, "years", -29.95);
     orders.emplace_back("Night Eye", false, date(17, 12, 2021), 1, "years", -9.55);
     orders.emplace_back("Cerberus", false, date(7, 8, 2021), 1, "years", -5);
-    orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
-    orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
-    orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
+    //orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
+    //orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
+    //orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
     orders.emplace_back("Refill", true, date(10, 3, 2022), 1, "months",
                         1180); //lo fai il 5 dunque assumi che arriva il 10
     ofstream myfile;
