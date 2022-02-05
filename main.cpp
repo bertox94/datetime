@@ -3,8 +3,6 @@
 #include <vector>
 #include <fstream>
 #include <iomanip>
-#include <list>
-#include <map>
 
 using namespace std;
 
