@@ -5,6 +5,7 @@
 #include <fstream>
 #include <iomanip>
 #include <list>
+#include <cmath>
 
 using namespace std;
 
@@ -268,6 +269,7 @@ double account_balance;
 date today;
 vector<order> orders;
 std::list<transaction> transactions_of_the_day;
+std::vector<double> stat;
 
 //TODO: do checks functions to check all possibilites of wrong definition of input
 
@@ -284,6 +286,64 @@ void insert_in_order(string &name, double amount) {
         ++it;
     }
     transactions_of_the_day.emplace(it, name, amount);
+}
+
+void insert_stat(double bal) {
+    stat.push_back(bal);
+    if (stat.size() > 365)
+        stat.erase(stat.begin());
+}
+
+double find_m() {
+    double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
+    int i = 0;
+    for (auto el:stat) {
+        v1 += i * el;
+        i++;
+    }
+    v1 *= stat.size();
+
+    for (auto el:stat) {
+        v2 += i;
+        v3 += el;
+        i++;
+    }
+    v2 *= v3;
+
+    i = 0;
+    for (auto el:stat) {
+        v4 += pow(i, 2);
+        i++;
+    }
+    v4 *= stat.size();
+
+    i = 0;
+    for (auto el:stat) {
+        v5 += i;
+        i++;
+    }
+    v5 = pow(v5, 2);
+
+    return (v1 - v2) / (v4 - v5);
+
+}
+
+double find_q() {
+    double v1 = 0, v2 = 0;
+
+    for (auto el:stat) {
+        v1 += el;
+    }
+
+    int i = 0;
+    for (auto el:stat) {
+        v2 += i;
+        i++;
+    }
+    v2 *= find_m();
+
+    return (double) 1 / stat.size() * (v1 - v2);
+
 }
 
 void f1() {
@@ -323,8 +383,10 @@ void f1() {
 }
 
 void reschedule(std::vector<order>::iterator &it) {
-    if (it->once)
+    if (it->once) {
+        cout << left << "Cancelled " << setw(20) << it->name << endl;
         return;
+    }
 
     date dt = it->initial_date;
     if (it->f2 == "days")
@@ -342,8 +404,10 @@ void reschedule(std::vector<order>::iterator &it) {
     if (it->is_wire_transfer)
         dt.first_working_day();
 
-    if (it->ends && it->final_date < dt)
+    if (it->ends && it->final_date < dt) {
+        cout << left << "Cancelled " << setw(20) << it->name << endl;
         return;
+    }
 
     it->execution_date = dt;
     cout << left << "Rescheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date << endl;
@@ -389,7 +453,7 @@ int main() {
     orders.emplace_back("Netflix", false, date(2, 2, 2022), 1, "months", -17.99);
     orders.emplace_back("JetBrains", false, date(12, 4, 2022), 1, "years", -206.22);
     orders.emplace_back("Youtube Premium", false, date(26, 1, 2022), 1, "months", -11.99);
-    //orders.emplace_back("Vodafone", false, date(17, 1, 2022), 4, "weeks", -9.99);
+    orders.emplace_back("Vodafone", false, date(17, 1, 2022), 4, "weeks", -9.99);
     orders.emplace_back("ImmoScout24", false, date(26, 1, 2022), 1, "months", -9.98);
     orders.emplace_back("Office365", false, date(3, 2, 2022), 1, "months", -7);
     orders.emplace_back("Amazon Prime", false, date(30, 11, 2021), 1, "years", -69);
@@ -402,11 +466,11 @@ int main() {
     orders.emplace_back("Kaution", true, date(18, 6, 2022), -1000);
     orders.emplace_back("Refill", true, date(10, 3, 2022), date(11, 5, 2022), 1, "months", 1480);
     orders.emplace_back("Refill", true, date(10, 6, 2022), 1, "months", 1180);
-    orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(3, 8, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(26, 10, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(21, 12, 2022), -25);
+    //orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
+    //orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
+    //orders.emplace_back("Vodafone", false, date(3, 8, 2022), -25);
+    //orders.emplace_back("Vodafone", false, date(26, 10, 2022), -25);
+    //orders.emplace_back("Vodafone", false, date(21, 12, 2022), -25);
 
     ofstream myfile;
     myfile.open("schedule.asm");
@@ -414,14 +478,15 @@ int main() {
     today = date(5, 2, 2022);
     account_balance = 1301.06;
 
-    while (today.get_year() <= 2022) {
+    while (today.get_year() <= 2023) {
         f1();
         f2();
         f3(myfile);
+        insert_stat(account_balance);
         today.after_days(1);
     }
 
-    cout << "Done" << endl;
+    cout << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
 
     myfile.close();
 
