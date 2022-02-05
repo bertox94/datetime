@@ -406,7 +406,6 @@ int main() {
     orders.emplace_back("Kaspersky VPN", false, date(19, 12, 2021), 1, "years", -29.95);
     orders.emplace_back("Night Eye", false, date(17, 12, 2021), 1, "years", -9.55);
     orders.emplace_back("Cerberus", false, date(7, 8, 2021), 1, "years", -5);
-    orders.emplace_back("Test", false, date(7, 8, 2021), 1, "days", -5);
     orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
     orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
     orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
