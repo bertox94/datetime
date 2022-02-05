@@ -322,18 +322,34 @@ void f1() {
     }
 }
 
-bool reschedule(std::vector<order>::iterator &it) {
+void reschedule(std::vector<order>::iterator &it) {
     if (it->once)
-        return false;
+        return;
 
-    if (!it->ends)
-        return true;
-    else {
-        if (it->final_date > today)
-            return true;
-        else
-            return false;
-    }
+    date dt = it->initial_date;
+    if (it->f2 == "days")
+        while (dt <= today)
+            dt.after_days(it->f1);
+    if (it->f2 == "weeks")
+        while (dt <= today)
+            dt.after_days(it->f1 * 7);
+    if (it->f2 == "months")
+        while (dt <= today)
+            dt.after_months(it->f1);
+    if (it->f2 == "years")
+        while (dt <= today)
+            dt.after_years(it->f1);
+    if (it->is_wire_transfer)
+        dt.first_working_day();
+
+    if (it->ends && it->final_date < dt)
+        return;
+
+    it->execution_date = dt;
+    cout << left << "Rescheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date << endl;
+
+    order current = *it;
+    orders.push_back(current);
 }
 
 void f2() {
@@ -342,32 +358,7 @@ void f2() {
     while (it != orders.end()) {
         if (it->execution_date == today) {
             insert_in_order(it->name, it->amount);
-            if (reschedule(it)) {
-
-                date dt = it->initial_date;
-                if (it->f2 == "days")
-                    while (dt <= today)
-                        dt.after_days(it->f1);
-                if (it->f2 == "weeks")
-                    while (dt <= today)
-                        dt.after_days(it->f1 * 7);
-                if (it->f2 == "months")
-                    while (dt <= today)
-                        dt.after_months(it->f1);
-                if (it->f2 == "years")
-                    while (dt <= today)
-                        dt.after_years(it->f1);
-
-                if (it->is_wire_transfer)
-                    dt.first_working_day();
-                it->execution_date = dt;
-
-                cout << left << "Rescheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date
-                     << endl;
-
-                order current = *it;
-                orders.push_back(current);
-            }
+            reschedule(it);
             it = orders.erase(it);
         } else
             ++it;
