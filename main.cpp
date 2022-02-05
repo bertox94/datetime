@@ -280,13 +280,10 @@ void insert_in_order(string &name, double amount) {
         return;
     }
 
-    while (it != transactions_of_the_day.end()) {
-        if (it->amount > amount) {
-            transactions_of_the_day.emplace(it, name, amount);
-            return;
-        }
+    while (it != transactions_of_the_day.end() && it->amount < amount) {
         ++it;
     }
+    transactions_of_the_day.emplace(it, name, amount);
 }
 
 void f1() {
@@ -298,6 +295,9 @@ void f1() {
             //TODO:check if it ends or if it is the past, or the end date is in the past...
 
             date dt = it->initial_date;
+            if (it->f2 == "days")
+                while (dt < today)
+                    dt.after_days(it->f1);
             if (it->f2 == "weeks")
                 while (dt < today)
                     dt.after_days(it->f1 * 7);
@@ -312,7 +312,7 @@ void f1() {
                 dt.first_working_day();
             it->execution_date = dt;
 
-            cout << "Scheduled " << it->name << " for: " << it->execution_date << endl;
+            cout << left << "Scheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date << endl;
 
             order current = *it;
             it = orders.erase(it);
@@ -345,6 +345,9 @@ void f2() {
             if (reschedule(it)) {
 
                 date dt = it->initial_date;
+                if (it->f2 == "days")
+                    while (dt <= today)
+                        dt.after_days(it->f1);
                 if (it->f2 == "weeks")
                     while (dt <= today)
                         dt.after_days(it->f1 * 7);
@@ -359,7 +362,8 @@ void f2() {
                     dt.first_working_day();
                 it->execution_date = dt;
 
-                cout << "Rescheduled " << it->name << " for: " << it->execution_date << endl;
+                cout << left << "Rescheduled " << setw(20) << it->name << " for: " << setw(20) << it->execution_date
+                     << endl;
 
                 order current = *it;
                 orders.push_back(current);
@@ -402,9 +406,10 @@ int main() {
     orders.emplace_back("Kaspersky VPN", false, date(19, 12, 2021), 1, "years", -29.95);
     orders.emplace_back("Night Eye", false, date(17, 12, 2021), 1, "years", -9.55);
     orders.emplace_back("Cerberus", false, date(7, 8, 2021), 1, "years", -5);
-    //orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
-    //orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
-    //orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
+    orders.emplace_back("Test", false, date(7, 8, 2021), 1, "days", -5);
+    orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
+    orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
+    orders.emplace_back("Kautz", true, date(18, 6, 2022), -1000);
     orders.emplace_back("Refill", true, date(10, 3, 2022), 1, "months",
                         1180); //lo fai il 5 dunque assumi che arriva il 10
     ofstream myfile;
@@ -414,10 +419,6 @@ int main() {
     account_balance = 1301.06;
 
     while (today.get_year() <= 2022) {
-        date dt(10, 3, 2022);
-        if (today == dt)
-            dt.after_days(0);
-        cout << today << endl;
         f1();
         f2();
         f3(myfile);
