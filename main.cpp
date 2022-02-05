@@ -409,7 +409,7 @@ int main() {
     orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
     orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
     orders.emplace_back("Kaution", true, date(18, 6, 2022), -1000);
-    orders.emplace_back("Refill", true, date(10, 3, 2022), date(10, 5, 2022), 1, "months", 1480);
+    orders.emplace_back("Refill", true, date(10, 3, 2022), date(11, 5, 2022), 1, "months", 1480);
     orders.emplace_back("Refill", true, date(10, 6, 2022), 1, "months", 1180);
     orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
     orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
