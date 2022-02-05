@@ -297,31 +297,19 @@ void insert_stat(double bal) {
 double find_m() {
     double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
     int i = 0;
-    for (auto el:stat) {
-        v1 += i * el;
-        i++;
-    }
-    v1 *= stat.size();
 
     for (auto el:stat) {
+        v1 += (i * el);
         v2 += i;
         v3 += el;
-        i++;
-    }
-    v2 *= v3;
-
-    i = 0;
-    for (auto el:stat) {
         v4 += pow(i, 2);
-        i++;
-    }
-    v4 *= stat.size();
-
-    i = 0;
-    for (auto el:stat) {
         v5 += i;
         i++;
     }
+
+    v1 *= stat.size();
+    v2 *= v3;
+    v4 *= stat.size();
     v5 = pow(v5, 2);
 
     return (v1 - v2) / (v4 - v5);
@@ -330,19 +318,15 @@ double find_m() {
 
 double find_q() {
     double v1 = 0, v2 = 0;
-
-    for (auto el:stat) {
-        v1 += el;
-    }
-
     int i = 0;
     for (auto el:stat) {
+        v1 += el;
         v2 += i;
         i++;
     }
     v2 *= find_m();
 
-    return (double) 1 / stat.size() * (v1 - v2);
+    return ((double) 1 / stat.size()) * (v1 - v2);
 
 }
 
