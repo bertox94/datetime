@@ -336,7 +336,7 @@ int main() {
     //vec.emplace_back("Mamma",true, date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -400);
     //vec.emplace_back("Lina",true, date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -500);
     //vec.emplace_back("Kautz",true, date(18, 6, 2022), true, date(18, 6, 2022), 20, "years", -1000);
-    vec.emplace_back("Refill", false, date(10, 3, 2022), 1, "months",
+    vec.emplace_back("Refill", true, date(10, 3, 2022), 1, "months",
                      1180); //lo fai il 5 dunque assumi che arriva il 10
 
 
