@@ -409,7 +409,7 @@ void reschedule(std::vector<order>::iterator &it) {
     it->execution_date = dt;
     std::stringstream stream;
     stream << right << setw(14) << "Rescheduled " << setw(20) << it->name << "       for: " << setw(16)
-           << it->execution_date << setw(13) << it->amount << endl;
+           << it->execution_date << endl;
     orders_to_print.push_back(stream.str());
 
     order current = *it;
