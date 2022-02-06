@@ -469,7 +469,7 @@ void parser() {
 int main() {
 
     //attenzione, non considera le feste nazionali per i bonifici
-    //fai 2 liste executed today, evaluated today e stampa prima executed, poi evaluated
+    //fai parser
     orders.emplace_back("Rent", true, date(25, 1, 2022), date(25, 4, 2022), 1, "months", -1060);
     orders.emplace_back("Rent", true, date(25, 6, 2022), 1, "months", -1070);
     orders.emplace_back("Rundfunkbeitrag", false, date(15, 11, 2021), 3, "months", -55.08);
