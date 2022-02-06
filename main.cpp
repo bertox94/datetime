@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <list>
 #include <cmath>
+#include <sstream>
 
 using namespace std;
 
@@ -107,6 +108,8 @@ public:
     }
 
     string self() const {
+        if (d == -1)
+            return "date undefined";
         const char *weekday[] = {"Sun", "Mon",
                                  "Tue", "Wed",
                                  "Thu", "Fri", "Sat"};
@@ -270,6 +273,9 @@ date today;
 vector<order> orders;
 std::list<transaction> transactions_of_the_day;
 std::vector<double> stat;
+vector<string> orders_to_print;
+std::list<string> transactions_to_print;
+
 
 //TODO: do checks functions to check all possibilites of wrong definition of input
 
@@ -356,8 +362,10 @@ void f1() {
                 dt.first_working_day();
             it->execution_date = dt;
 
-            cout << right << setw(14) << "Scheduled " << setw(20) << it->name << "       on: " << setw(16) << today
-                 << "       for: " << setw(16) << it->execution_date << setw(13) << it->amount << endl;
+            std::stringstream stream;
+            stream << right << setw(14) << "Scheduled " << setw(20) << it->name << "       for: " << setw(16)
+                   << it->execution_date << setw(13) << it->amount << endl;
+            orders_to_print.push_back(stream.str());
 
             order current = *it;
             it = orders.erase(it);
@@ -369,7 +377,9 @@ void f1() {
 
 void reschedule(std::vector<order>::iterator &it) {
     if (it->once) {
-        cout << right << setw(14) << "Stopped " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
+        std::stringstream stream;
+        stream << right << setw(14) << "Stopped " << setw(20) << it->name << endl;
+        orders_to_print.push_back(stream.str());
         return;
     }
 
@@ -390,13 +400,17 @@ void reschedule(std::vector<order>::iterator &it) {
         dt.first_working_day();
 
     if (it->ends && it->final_date < dt) {
-        cout << right << setw(14) << "Stopped " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
+        std::stringstream stream;
+        stream << right << setw(14) << "Stopped " << setw(20) << it->name << endl;
+        orders_to_print.push_back(stream.str());
         return;
     }
 
     it->execution_date = dt;
-    cout << right << setw(14) << "Rescheduled " << setw(20) << it->name << "       on: " << setw(16) << today
-         << "       for: " << setw(16) << it->execution_date << setw(13) << it->amount << endl;
+    std::stringstream stream;
+    stream << right << setw(14) << "Rescheduled " << setw(20) << it->name << "       for: " << setw(16)
+           << it->execution_date << setw(13) << it->amount << endl;
+    orders_to_print.push_back(stream.str());
 
     order current = *it;
     orders.push_back(current);
@@ -424,17 +438,37 @@ void f3(ostream &myfile) {
             myfile << "=============================> ";
         }
         myfile << account_balance << endl;
-        cout << right << setw(14) << "Executed " << setw(20) << el.name << "       on: " << setw(16) << today
-             << setw(41) << el.amount << endl;
+        std::stringstream stream;
+        stream << right << setw(14) << "Executed " << setw(20) << el.name << setw(41) << el.amount
+               << endl;
+        transactions_to_print.push_back(stream.str());
     }
     transactions_of_the_day.clear();
+}
+
+void print() {
+    if (!orders_to_print.empty() || !transactions_to_print.empty())
+        cout << "On " << today << endl;
+
+    for (auto &el: transactions_to_print)
+        cout << el;
+    for (auto &el: orders_to_print)
+        cout << el;
+
+    if (!orders_to_print.empty() || !transactions_to_print.empty())
+        cout << "--------------------------------------------------" << endl;
+    orders_to_print.clear();
+    transactions_to_print.clear();
+}
+
+void parser() {
+    //valori separati da punto e virgola
 }
 
 
 int main() {
 
     //attenzione, non considera le feste nazionali per i bonifici
-    //fai parser from file
     //fai 2 liste executed today, evaluated today e stampa prima executed, poi evaluated
     orders.emplace_back("Rent", true, date(25, 1, 2022), date(25, 4, 2022), 1, "months", -1060);
     orders.emplace_back("Rent", true, date(25, 6, 2022), 1, "months", -1070);
@@ -442,7 +476,7 @@ int main() {
     orders.emplace_back("Netflix", false, date(2, 2, 2022), 1, "months", -17.99);
     orders.emplace_back("JetBrains", false, date(12, 4, 2022), 1, "years", -206.22);
     orders.emplace_back("Youtube Premium", false, date(26, 1, 2022), 1, "months", -11.99);
-    orders.emplace_back("Vodafone", false, date(17, 1, 2022), 4, "weeks", -9.99);
+    //orders.emplace_back("Vodafone", false, date(17, 1, 2022), 4, "weeks", -9.99);
     orders.emplace_back("ImmoScout24", false, date(26, 1, 2022), 1, "months", -9.98);
     orders.emplace_back("Office365", false, date(3, 2, 2022), 1, "months", -7);
     orders.emplace_back("Amazon Prime", false, date(30, 11, 2021), 1, "years", -69);
@@ -455,11 +489,11 @@ int main() {
     orders.emplace_back("Kaution", true, date(18, 6, 2022), -1000);
     orders.emplace_back("Refill", true, date(10, 3, 2022), date(11, 5, 2022), 1, "months", 1480);
     orders.emplace_back("Refill", true, date(10, 6, 2022), 1, "months", 1180);
-    //orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
-    //orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
-    //orders.emplace_back("Vodafone", false, date(3, 8, 2022), -25);
-    //orders.emplace_back("Vodafone", false, date(26, 10, 2022), -25);
-    //orders.emplace_back("Vodafone", false, date(21, 12, 2022), -25);
+    orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
+    orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
+    orders.emplace_back("Vodafone", false, date(3, 8, 2022), -25);
+    orders.emplace_back("Vodafone", false, date(26, 10, 2022), -25);
+    orders.emplace_back("Vodafone", false, date(21, 12, 2022), -25);
 
     ofstream myfile;
     myfile.open("schedule.asm");
@@ -467,10 +501,12 @@ int main() {
     today = date(5, 2, 2022);
     account_balance = 1301.06;
 
-    while (today.get_year() <= 2022) {
+    date end(31, 12, 2022);
+    while (today <= end) {
         f1();
         f2();
         f3(myfile);
+        print();
         insert_stat(account_balance);
         today.after_days(1);
     }
