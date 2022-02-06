@@ -369,7 +369,7 @@ void f1() {
 
 void reschedule(std::vector<order>::iterator &it) {
     if (it->once) {
-        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
+        cout << right << setw(14) << "Stopped " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
         return;
     }
 
@@ -390,7 +390,7 @@ void reschedule(std::vector<order>::iterator &it) {
         dt.first_working_day();
 
     if (it->ends && it->final_date < dt) {
-        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
+        cout << right << setw(14) << "Stopped " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
         return;
     }
 
@@ -434,7 +434,8 @@ void f3(ostream &myfile) {
 int main() {
 
     //attenzione, non considera le feste nazionali per i bonifici
-
+    //fai parser from file
+    //fai 2 liste executed today, evaluated today e stampa prima executed, poi evaluated
     orders.emplace_back("Rent", true, date(25, 1, 2022), date(25, 4, 2022), 1, "months", -1060);
     orders.emplace_back("Rent", true, date(25, 6, 2022), 1, "months", -1070);
     orders.emplace_back("Rundfunkbeitrag", false, date(15, 11, 2021), 3, "months", -55.08);
