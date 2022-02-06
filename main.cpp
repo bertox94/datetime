@@ -356,8 +356,8 @@ void f1() {
                 dt.first_working_day();
             it->execution_date = dt;
 
-            cout << right << setw(14) << "Scheduled " << setw(20) << it->name << " on: " << setw(17)
-                 << it->execution_date << " for: " << setw(8) << it->amount << endl;
+            cout << right << setw(14) << "Scheduled " << setw(20) << it->name << "       on: " << setw(16) << today
+                 << "       for: " << setw(16) << it->execution_date << setw(13) << it->amount << endl;
 
             order current = *it;
             it = orders.erase(it);
@@ -369,7 +369,7 @@ void f1() {
 
 void reschedule(std::vector<order>::iterator &it) {
     if (it->once) {
-        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << endl;
+        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
         return;
     }
 
@@ -390,13 +390,13 @@ void reschedule(std::vector<order>::iterator &it) {
         dt.first_working_day();
 
     if (it->ends && it->final_date < dt) {
-        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << endl;
+        cout << right << setw(14) << "Cancelled " << setw(20) << it->name << "       on: " << setw(16) << today << endl;
         return;
     }
 
     it->execution_date = dt;
-    cout << right << setw(14) << "Rescheduled " << setw(20) << it->name << " on: " << setw(17) << it->execution_date
-         << " for: " << setw(8) << it->amount << endl;
+    cout << right << setw(14) << "Rescheduled " << setw(20) << it->name << "       on: " << setw(16) << today
+         << "       for: " << setw(16) << it->execution_date << setw(13) << it->amount << endl;
 
     order current = *it;
     orders.push_back(current);
@@ -424,6 +424,8 @@ void f3(ostream &myfile) {
             myfile << "=============================> ";
         }
         myfile << account_balance << endl;
+        cout << right << setw(14) << "Executed " << setw(20) << el.name << "       on: " << setw(16) << today
+             << setw(41) << el.amount << endl;
     }
     transactions_of_the_day.clear();
 }
@@ -431,7 +433,7 @@ void f3(ostream &myfile) {
 
 int main() {
 
-    //attenzione, non considera che il refill non considera le feste nazionali
+    //attenzione, non considera le feste nazionali per i bonifici
 
     orders.emplace_back("Rent", true, date(25, 1, 2022), date(25, 4, 2022), 1, "months", -1060);
     orders.emplace_back("Rent", true, date(25, 6, 2022), 1, "months", -1070);
@@ -464,7 +466,7 @@ int main() {
     today = date(5, 2, 2022);
     account_balance = 1301.06;
 
-    while (today.get_year() <= 2023) {
+    while (today.get_year() <= 2022) {
         f1();
         f2();
         f3(myfile);
