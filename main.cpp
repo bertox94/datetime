@@ -473,8 +473,8 @@ std::string trim(const std::string &str,
     return str.substr(strBegin, strRange);
 }
 
-void parse() {
-    ifstream file("file.txt");
+void parse(string filename) {
+    ifstream file(filename);
 
     vector<string> lines;
     string line;
@@ -537,13 +537,13 @@ void parse() {
 
 int main() {
 
-    parse();
+    parse("file2.txt");
 
     ofstream myfile;
     myfile.open("schedule.asm");
 
     today = date(5, 2, 2022);
-    account_balance = 1301.06;
+    account_balance = 0;
 
     date end(31, 12, 2022);
     while (today <= end) {
