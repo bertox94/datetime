@@ -461,12 +461,54 @@ void print() {
     transactions_to_print.clear();
 }
 
+std::string trim(const std::string &str,
+                 const std::string &whitespace = " \t") {
+    const auto strBegin = str.find_first_not_of(whitespace);
+    if (strBegin == std::string::npos)
+        return ""; // no content
+
+    const auto strEnd = str.find_last_not_of(whitespace);
+    const auto strRange = strEnd - strBegin + 1;
+
+    return str.substr(strBegin, strRange);
+}
+
 void parser() {
-    //valori separati da punto e virgola
+    ifstream file("file.txt");
+
+    vector<string> lines;
+    string line;
+
+    while (getline(file, line)) {
+        std::stringstream ss(line);
+        vector<string> row;
+        string data;
+        while (getline(ss, data, ';')) {
+            data = trim(data);
+            row.push_back(data);
+        }
+
+        if (row.size() == 4) {
+            vector<int> nums;
+            ss = stringstream(row[2]);
+            while (getline(ss, data, '.')) {
+                nums.push_back(stoi(data));
+            }
+            date dt = date(nums[0], nums[1], nums[2]);
+            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]));
+        }
+        row.clear();
+    }
+
+
+    file.close();
 }
 
 
 int main() {
+
+    parser();
+    return 1;
 
     //attenzione, non considera le feste nazionali per i bonifici
     //fai parser
