@@ -473,7 +473,7 @@ std::string trim(const std::string &str,
     return str.substr(strBegin, strRange);
 }
 
-void parser() {
+void parse() {
     ifstream file("file.txt");
 
     vector<string> lines;
@@ -497,6 +497,34 @@ void parser() {
             date dt = date(nums[0], nums[1], nums[2]);
             orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]));
         }
+
+        if (row.size() == 6) {
+            vector<int> nums;
+            ss = stringstream(row[2]);
+            while (getline(ss, data, '.')) {
+                nums.push_back(stoi(data));
+            }
+            date dt = date(nums[0], nums[1], nums[2]);
+            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]), row[4], stoi(row[5]));
+        }
+
+        if (row.size() == 7) {
+            vector<int> nums;
+            ss = stringstream(row[2]);
+            while (getline(ss, data, '.')) {
+                nums.push_back(stoi(data));
+            }
+            vector<int> nums2;
+            ss = stringstream(row[3]);
+            while (getline(ss, data, '.')) {
+                nums2.push_back(stoi(data));
+            }
+            date dt = date(nums[0], nums[1], nums[2]);
+            date dt2 = date(nums2[0], nums2[1], nums2[2]);
+            orders.emplace_back(row[0], row[1] == "true", dt, dt2, stoi(row[4]), row[5], stoi(row[6]));
+        }
+
+
         row.clear();
     }
 
@@ -507,35 +535,7 @@ void parser() {
 
 int main() {
 
-    parser();
-    return 1;
-
-    //attenzione, non considera le feste nazionali per i bonifici
-    //fai parser
-    orders.emplace_back("Rent", true, date(25, 1, 2022), date(25, 4, 2022), 1, "months", -1060);
-    orders.emplace_back("Rent", true, date(25, 6, 2022), 1, "months", -1070);
-    orders.emplace_back("Rundfunkbeitrag", false, date(15, 11, 2021), 3, "months", -55.08);
-    orders.emplace_back("Netflix", false, date(2, 2, 2022), 1, "months", -17.99);
-    orders.emplace_back("JetBrains", false, date(12, 4, 2022), 1, "years", -206.22);
-    orders.emplace_back("Youtube Premium", false, date(26, 1, 2022), 1, "months", -11.99);
-    //orders.emplace_back("Vodafone", false, date(17, 1, 2022), 4, "weeks", -9.99);
-    orders.emplace_back("ImmoScout24", false, date(26, 1, 2022), 1, "months", -9.98);
-    orders.emplace_back("Office365", false, date(3, 2, 2022), 1, "months", -7);
-    orders.emplace_back("Amazon Prime", false, date(30, 11, 2021), 1, "years", -69);
-    orders.emplace_back("Kaspersky Cloud", false, date(7, 12, 2021), 1, "years", -34.97);
-    orders.emplace_back("Kaspersky VPN", false, date(19, 12, 2021), 1, "years", -29.95);
-    orders.emplace_back("Night Eye", false, date(17, 12, 2021), 1, "years", -9.55);
-    orders.emplace_back("Cerberus", false, date(7, 8, 2021), 1, "years", -5);
-    orders.emplace_back("Mamma", true, date(18, 6, 2022), -400);
-    orders.emplace_back("Lina", true, date(18, 6, 2022), -500);
-    orders.emplace_back("Kaution", true, date(18, 6, 2022), -1000);
-    orders.emplace_back("Refill", true, date(10, 3, 2022), date(11, 5, 2022), 1, "months", 1480);
-    orders.emplace_back("Refill", true, date(10, 6, 2022), 1, "months", 1180);
-    orders.emplace_back("Vodafone", false, date(16, 3, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(8, 6, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(3, 8, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(26, 10, 2022), -25);
-    orders.emplace_back("Vodafone", false, date(21, 12, 2022), -25);
+    parse();
 
     ofstream myfile;
     myfile.open("schedule.asm");
