@@ -480,6 +480,8 @@ void parse() {
     string line;
 
     while (getline(file, line)) {
+        if (line[0] == '#')
+            continue;
         std::stringstream ss(line);
         vector<string> row;
         string data;
@@ -495,7 +497,7 @@ void parse() {
                 nums.push_back(stoi(data));
             }
             date dt = date(nums[0], nums[1], nums[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]));
+            orders.emplace_back(row[0], row[1] == "true", dt, stod(row[3]));
         }
 
         if (row.size() == 6) {
@@ -505,7 +507,7 @@ void parse() {
                 nums.push_back(stoi(data));
             }
             date dt = date(nums[0], nums[1], nums[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]), row[4], stoi(row[5]));
+            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]), row[4], stod(row[5]));
         }
 
         if (row.size() == 7) {
@@ -521,7 +523,7 @@ void parse() {
             }
             date dt = date(nums[0], nums[1], nums[2]);
             date dt2 = date(nums2[0], nums2[1], nums2[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, dt2, stoi(row[4]), row[5], stoi(row[6]));
+            orders.emplace_back(row[0], row[1] == "true", dt, dt2, stoi(row[4]), row[5], stod(row[6]));
         }
 
 
