@@ -537,15 +537,15 @@ void parse(string filename) {
 
 int main() {
 
-    parse("file2.txt");
+    parse("file3.txt");
 
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(5, 2, 2022);
-    account_balance = 0;
+    today = date(8, 2, 2022);
+    account_balance = 241.06;
 
-    date end(31, 12, 2022);
+    date end(31, 12, 2024);
     while (today <= end) {
         f1();
         f2();
