@@ -3,7 +3,7 @@ Netflix; false; 2.2.2022; 1; months; -17.99;
 JetBrains; false; 12.4.2022; 1; years; -206.22;
 Youtube Premium; false; 26.1.2022; 1; months; -11.99;
 #Vodafone; false; 17.1.2022; 4; weeks; -9.99;
-ImmoScout24; false; 26.1.2022; 1; months; -9.98;
+ImmoScout24; false; 26.1.2022; 26.12.2022; 1; months; -9.98;
 Office365; false; 3.2.2022; 1; months; -7;
 Amazon Prime; false; 30.11.2021; 1; years; -69;
 Kaspersky Cloud; false; 7.12.2021; 1; years; -34.97;
