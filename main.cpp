@@ -605,7 +605,7 @@ int main() {
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(1, 1, 2022);
+    today = date(20, 2, 2022);
     account_balance = 1245.98 + 55.08;
 
     date end(31, 12, 2024);
