@@ -11,21 +11,32 @@
 using namespace std;
 
 class date {
+private:
+    const char *weekdays[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    const char *months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    time_t d = -1;
 public:
     date() = default;
 
     date(int day, int month, int year) {
-        time_t rawtime;
+        time_t rawtime(NULL);
         struct tm *tm = localtime(&rawtime);
         tm->tm_year = year - 1900;
         tm->tm_mon = month - 1;
         tm->tm_mday = day;
         d = mktime(tm);
+        update();
     }
 
     date(const date &dt) {
         this->d = dt.d;
+        update();
     }
+
+    int day = -1;
+    string month = "undefined";
+    int year = -1;
+    string week_day = "undefined";
 
     //v =t is same as v func(t), func as =
     //the trivial operator = copies all the instance fields
@@ -81,7 +92,15 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-    time_t d = -1;
+    void update() {
+        if (d == -1)
+            return;
+        struct tm *tm = localtime(&d);
+        year = tm->tm_year + 1900;
+        month = months[tm->tm_mon];
+        day = tm->tm_mday;
+        week_day = weekdays[tm->tm_wday];
+    }
 
     bool is_null() const {
         return d == -1;
@@ -110,40 +129,38 @@ public:
     string self() const {
         if (d == -1)
             return "date undefined";
-        const char *weekday[] = {"Sun", "Mon",
-                                 "Tue", "Wed",
-                                 "Thu", "Fri", "Sat"};
-        const char *months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
         struct tm *tm = localtime(&d);
         string str;
-        str += weekday[tm->tm_wday];
+        str += week_day;
         str += ", ";
-        str += std::to_string(tm->tm_mday);
+        str += std::to_string(day);
         str += ".";
-        str += months[tm->tm_mon];
+        str += month;
         str += ".";
-        str += std::to_string(tm->tm_year + 1900);
+        str += std::to_string(year);
         return str;
     }
-
 
     void after_days(int n) {
         struct tm *tm = localtime(&d);
         tm->tm_mday += n;
         d = mktime(tm);
+        update();
     }
 
     void after_months(int n) {
         struct tm *tm = localtime(&d);
         tm->tm_mon += n;
         d = mktime(tm);
+        update();
     }
 
     void after_years(int n) {
         struct tm *tm = localtime(&d);
         tm->tm_year += n;
         d = mktime(tm);
+        update();
     }
 
     //no preconditions
@@ -270,11 +287,11 @@ public:
 
 double account_balance;
 date today;
-vector<order> orders;
-std::list<transaction> transactions_of_the_day;
-std::vector<double> stat;
-vector<string> orders_to_print;
-std::list<string> transactions_to_print;
+list<order> orders;
+list<transaction> transactions_of_the_day;
+list<double> stats;
+list<string> orders_to_print;
+list<string> transactions_to_print;
 
 
 //TODO: do checks functions to check all possibilites of wrong definition of input
@@ -295,16 +312,16 @@ void insert_in_order(string &name, double amount) {
 }
 
 void insert_stat(double bal) {
-    stat.push_back(bal);
-    if (stat.size() > 365)
-        stat.erase(stat.begin());
+    stats.push_back(bal);
+    if (stats.size() > 365)
+        stats.erase(stats.begin());
 }
 
 double find_m() {
     double v1 = 0, v2 = 0, v3 = 0, v4 = 0, v5 = 0;
     int i = 0;
 
-    for (auto el:stat) {
+    for (auto el:stats) {
         v1 += (i * el);
         v2 += i;
         v3 += el;
@@ -313,9 +330,9 @@ double find_m() {
         i++;
     }
 
-    v1 *= stat.size();
+    v1 *= stats.size();
     v2 *= v3;
-    v4 *= stat.size();
+    v4 *= stats.size();
     v5 = pow(v5, 2);
 
     return (v1 - v2) / (v4 - v5);
@@ -325,14 +342,14 @@ double find_m() {
 double find_q() {
     double v1 = 0, v2 = 0;
     int i = 0;
-    for (auto el:stat) {
+    for (auto el:stats) {
         v1 += el;
         v2 += i;
         i++;
     }
     v2 *= find_m();
 
-    return ((double) 1 / stat.size()) * (v1 - v2);
+    return ((double) 1 / stats.size()) * (v1 - v2);
 
 }
 
@@ -368,14 +385,14 @@ void f1() {
             orders_to_print.push_back(stream.str());
 
             order current = *it;
-            it = orders.erase(it);
             orders.push_back(current);
+            it = orders.erase(it);
         } else
             ++it;
     }
 }
 
-void reschedule(std::vector<order>::iterator &it) {
+void reschedule(std::list<order>::iterator &it) {
     if (it->once) {
         std::stringstream stream;
         stream << right << setw(14) << "Stopped " << setw(20) << it->name << endl;
@@ -537,12 +554,14 @@ void parse(string filename) {
 
 int main() {
 
-    parse("file3.txt");
+    //Income; true; 31.01.2022; 1; months; 2440
+
+    parse("file4.txt");
 
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(8, 2, 2022);
+    today = date(8, 1, 2022);
     account_balance = 241.06;
 
     date end(31, 12, 2024);
