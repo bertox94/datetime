@@ -151,8 +151,16 @@ public:
 
     void after_months(int n) {
         struct tm *tm = localtime(&d);
+        int c_mon = tm->tm_mon;
         tm->tm_mon += n;
         d = mktime(tm);
+
+        while (get_month() != (c_mon + n) % 12) {
+            struct tm *tm = localtime(&d);
+            tm->tm_mday -= 1;
+            d = mktime(tm);
+        }
+
         update();
     }
 
@@ -290,6 +298,7 @@ date today;
 list<order> orders;
 list<transaction> transactions_of_the_day;
 list<double> stats;
+list<string> orders_to_print_s;
 list<string> orders_to_print;
 list<string> transactions_to_print;
 
@@ -361,20 +370,35 @@ void f1() {
         if (it->execution_date.is_null()) {
             //TODO:check if it ends or if it is the past, or the end date is in the past...
 
+            int i = 1;
             date dt = it->initial_date;
+            date dt2 = dt;
             if (it->f2 == "days")
-                while (dt < today)
-                    dt.after_days(it->f1);
+                while (dt2 < today) {
+                    dt2 = dt;
+                    dt2.after_days(it->f1 * i);
+                    i++;
+                }
             if (it->f2 == "weeks")
-                while (dt < today)
-                    dt.after_days(it->f1 * 7);
+                while (dt2 < today) {
+                    dt2 = dt;
+                    dt2.after_days(it->f1 * 7 * i);
+                    i++;
+                }
             if (it->f2 == "months")
-                while (dt < today)
-                    dt.after_months(it->f1);
+                while (dt2 < today) {
+                    dt2 = dt;
+                    dt2.after_months(it->f1 * i);
+                    i++;
+                }
             if (it->f2 == "years")
-                while (dt < today)
-                    dt.after_years(it->f1);
+                while (dt2 < today) {
+                    dt2 = dt;
+                    dt2.after_years(it->f1 * i);
+                    i++;
+                }
 
+            dt = dt2;
             if (it->is_wire_transfer)
                 dt.first_working_day();
             it->execution_date = dt;
@@ -382,7 +406,7 @@ void f1() {
             std::stringstream stream;
             stream << right << setw(14) << "Scheduled " << setw(20) << it->name << "       for: " << setw(16)
                    << it->execution_date << setw(13) << it->amount << endl;
-            orders_to_print.push_back(stream.str());
+            orders_to_print_s.push_back(stream.str());
 
             order current = *it;
             orders.push_back(current);
@@ -400,19 +424,35 @@ void reschedule(std::list<order>::iterator &it) {
         return;
     }
 
+    int i = 1;
     date dt = it->initial_date;
+    date dt2 = dt;
     if (it->f2 == "days")
-        while (dt <= today)
-            dt.after_days(it->f1);
+        while (dt2 <= today) {
+            dt2 = dt;
+            dt2.after_days(it->f1 * i);
+            i++;
+        }
     if (it->f2 == "weeks")
-        while (dt <= today)
-            dt.after_days(it->f1 * 7);
+        while (dt2 <= today) {
+            dt2 = dt;
+            dt2.after_days(it->f1 * 7 * i);
+            i++;
+        }
     if (it->f2 == "months")
-        while (dt <= today)
-            dt.after_months(it->f1);
+        while (dt2 <= today) {
+            dt2 = dt;
+            dt2.after_months(it->f1 * i);
+            i++;
+        }
     if (it->f2 == "years")
-        while (dt <= today)
-            dt.after_years(it->f1);
+        while (dt2 <= today) {
+            dt2 = dt;
+            dt2.after_years(it->f1 * i);
+            i++;
+        }
+
+    dt = dt2;
     if (it->is_wire_transfer)
         dt.first_working_day();
 
@@ -467,13 +507,17 @@ void print() {
     if (!orders_to_print.empty() || !transactions_to_print.empty())
         cout << "On " << today << endl;
 
+    for (auto &el: orders_to_print_s)
+        cout << el;
     for (auto &el: transactions_to_print)
         cout << el;
     for (auto &el: orders_to_print)
         cout << el;
 
-    if (!orders_to_print.empty() || !transactions_to_print.empty())
+    if (!orders_to_print.empty() || !transactions_to_print.empty() || !orders_to_print_s.empty())
         cout << "--------------------------------------------------" << endl;
+
+    orders_to_print_s.clear();
     orders_to_print.clear();
     transactions_to_print.clear();
 }
@@ -561,8 +605,8 @@ int main() {
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(8, 1, 2022);
-    account_balance = 241.06;
+    today = date(1, 1, 2022);
+    account_balance = 1245.98 + 55.08;
 
     date end(31, 12, 2024);
     while (today <= end) {
