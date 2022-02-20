@@ -44,25 +44,14 @@ public:
         return date(ymt);
     }
 
-    [[nodiscard]] date add(unsigned int days, unsigned int months, unsigned int years) const {
+    [[nodiscard]] date add(unsigned int days, unsigned int months, int years) const {
+        year_month_day ymt = ::year(year) / ::month(month) / ::day(day);
 
+        ymt = sys_days{ymt.year() / ymt.month() / ::day(ymt.day().operator unsigned int() + days)};
+        ymt = sys_days{ymt.year() / ::month(ymt.month().operator unsigned int() + months) / ymt.day()};
+        ymt = sys_days{::year(ymt.year().operator int() + years) / ymt.month() / ymt.day()};
 
-        date dt = *this;
-
-
-        if (last_of_month) {
-            dt = sys_days{dt.get_year() / dt.get_month() / (dt.get_day().operator unsigned int() + days)};
-        } else {
-            dt = sys_days{dt.get_year() / dt.month() / ::day(dt.day().operator unsigned int() + days)};
-
-        }
-
-
-        dt = sys_days{year / ::month(month.operator unsigned int() + months) / day};
-        dt = sys_days{year / dt.month() / day};
-
-
-        return date(dt.day(), dt.month(), dt.year());
+        return date(ymt);
     }
 
 
@@ -294,15 +283,10 @@ void parse(string filename) {
     file.close();
 }
 
-std::chrono::day
-get_max_day(std::chrono::month m, std::chrono::year y) {
-    return (y / m / std::chrono::last).day();
-}
-
-
 int main() {
 
-    //allow also for single orders for the last of month?
+    //allow also for single orders for the last of month? Yes
+    //ordini mensili giorno max 28 oppure ultimo del mese
 
     parse("file4.txt");
 
@@ -313,14 +297,13 @@ int main() {
     account_balance = 150 + 1060;
 
     date end(day(31), month(12), year(2022));
-    auto el = today.add(20, 0, 0);
     while (today <= end) {
         f1();
         f2();
         f3(myfile);
         print();
         insert_stat(account_balance);
-        auto el = today.add(1, 0, 0);
+        today = today.add(1, 0, 0);
     }
 
     cout << endl << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
