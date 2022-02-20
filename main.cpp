@@ -7,6 +7,7 @@
 #include <list>
 #include <cmath>
 #include <sstream>
+#include <chrono>
 
 using namespace std;
 
@@ -648,6 +649,11 @@ void parse(string filename) {
     file.close();
 }
 
+std::chrono::day
+get_max_day(std::chrono::month m, std::chrono::year y) {
+    return (y / m / std::chrono::last).day();
+}
+
 
 int main() {
 
@@ -660,7 +666,7 @@ int main() {
     myfile.open("schedule.asm");
 
     today = date(15, 2, 2022);
-    account_balance = 150+1060;
+    account_balance = 150 + 1060;
 
     date end(31, 12, 2022);
     while (today <= end) {
