@@ -1,15 +1,23 @@
 #include <iostream>
 #include <ctime>
-#include <utility>
-#include <vector>
-#include <fstream>
-#include <iomanip>
-#include <list>
-#include <cmath>
-#include <sstream>
-#include <chrono>
 
 using namespace std;
+
+class cl {
+public:
+
+    unsigned int sec = NULL;
+    unsigned int min = NULL;
+    unsigned int hrs = NULL;
+    unsigned int day = NULL;
+    unsigned int month = NULL;
+    int year = NULL;
+
+};
+
+std::ostream &operator<<(std::ostream &os, cl const &d) {
+    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec << endl;
+}
 
 bool is_leap_year(int year) {
 
@@ -24,22 +32,6 @@ bool is_leap_year(int year) {
     else
         return false;
 
-}
-
-class cl {
-public:
-
-    unsigned long long sec = NULL;
-    unsigned long long min = NULL;
-    unsigned long long hrs = NULL;
-    unsigned long long day = NULL;
-    unsigned long long month = NULL;
-    long long year = NULL;
-
-};
-
-std::ostream &operator<<(std::ostream &os, cl const &d) {
-    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec << endl;
 }
 
 
@@ -65,7 +57,7 @@ long elapsed_since_epoch_inverse(int days, int hrs, int min, int sec) {
     return days * 86400 + hrs * 3600 + min * 60 + sec;
 }
 
-cl timestamp_to_date(long long timestamp) {
+cl timestamp_to_date2(long long timestamp) {
 
     //1a ottimizzazione. Le ore minuti e secondi aggiunti alla fine, for solo suli giorni
     //2a ottimizzazione. Skippa di (1 anno a[]) ad ogni for e poi aggiusta
@@ -121,6 +113,29 @@ cl timestamp_to_date(long long timestamp) {
 
 }
 
+long num_anni_bis(int a1, int a2) {
+    int r1 = a2 / 4 - a1 / 4;
+    int r2 = a2 / 100 - a1 / 100;
+    int r3 = a2 / 400 - a1 / 400;
+
+    return r1 - r2 + r3;
+}
+
+cl timestamp_to_date(long long timestamp) {
+
+    unsigned long long days = elapsed_since_epoch(timestamp).day;
+    unsigned long long days_est1 = 0;
+    unsigned long long days_est2 = 0;
+    int anno_fin_est = 1970 + timestamp / (365 * 24 * 60 * 60);
+
+    int num_bis = num_anni_bis(1970, anno_fin_est);
+    days_est1 = (anno_fin_est - 1970) * 365;
+    days_est2 = (anno_fin_est - 1970) * 365 + num_bis;
+
+
+    return cl();
+}
+
 
 int main() {
 
@@ -128,10 +143,13 @@ int main() {
     unsigned int month = 1;
     unsigned int day = 1;
 
+    int r = num_anni_bis(1970, 2442);
+
+
     cl c;
     for (int i = 1; i < 1000; i++)
         c = timestamp_to_date(253375165696);
-    cout << c;
+    cout << timestamp_to_date2(253375165696);
 
 
     return 0;
