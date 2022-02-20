@@ -18,14 +18,19 @@ private:
 public:
     date() = default;
 
-    date(int day, int month, int year) {
+    date(int d_day, int m_month, int y_year) {
         time_t rawtime(NULL);
         struct tm *tm = localtime(&rawtime);
-        tm->tm_year = year - 1900;
-        tm->tm_mon = month - 1;
-        tm->tm_mday = day;
+        tm->tm_year = y_year - 1900;
+        tm->tm_mon = m_month - 1;
+        tm->tm_mday = d_day;
         d = mktime(tm);
         update();
+
+        if (get_month() != m_month)
+            throw runtime_error(
+                    "Check input d_day and m_month: " + to_string(d_day) + "." + to_string(m_month) + "." +
+                    to_string(y_year));
     }
 
     date(const date &dt) {
@@ -95,11 +100,10 @@ public:
     void update() {
         if (d == -1)
             return;
-        struct tm *tm = localtime(&d);
-        year = tm->tm_year + 1900;
-        month = months[tm->tm_mon];
-        day = tm->tm_mday;
-        week_day = weekdays[tm->tm_wday];
+        year = get_year();
+        month = months[get_month() - 1];
+        day = get_day();
+        week_day = weekdays[get_wday()];
     }
 
     bool is_null() const {
@@ -113,7 +117,7 @@ public:
 
     int get_month() const {
         struct tm *tm = localtime(&d);
-        return tm->tm_mon;
+        return tm->tm_mon + 1;
     }
 
     int get_year() const {
@@ -155,7 +159,7 @@ public:
         tm->tm_mon += n;
         d = mktime(tm);
 
-        while (get_month() != (c_mon + n) % 12) {
+        while (get_month() != 1 + (c_mon + n) % 12) {
             struct tm *tm = localtime(&d);
             tm->tm_mday -= 1;
             d = mktime(tm);
@@ -232,6 +236,31 @@ public:
         else if (get_wday() == 0)
             after_days(1);
     }
+
+    bool is_last_day_of(string what) const {
+        date dt = *this;
+        date dt2 = *this;
+        if (what == "month") {
+            int now = dt2.get_month();
+            while (dt2.get_month() == now) {
+                dt2.after_days(1);
+            }
+            dt2.after_days(-1);
+        } else
+            throw runtime_error("Time period is misspelled");
+        return dt2 == dt;
+    }
+
+    void last_day_of(string what) {
+        if (what == "month") {
+            int now = get_month();
+            while (get_month() == now) {
+                after_days(1);
+            }
+            after_days(-1);
+        } else
+            throw runtime_error("Time period is misspelled");
+    }
 };
 
 std::ostream &operator<<(std::ostream &os, date const &d) {
@@ -247,28 +276,28 @@ public:
             name(std::move(name)), is_wire_transfer(is_wire_transfer),
             once(true),
             initial_date(initialDate),
-            amount(amount) {
-    }
+            last_day(false),
+            amount(amount) {}
 
     //repeating order with final date
     order(string name, bool is_wire_transfer,
-          const date &initialDate, const date &finalDate,
+          const date &initialDate, bool last_day, const date &finalDate,
           int f1, string f2,
           double amount)
             : name(std::move(name)), is_wire_transfer(is_wire_transfer),
               once(false),
-              initial_date(initialDate), ends(true), final_date(finalDate),
+              initial_date(initialDate), last_day(last_day), ends(true), final_date(finalDate),
               f1(f1), f2(std::move(f2)),
               amount(amount) {}
 
     //repeating order with no final date
     order(string name, bool is_wire_transfer,
-          const date &initialDate,
+          const date &initialDate, bool last_day,
           int f1, string f2,
           double amount)
             : name(std::move(name)), is_wire_transfer(is_wire_transfer),
               once(false),
-              initial_date(initialDate), ends(false),
+              initial_date(initialDate), last_day(last_day), ends(false),
               f1(f1), f2(std::move(f2)),
               amount(amount) {}
 
@@ -277,6 +306,7 @@ public:
     bool ends;
     bool once;
     date initial_date;
+    bool last_day;
     date final_date;
     date execution_date;
     int f1;
@@ -385,12 +415,22 @@ void f1() {
                     dt2.after_days(it->f1 * 7 * i);
                     i++;
                 }
-            if (it->f2 == "months")
-                while (dt2 < today) {
-                    dt2 = dt;
-                    dt2.after_months(it->f1 * i);
-                    i++;
+            if (it->f2 == "months") {
+                if (it->last_day) {
+                    while (dt2 < today) {
+                        dt2 = dt;
+                        dt2.after_months(it->f1 * i);
+                        dt2.last_day_of("month");
+                        i++;
+                    }
+                } else {
+                    while (dt2 < today) {
+                        dt2 = dt;
+                        dt2.after_months(it->f1 * i);
+                        i++;
+                    }
                 }
+            }
             if (it->f2 == "years")
                 while (dt2 < today) {
                     dt2 = dt;
@@ -439,12 +479,22 @@ void reschedule(std::list<order>::iterator &it) {
             dt2.after_days(it->f1 * 7 * i);
             i++;
         }
-    if (it->f2 == "months")
-        while (dt2 <= today) {
-            dt2 = dt;
-            dt2.after_months(it->f1 * i);
-            i++;
+    if (it->f2 == "months") {
+        if (it->last_day) {
+            while (dt2 <= today) {
+                dt2 = dt;
+                dt2.after_months(it->f1 * i);
+                dt2.last_day_of("month");
+                i++;
+            }
+        } else {
+            while (dt2 <= today) {
+                dt2 = dt;
+                dt2.after_months(it->f1 * i);
+                i++;
+            }
         }
+    }
     if (it->f2 == "years")
         while (dt2 <= today) {
             dt2 = dt;
@@ -453,8 +503,6 @@ void reschedule(std::list<order>::iterator &it) {
         }
 
     dt = dt2;
-    if (it->is_wire_transfer)
-        dt.first_working_day();
 
     if (it->ends && it->final_date < dt) {
         std::stringstream stream;
@@ -462,6 +510,10 @@ void reschedule(std::list<order>::iterator &it) {
         orders_to_print.push_back(stream.str());
         return;
     }
+
+    if (it->is_wire_transfer)
+        dt.first_working_day();
+
 
     it->execution_date = dt;
     std::stringstream stream;
@@ -561,30 +613,31 @@ void parse(string filename) {
             orders.emplace_back(row[0], row[1] == "true", dt, stod(row[3]));
         }
 
-        if (row.size() == 6) {
-            vector<int> nums;
-            ss = stringstream(row[2]);
-            while (getline(ss, data, '.')) {
-                nums.push_back(stoi(data));
-            }
-            date dt = date(nums[0], nums[1], nums[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]), row[4], stod(row[5]));
-        }
-
         if (row.size() == 7) {
             vector<int> nums;
             ss = stringstream(row[2]);
             while (getline(ss, data, '.')) {
                 nums.push_back(stoi(data));
             }
+            date dt = date(nums[0], nums[1], nums[2]);
+            orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", stoi(row[4]), row[5], stod(row[6]));
+        }
+
+        if (row.size() == 8) {
+            vector<int> nums;
+            ss = stringstream(row[2]);
+            while (getline(ss, data, '.')) {
+                nums.push_back(stoi(data));
+            }
             vector<int> nums2;
-            ss = stringstream(row[3]);
+            ss = stringstream(row[4]);
             while (getline(ss, data, '.')) {
                 nums2.push_back(stoi(data));
             }
             date dt = date(nums[0], nums[1], nums[2]);
             date dt2 = date(nums2[0], nums2[1], nums2[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, dt2, stoi(row[4]), row[5], stod(row[6]));
+            orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", dt2, stoi(row[5]), row[6],
+                                stod(row[7]));
         }
 
 
@@ -598,17 +651,18 @@ void parse(string filename) {
 
 int main() {
 
-    //Income; true; 31.01.2022; 1; months; 2440
+    //allow for example dates like x.12.2022 when the day is not important (i.e. transfer on the last of the month),
+    //but for last of the week? Better not to use it with the weeks
 
     parse("file4.txt");
 
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = date(20, 2, 2022);
-    account_balance = 1245.98 + 55.08;
+    today = date(15, 2, 2022);
+    account_balance = 150+1060;
 
-    date end(31, 12, 2024);
+    date end(31, 12, 2022);
     while (today <= end) {
         f1();
         f2();
