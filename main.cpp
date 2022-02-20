@@ -15,43 +15,56 @@ using namespace chrono;
 
 class date {
 public:
-    year year;
-    month month;
-    day day;
-    bool last_of_month;
+    unsigned int day;
+    unsigned int month;
+    int year;
 
+    date() : day(0), month(0), year(0) {}
 
-    date(::month m_month, ::year y_year) : last_of_month(true), day(0), month(m_month), year(y_year) {}
+    explicit date(year_month_day ymd) : day(ymd.day()), month(ymd.month()), year(ymd.year()) {}
 
-    date(::day d_day, ::month m_month, ::year y_year) : last_of_month(false), day(d_day), month(m_month),
-                                                        year(y_year) {}
+    date(::month m_month, ::year y_year) : day(0), month(m_month), year(y_year) {}
 
-    bool operator==(shared_ptr<date> &d2) const { return false; }
+    date(::day d_day, ::month m_month, ::year y_year) : day(d_day), month(m_month), year(y_year) {}
 
-    bool operator!=(shared_ptr<date> &d2) const { return false; }
+    bool operator==(date &d2) const { return false; }
 
-    bool operator<(shared_ptr<date> &d2) const { return false; }
+    bool operator!=(date &d2) const { return false; }
 
-    bool operator>(shared_ptr<date> &d2) const { return false; }
+    bool operator<(date &d2) const { return false; }
 
-    bool operator<=(shared_ptr<date> &d2) const { return false; }
+    bool operator>(date &d2) const { return false; }
 
-    bool operator>=(shared_ptr<date> &d2) const { return false; }
+    bool operator<=(date &d2) const { return false; }
 
-    [[nodiscard]] ::day get_day() const {
-        if (last_of_month)
-            return (year / month / std::chrono::last).day();
-        else
-            return day;
+    bool operator>=(date &d2) const { return false; }
+
+    date last_day_date() {
+        auto ymt = ::year(year) / ::month(month) / last;
+        return date(ymt);
     }
 
-    [[nodiscard]] ::month get_month() const {
-        return month;
+    [[nodiscard]] date add(unsigned int days, unsigned int months, unsigned int years) const {
+
+
+        date dt = *this;
+
+
+        if (last_of_month) {
+            dt = sys_days{dt.get_year() / dt.get_month() / (dt.get_day().operator unsigned int() + days)};
+        } else {
+            dt = sys_days{dt.get_year() / dt.month() / ::day(dt.day().operator unsigned int() + days)};
+
+        }
+
+
+        dt = sys_days{year / ::month(month.operator unsigned int() + months) / day};
+        dt = sys_days{year / dt.month() / day};
+
+
+        return date(dt.day(), dt.month(), dt.year());
     }
 
-    [[nodiscard]] ::year get_year() const {
-        return year;
-    }
 
 };
 
@@ -66,50 +79,43 @@ public:
     bool is_wire_transfer;
     bool ends;
     bool once;
-    shared_ptr<my> initial_date;
-    bool last_day;
-    shared_ptr<my> final_date;
-    shared_ptr<my> execution_date;
+    date initial_date;
+    date final_date;
+    date execution_date;
     int f1;
     string f2;
     double amount;
 
     //single order
-    order(string name, bool is_wire_transfer,
-          const shared_ptr<my> &_initial_date,
-          double amount) :
-            name(std::move(name)), is_wire_transfer(is_wire_transfer),
+    order(string name, bool is_wire_transfer, const date &_initial_date, double amount) :
+            name(std::move(name)),
+            is_wire_transfer(is_wire_transfer),
+            initial_date(_initial_date),
             once(true),
-            last_day(false),
-            amount(amount) {
-        if (initial_date->what() == "date")
-            initial_date = make_shared<date>(_initial_date->get_day(), _initial_date->get_month(),
-                                             _initial_date->get_year());
-        else
-            initial_date = make_shared<end_of_month>(_initial_date->get_day(), _initial_date->get_month(),
-                                                     _initial_date->get_year());
-    }
+            amount(amount) {}
 
     //repeating order with final my
-    order(string name, bool is_wire_transfer,
-          const my &initialDate, bool last_day, const my &finalDate,
-          int f1, string f2,
+    order(string name, bool is_wire_transfer, const date &initialDate, const date &finalDate, int f1, string f2,
           double amount)
-            : name(std::move(name)), is_wire_transfer(is_wire_transfer),
+            : name(std::move(name)),
+              is_wire_transfer(is_wire_transfer),
               once(false),
-              initial_date(initialDate), last_day(last_day), ends(true), final_date(finalDate),
-              f1(f1), f2(std::move(f2)),
+              initial_date(initialDate),
+              ends(true),
+              final_date(finalDate),
+              f1(f1),
+              f2(std::move(f2)),
               amount(amount) {}
 
     //repeating order with no final date
-    order(string name, bool is_wire_transfer,
-          const my &initialDate, bool last_day,
-          int f1, string f2,
-          double amount)
-            : name(std::move(name)), is_wire_transfer(is_wire_transfer),
+    order(string name, bool is_wire_transfer, const date &initialDate, int f1, string f2, double amount)
+            : name(std::move(name)),
+              is_wire_transfer(is_wire_transfer),
               once(false),
-              initial_date(initialDate), last_day(last_day), ends(false),
-              f1(f1), f2(std::move(f2)),
+              initial_date(initialDate),
+              ends(false),
+              f1(f1),
+              f2(std::move(f2)),
               amount(amount) {}
 };
 
@@ -123,7 +129,7 @@ public:
 };
 
 double account_balance;
-shared_ptr<my> today;
+date today;
 list<order> orders;
 list<transaction> transactions_of_the_day;
 list<double> stats;
@@ -236,7 +242,12 @@ void parse(string filename) {
             while (getline(ss, data, '.')) {
                 nums.push_back(stoi(data));
             }
-            date dt = date(nums[0], nums[1], nums[2]);
+            date dt;
+            if (nums.size() == 2)
+                dt = date(month(nums[0]), year(nums[1]));
+            else
+                dt = date(day(nums[0]), month(nums[1]), year(nums[2]));
+
             orders.emplace_back(row[0], row[1] == "true", dt, stod(row[3]));
         } else if (row.size() == 6) {
             vector<int> nums;
@@ -244,8 +255,12 @@ void parse(string filename) {
             while (getline(ss, data, '.')) {
                 nums.push_back(stoi(data));
             }
-            date dt = date(nums[0], nums[1], nums[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", stoi(row[4]), row[5], stod(row[6]));
+            date dt;
+            if (nums.size() == 2)
+                dt = date(month(nums[0]), year(nums[1]));
+            else
+                dt = date(day(nums[0]), month(nums[1]), year(nums[2]));
+            orders.emplace_back(row[0], row[1] == "true", dt, stoi(row[3]), row[4], stod(row[5]));
         } else if (row.size() == 7) {
             vector<int> nums;
             ss = stringstream(row[2]);
@@ -253,14 +268,21 @@ void parse(string filename) {
                 nums.push_back(stoi(data));
             }
             vector<int> nums2;
-            ss = stringstream(row[4]);
+            ss = stringstream(row[3]);
             while (getline(ss, data, '.')) {
                 nums2.push_back(stoi(data));
             }
-            date dt = date(nums[0], nums[1], nums[2]);
-            date dt2 = date(nums2[0], nums2[1], nums2[2]);
-            orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", dt2, stoi(row[5]), row[6],
-                                stod(row[7]));
+            date dt;
+            date dt2;
+            if (nums.size() == 2) {
+                dt = date(month(nums[0]), year(nums[1]));
+                dt2 = date(month(nums2[0]), year(nums2[1]));
+            } else {
+                dt = date(day(nums[0]), month(nums[1]), year(nums[2]));
+                dt2 = date(day(nums2[0]), month(nums2[1]), year(nums2[2]));
+            }
+            orders.emplace_back(row[0], row[1] == "true", dt, dt2, stoi(row[4]), row[5],
+                                stod(row[6]));
         } else
             throw runtime_error("");
 
@@ -287,17 +309,18 @@ int main() {
     ofstream myfile;
     myfile.open("schedule.asm");
 
-    today = make_shared<date>(15, 2, 2022);
+    today = date(day(15), month(2), year(2022));
     account_balance = 150 + 1060;
 
-    shared_ptr<my> end = make_shared<date>(31, 12, 2022);
+    date end(day(31), month(12), year(2022));
+    auto el = today.add(20, 0, 0);
     while (today <= end) {
         f1();
         f2();
         f3(myfile);
         print();
         insert_stat(account_balance);
-        //today.after_days(1);
+        auto el = today.add(1, 0, 0);
     }
 
     cout << endl << "Done: " << "m: " << find_m() << ", q: " << find_q() << endl;
