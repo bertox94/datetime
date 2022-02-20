@@ -71,7 +71,6 @@ cl timestamp_to_date(long long timestamp) {
     //2a ottimizzazione. Skippa di (1 anno a[]) ad ogni for e poi aggiusta
     //3a ottimizzazione. Calcola approssimativamente (double) il numero di anni e poi aggiusta
     int a[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int b[] = {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
     auto el = elapsed_since_epoch(timestamp);
 
@@ -84,40 +83,12 @@ cl timestamp_to_date(long long timestamp) {
     int sec = el.sec;
 
     for (; day <= days; day++) {
-        if (is_leap_year(year)) {
-            if (day > b[month - 1]) {
-                day = 1;
-                days -= b[month - 1];
-                month++;
-                if (month == 13) {
-                    month = 1;
-                    year++;
-                }
-            }
-        } else {
-            if (day > a[month - 1]) {
-                day = 1;
-                days -= a[month - 1];
-                month++;
-                if (month == 13) {
-                    month = 1;
-                    year++;
-                }
-            }
-        }
-    }
-    if (is_leap_year(year)) {
-        if (day > b[month - 1]) {
+        int days_of_month = a[month - 1];
+        if (is_leap_year(year) && month == 2)
+            days_of_month++;
+        if (day > days_of_month) {
             day = 1;
-            month++;
-            if (month == 13) {
-                month = 1;
-                year++;
-            }
-        }
-    } else {
-        if (day > a[month - 1]) {
-            day = 1;
+            days -= days_of_month;
             month++;
             if (month == 13) {
                 month = 1;
@@ -125,6 +96,18 @@ cl timestamp_to_date(long long timestamp) {
             }
         }
     }
+    int days_of_month = a[month - 1];
+    if (is_leap_year(year) && month == 2)
+        days_of_month++;
+    if (day > days_of_month) {
+        day = 1;
+        month++;
+        if (month == 13) {
+            month = 1;
+            year++;
+        }
+    }
+
 
     cl c;
     c.year = year;
@@ -145,8 +128,11 @@ int main() {
     unsigned int month = 1;
     unsigned int day = 1;
 
-    //elapsed_since_epoch(31536001);
-    cout << timestamp_to_date(253375165696);
+    cl c;
+    for (int i = 1; i < 1000; i++)
+        c = timestamp_to_date(253375165696);
+    cout << c;
+
 
     return 0;
 }
