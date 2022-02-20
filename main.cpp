@@ -612,9 +612,7 @@ void parse(string filename) {
             }
             date dt = date(nums[0], nums[1], nums[2]);
             orders.emplace_back(row[0], row[1] == "true", dt, stod(row[3]));
-        }
-
-        if (row.size() == 7) {
+        } else if (row.size() == 7) {
             vector<int> nums;
             ss = stringstream(row[2]);
             while (getline(ss, data, '.')) {
@@ -622,9 +620,7 @@ void parse(string filename) {
             }
             date dt = date(nums[0], nums[1], nums[2]);
             orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", stoi(row[4]), row[5], stod(row[6]));
-        }
-
-        if (row.size() == 8) {
+        } else if (row.size() == 8) {
             vector<int> nums;
             ss = stringstream(row[2]);
             while (getline(ss, data, '.')) {
@@ -639,7 +635,8 @@ void parse(string filename) {
             date dt2 = date(nums2[0], nums2[1], nums2[2]);
             orders.emplace_back(row[0], row[1] == "true", dt, row[3] == "true", dt2, stoi(row[5]), row[6],
                                 stod(row[7]));
-        }
+        } else
+            throw runtime_error("");
 
 
         row.clear();
@@ -657,8 +654,7 @@ get_max_day(std::chrono::month m, std::chrono::year y) {
 
 int main() {
 
-    //allow for example dates like x.12.2022 when the day is not important (i.e. transfer on the last of the month),
-    //but for last of the week? Better not to use it with the weeks
+    //allow also for single orders for the last of month?
 
     parse("file4.txt");
 

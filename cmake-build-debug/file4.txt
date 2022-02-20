@@ -4,7 +4,7 @@ Income (bonus); true; 30.11.2022; 2590;
 Rent; true; 25.2.2022; false; 15.5.2022; 1; months; -1060;
 Rent; true; 25.6.2022; false; 1; months; -1090;
 Deutsche Bank fee; true; 28.2.2022; true; 1; months; -6.99;
-Food & Friends; true; 28.2.2022; false; -500;
+Food & Friends; true; 1.3.2022; -500;
 Food & Friends; true; 5.4.2022; false; 1; months; -700;
 Automated Payments; true; 5.3.2022; false; 1; months; -110;
 Nexi; true; 5.3.2022; -150;
