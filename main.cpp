@@ -126,11 +126,16 @@ cl timestamp_to_date(long long timestamp) {
     unsigned long long days = elapsed_since_epoch(timestamp).day;
     unsigned long long days_est1 = 0;
     unsigned long long days_est2 = 0;
-    int anno_fin_est = 1970 + timestamp / (365 * 24 * 60 * 60);
+    int anno_fin_est = 1970 + timestamp / (((double) 146097 / 400) * 24 * 60 * 60);
 
     int num_bis = num_anni_bis(1970, anno_fin_est);
-    days_est1 = (anno_fin_est - 1970) * 365;
-    days_est2 = (anno_fin_est - 1970) * 365 + num_bis;
+    days_est1 = (anno_fin_est - 1970) * 365 + num_bis; //questo e' sempre 1 jan. o 31 dic. di quell'anno (?)
+
+    //if estimated days magg, min
+    //supp estimated is magg
+
+
+
 
 
     return cl();
