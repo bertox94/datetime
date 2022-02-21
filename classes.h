@@ -7,6 +7,32 @@
 
 using namespace std;
 
+class period {
+public:
+
+    long long sec{};
+    long long min{};
+    long long hrs{};
+    long long days{};
+    long long months{};
+    long long years{};
+
+    period() = default;
+
+    explicit period(long long timestamp) {
+        days = timestamp / (86400);
+        hrs = (timestamp - days * 86400) / 3600;
+        min = (timestamp - days * 86400 - hrs * 3600) / 60;
+        sec = timestamp - days * 86400 - hrs * 3600 - min * 60;
+    }
+
+    long long to_seconds() {
+        return days * 86400 + hrs * 3600 + min * 60 + sec;
+    }
+
+
+};
+
 class datetime {
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -74,6 +100,23 @@ public:
             day--;
         }
     }
+
+    long long to_timestamp() {
+        long long res = (year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
+                                               ((year - 1) / 400 - 1970 / 400));
+        for (int i = 1; i < month; i++) {
+            res += days_of_months[i - 1];
+        }
+        if (month > 2 && is_leap())
+            res += 1;
+        return (res + day - 1) * 86400 + hrs * 3600 + min * 60 + sec;
+    }
+
+    bool is_leap() {
+        return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
+    }
+
+
 };
 
 

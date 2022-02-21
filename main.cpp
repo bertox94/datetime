@@ -23,6 +23,13 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
+    for (long long i = 68256000; i < 1000000000; i++) {
+        if (datetime(i).to_timestamp() != i) {
+            cout << "Error: " << i << endl;
+            return 0;
+        }
+    }
+
     cout << datetime(253375202774) << endl;
 
     cout << "Faster!" << endl;
