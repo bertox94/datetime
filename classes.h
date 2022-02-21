@@ -101,6 +101,24 @@ public:
         }
     }
 
+    datetime operator+(period &p) {
+        datetime dt = *this;
+        dt.year += p.years;
+
+        dt.month += p.months;
+        dt.year += dt.month / 12;
+        dt.month = (dt.month % 12 == 0 ? 12 : dt.month - (dt.month / 12) * 12);
+
+
+        dt.day += p.days;
+
+        long long estimated_year = year = 1970 + dt.day / (((double) 146097 / 400));
+        long long r1 = (year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
+                                               ((year - 1) / 400 - 1970 / 400));
+
+
+    }
+
     long long to_timestamp() {
         long long res = (year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
                                                ((year - 1) / 400 - 1970 / 400));
