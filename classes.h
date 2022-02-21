@@ -57,64 +57,59 @@ public:
         day = 0;
         timestamp -= hrs * 3600 + min * 60 + sec;
 
-        int i = 0;
         while (r1 > timestamp) {
             ddays = 365;
-            if ((i + year % 400 == 0) || (i + year % 4 == 0 && i + year % 100 != 0))
+            if (((year - 1) % 400 == 0) || ((year - 1) % 4 == 0 && (year - 1) % 100 != 0))
                 ddays += 1;
             r1 -= ddays * 86400;
-            i++;
             year--;
         }
         //calcola il numero di anni bisestili, e aggiunge un numero di giorni pari al numeri di anni bisestili
         r1 = ((year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
                                      ((year - 1) / 400 - 1970 / 400))) * 86400;
 
-        i = 0;
+
         bool fg = false;
         while (r1 <= timestamp) {
             ddays = 365;
-            if ((i + year % 400 == 0) || (i + year % 4 == 0 && i + year % 100 != 0))
+            if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
                 ddays += 1;
             r1 += ddays * 86400;
-            i++;
+            year++;
             fg = true;
         }
         if (fg) {
-            i--;
-            year += i;
+            year--;
             ddays = 365;
-            if ((i + year % 400 == 0) || (i + year % 4 == 0 && i + year % 100 != 0))
+            if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
                 ddays += 1;
             r1 -= ddays * 86400;
         }
 
         bool leap = (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
 
-        i = 1;
+        month = 1;
         fg = false;
         while (r1 <= timestamp) {
-            r1 += (leap && i == 2 ? 1 + a[i - 1] : a[i - 1]) * 86400;
-            i++;
+            r1 += (leap && month == 2 ? 1 + a[month - 1] : a[month - 1]) * 86400;
+            month++;
             fg = true;
         }
         if (fg) {
-            i--;
-            r1 -= (leap && i == 2 ? 1 + a[i - 1] : a[i - 1]) * 86400;
+            month--;
+            r1 -= (leap && month == 2 ? 1 + a[month - 1] : a[month - 1]) * 86400;
         }
-        month = i;
 
-        i = 1;
+        day = 1;
         fg = false;
         while (r1 <= timestamp) {
             r1 += 86400;
-            i++;
+            day++;
             fg = true;
         }
         if (fg) {
-            i--;
+            day--;
         }
-        day = i;
     }
 
     bool operator==(date &&dt) const {
