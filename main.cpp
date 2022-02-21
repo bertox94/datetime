@@ -6,8 +6,6 @@
 using namespace std;
 using namespace chrono;
 
-//duration cannot be in years, months, because it is not always true that (with start1!=start2) start_1 + duration == start2 + duration.
-//therefore duration is only in days, hrs, min, sec.
 class date {
 public:
 // since those can expresss also a duration, it make sense to use long long (e.g. when huge number of days)
@@ -29,7 +27,7 @@ public:
     }
 
 };
-
+//It is not always true that (with start1!=start2) start_1 + duration == start2 + duration, but given two dates we may need the number of months, years, between them
 //can be negative and not necessarily in canonic form (sec<=60), for example if I want to know how many seconds from an event.
 class duration {
     long long sec = NULL;
