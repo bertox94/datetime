@@ -1,7 +1,10 @@
 #include <iostream>
 #include <ctime>
+#include <chrono>
+#include <iomanip>
 
 using namespace std;
+using namespace chrono;
 
 class cl {
 public:
@@ -12,6 +15,14 @@ public:
     unsigned int day = NULL;
     unsigned int month = NULL;
     int year = NULL;
+
+    bool operator==(cl &other) const {
+        return sec == other.sec &&
+               min == other.min &&
+               hrs == other.hrs &&
+               day == other.day &&
+               month == other.month;
+    }
 
 };
 
@@ -34,6 +45,13 @@ bool is_leap_year(int year) {
 
 }
 
+long num_anni_bis(int a1, int a2) {
+    int r1 = a2 / 4 - a1 / 4;
+    int r2 = a2 / 100 - a1 / 100;
+    int r3 = a2 / 400 - a1 / 400;
+
+    return r1 - r2 + r3;
+}
 
 cl elapsed_since_epoch(long long timestamp) {
 
@@ -55,6 +73,11 @@ cl elapsed_since_epoch(long long timestamp) {
 
 long elapsed_since_epoch_inverse(int days, int hrs, int min, int sec) {
     return days * 86400 + hrs * 3600 + min * 60 + sec;
+}
+
+long year_to_timestamp(int year) {
+    long var = (year - 1970) * 365 + num_anni_bis(1970, year - 1);
+    return var * 86400;
 }
 
 cl timestamp_to_date2(long long timestamp) {
@@ -113,32 +136,111 @@ cl timestamp_to_date2(long long timestamp) {
 
 }
 
-long num_anni_bis(int a1, int a2) {
-    int r1 = a2 / 4 - a1 / 4;
-    int r2 = a2 / 100 - a1 / 100;
-    int r3 = a2 / 400 - a1 / 400;
+cl extract_time(long long timestamp) {
+    cl c;
+    auto cc = elapsed_since_epoch(timestamp);
+    c.hrs = cc.hrs;
+    c.min = cc.min;
+    c.sec = cc.sec;
+    return c;
+}
 
-    return r1 - r2 + r3;
+long long strip_time(long long timestamp) {
+    cl c = elapsed_since_epoch(timestamp);
+    c.year = 0;
+    c.month = 0;
+    c.day = 0;
+    return timestamp - elapsed_since_epoch_inverse(0, c.hrs, c.min, c.sec);
 }
 
 cl timestamp_to_date(long long timestamp) {
 
-    unsigned long long days = elapsed_since_epoch(timestamp).day;
-    unsigned long long days_est1 = 0;
-    unsigned long long days_est2 = 0;
+    int a[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int anno_fin_est = 1970 + timestamp / (((double) 146097 / 400) * 24 * 60 * 60);
-
-    int num_bis = num_anni_bis(1970, anno_fin_est);
-    days_est1 = (anno_fin_est - 1970) * 365 + num_bis; //questo e' sempre 1 jan. o 31 dic. di quell'anno (?)
-
-    //if estimated days magg, min
-    //supp estimated is magg
+    long long r1 = year_to_timestamp(anno_fin_est);
+    cl res = extract_time(timestamp);
+    timestamp = strip_time(timestamp);
 
 
+    int i = 0;
+    while (elapsed_since_epoch(r1).day > elapsed_since_epoch(timestamp).day) {
+        r1 -= (is_leap_year(i + anno_fin_est) ? 366 : 365) * 86400;
+        i++;
+        anno_fin_est--;
+    }
+    res.year = anno_fin_est;
+    r1 = year_to_timestamp(anno_fin_est);
+
+    //jump years, months, days, aggiungi data ora
+
+    long long r2 = r1;
+    i = 0;
+    bool fg = false;
+    while (r2 <= timestamp) {
+        int tmp = (is_leap_year(i + anno_fin_est) ? 366 : 365);
+        r2 += tmp * 86400;
+        i++;
+        fg = true;
+    }
+    if (fg) {
+        i--;
+        res.year += i;
+        int tmp = (is_leap_year(i + anno_fin_est) ? 366 : 365);
+        r2 -= tmp * 86400;
+    }
 
 
+    i = 1;
+    fg = false;
+    while (r2 <= timestamp) {
+        int tmp = (is_leap_year(anno_fin_est) && i == 2 ? 1 + a[i - 1] : a[i - 1]);
+        r2 += tmp * 86400;
+        i++;
+        fg = true;
+    }
+    if (fg) {
+        i--;
+        int tmp = (is_leap_year(anno_fin_est) && i == 2 ? 1 + a[i - 1] : a[i - 1]);
+        r2 -= tmp * 86400;
+    }
+    res.month = i;
 
-    return cl();
+    i = 1;
+    fg = false;
+    while (r2 <= timestamp) {
+        r2 += 86400;
+        i++;
+        fg = true;
+    }
+    if (fg) {
+        i--;
+        r2 -= 86400;
+    }
+    res.day = i;
+
+    return res;
+}
+
+void f1(long long size) {
+    auto t1 = high_resolution_clock::now();
+    for (long long i = 0; i <= size; i++) {
+        cl c1 = timestamp_to_date(i);
+    }
+    auto t2 = high_resolution_clock::now();
+
+    duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
+}
+
+void f2(long long size) {
+    auto t1 = high_resolution_clock::now();
+    for (long long i = 0; i <= size; i++) {
+        cl c1 = timestamp_to_date2(i);
+    }
+    auto t2 = high_resolution_clock::now();
+
+    duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
 }
 
 
@@ -151,11 +253,19 @@ int main() {
     int r = num_anni_bis(1970, 2442);
 
 
-    cl c;
-    for (int i = 1; i < 1000; i++)
-        c = timestamp_to_date(253375165696);
-    cout << timestamp_to_date2(253375165696);
+    //cl c;
+    //for (int i = 1; i < 1000; i++)
+    long long timestamp = 86400;
+    //cout << timestamp_to_date2(timestamp);
+    //cout << timestamp_to_date(timestamp);
 
+
+    long long size = 999999999;
+
+    f1(size);
+    //f2(size);
+
+    cout << "Faster!" << endl;
 
     return 0;
 }
