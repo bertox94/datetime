@@ -163,8 +163,7 @@ int main() {
         if (!(datetime(i) == timestamp_to_date(i))) {
             cout << "Error: " << i << endl;
             return 0;
-        } else
-            //cout << "succeded" << endl;
+        }
     }
 
     //cout << datetime(253375202774) << endl;
