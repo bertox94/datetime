@@ -5,10 +5,31 @@
 #ifndef UNTITLED9_CLASSES_H
 #define UNTITLED9_CLASSES_H
 
-
-#include "utils.h"
-
 using namespace std;
+
+
+class date {
+public:
+// since those can expresss also a duration, it make sense to use long long (e.g. when huge number of days)
+
+    unsigned int sec = NULL;
+    unsigned int min = NULL;
+    unsigned int hrs = NULL;
+    unsigned int day = NULL;
+    unsigned int month = NULL;
+    long long year = NULL;
+
+    bool operator==(date &other) const {
+        return sec == other.sec &&
+               min == other.min &&
+               hrs == other.hrs &&
+               day == other.day &&
+               month == other.month &&
+               year == other.year;
+    }
+
+};
+
 
 class datetime {
 public:
@@ -46,8 +67,8 @@ public:
             year--;
         }
         //calcola il numero di anni bisestili, e aggiunge un numero di giorni pari al numeri di anni bisestili
-        //r1 = ((year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
-        //                             ((year - 1) / 400 - 1970 / 400))) * 86400;
+        r1 = ((year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
+                                     ((year - 1) / 400 - 1970 / 400))) * 86400;
 
         i = 0;
         bool fg = false;
@@ -94,6 +115,15 @@ public:
             i--;
         }
         day = i;
+    }
+
+    bool operator==(date &&dt) const {
+        return sec == dt.sec &&
+               min == dt.min &&
+               hrs == dt.hrs &&
+               day == dt.day &&
+               month == dt.month &&
+               year == dt.year;
     }
 };
 
