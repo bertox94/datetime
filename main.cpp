@@ -1,6 +1,6 @@
 #include <iostream>
 #include <chrono>
-#include "mytime.h"
+#include "classes.h"
 
 using namespace std;
 using namespace chrono;
@@ -16,15 +16,25 @@ void test(long long size) {
     std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
 }
 
+datetime timestamp_to_date(int timestamp) {
 
-std::ostream &operator<<(std::ostream &os, mytime const &d) {
-    return os << d.days << "." << d.months << "." << d.years << ", " << d.hrs << ":" << d.min << ":" << d.sec
+}
+
+
+std::ostream &operator<<(std::ostream &os, datetime const &d) {
+    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec
               << std::endl;
 }
 
 int main() {
 
-    cout << mytime(253375202774) << endl;
+    for (int i = 0; i < 10000; i++) {
+        if (!(datetime(i) == timestamp_to_date(i))) {
+            cout << "error" << endl;
+        }
+    }
+
+    cout << datetime(253375202774) << endl;
 
     cout << "Faster!" << endl;
 
