@@ -1,21 +1,22 @@
 #include <iostream>
+#include <chrono>
 #include "classes.h"
 
 using namespace std;
 
 void test(long long size) {
-    //auto t1 = chrono::high_resolution_clock::now();
+    auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
         datetime dt(i);
-        if (dt.seconds_from_epoch() != i) {
-            cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.seconds_from_epoch() << endl;
-            return;
-        }
+        //if (dt.to_timestamp() != i) {
+        //    cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.to_timestamp() << endl;
+        //    return;
+        //}
     }
-    //auto t2 = chrono::high_resolution_clock::now();
+    auto t2 = chrono::high_resolution_clock::now();
 
-    //chrono::duration<double, std::milli> ms_double = t2 - t1;
-    //std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
+    chrono::duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
@@ -31,8 +32,7 @@ int main() {
     long start_year = 1970;
     long seconds = 63072000;
 
-    cout << datetime(0, 0, 0, 1, 1, 1970).seconds_to(datetime(1, 2, 3, 3, 11, 1607)) << endl;
-    //test(16744099741);
+    test(167000);
     cout << "\nFaster!" << endl;
 
     return 0;

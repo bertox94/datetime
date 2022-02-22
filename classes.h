@@ -91,14 +91,6 @@ public:
         return *this;
     }
 
-    long long strip_time() {
-        period pd = *this;
-        pd.sec = 0;
-        pd.min = 0;
-        pd.hrs = 0;
-        return pd.to_seconds();
-    }
-
     [[nodiscard]] long long to_seconds() const {
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
@@ -107,28 +99,63 @@ public:
 };
 
 class datetime {
-private:
-    datetime afterI(datetime start, long long seconds) {
+    datetime after(datetime start, long long seconds) {
 
-        datetime dt;
-        dt.day = start.day;
-        dt.month = start.month;
-        dt.year = start.year;
+        datetime dt = start;
+        long long estimation = seconds / (((double) 146097 / 400) * 86400);
+        dt.year += estimation;
 
-        while (seconds > 0) {
-            ++dt;
-            seconds--;
+        long long target = start.to_timestamp() + seconds;
+
+        //while curr>target go back 1 year
+        while (dt.to_timestamp() > target)
+            dt = dt.go_back_one_year();
+
+
+        //come close with years
+        if (dt.to_timestamp() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_year();
+            dt = dt.go_back_one_year();
         }
 
+        //come close with months
+        if (dt.to_timestamp() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_month();
+            dt = dt.go_back_one_month();
+        }
+
+        //come close with days
+        if (dt.to_timestamp() + period(1, 0, 0).to_seconds() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_day();
+            dt = dt.go_back_one_day();
+        }
+
+        //come close with hrs
+        if (dt.to_timestamp() + period(0, 0, 1, 0, 0, 0).to_seconds() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_hrs();
+            dt = dt.go_back_one_hrs();
+        }
+
+        //come close with min
+        if (dt.to_timestamp() + period(0, 1, 0, 0, 0, 0).to_seconds() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_min();
+            dt = dt.go_back_one_min();
+        }
+
+        //reach with sec
+        if (dt.to_timestamp() + period(1, 0, 0, 0, 0, 0).to_seconds() <= target) {
+            while (dt.to_timestamp() <= target)
+                dt = dt.go_on_one_sec();
+            dt = dt.go_back_one_sec();
+        }
+
+
         return dt;
-    }
-
-    datetime afterII(datetime start, long long seconds) {
-
-        long long estimated_final_year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-
-
-        return datetime();
     }
 /*
     datetime before2(datetime start, long long seconds) {
@@ -185,7 +212,7 @@ private:
             r1 += (dt.is_leap() && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) *
                   86400;
         }
-        r1 = dt.seconds_from_epoch();
+        r1 = dt.to_timestamp();
 
         if (r1 >= seconds) {
             while (r1 >= seconds) {
@@ -293,8 +320,12 @@ public:
                                                                                                             month(month),
                                                                                                             year(year) {}
 
+/**
+ * Constructor based on
+ * @param timestamp: seconds from epoch time.
+ */
     explicit datetime(long long timestamp) {
-        datetime dt = afterI(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
         *this = dt;
     }
 
@@ -308,12 +339,7 @@ public:
     }
 
     bool operator==(datetime &&dt) const {
-        return sec == dt.sec &&
-               min == dt.min &&
-               hrs == dt.hrs &&
-               day == dt.day &&
-               month == dt.month &&
-               year == dt.year;
+        return *this == dt;
     }
 
     bool operator!=(datetime &dt) const {
@@ -321,7 +347,7 @@ public:
     }
 
     bool operator!=(datetime &&dt) const {
-        return !(*this == dt);
+        return *this != dt;
     }
 
     bool operator<(datetime &dt) const {
@@ -367,40 +393,8 @@ public:
     }
 
 
-    long long days_between_beginning_of_years(datetime end, datetime start) {
-
-        if (start.year == end.year)
-            return 0;
-
-        long long var = 0;
-
-        if (start.is_leap())
-            var++;
-        var += (end.year - start.year) * 365 +
-               (((end.year - 1) / 4 - (start.year) / 4) -
-                ((end.year - 1) / 100 - (start.year) / 100) +
-                ((end.year - 1) / 400 - (start.year) / 400));
-
-        return var;
-    }
-
-
-    long long days_between_end_of_years(datetime end, datetime start) {
-
-        if (start.year == end.year)
-            return 0;
-
-        long long var = 0;
-
-        if (end.is_leap())
-            var++;
-
-        var += (end.year - start.year) * 365 +
-               (((end.year - 1) / 4 - (start.year) / 4) -
-                ((end.year - 1) / 100 - (start.year) / 100) +
-                ((end.year - 1) / 400 - (start.year) / 400));
-
-        return var;
+    long long seconds_from(datetime d2) const {
+        return d2.seconds_to(*this);
     }
 
     long long seconds_to(datetime d2) const {
@@ -426,8 +420,8 @@ public:
 
             dd += (dt2.year - dt1.year) * 365 +
                   (((dt2.year - 1) / 4 - (dt1.year) / 4) -
-                    ((dt2.year - 1) / 100 - (dt1.year) / 100) +
-                    ((dt2.year - 1) / 400 - (dt1.year) / 400));
+                   ((dt2.year - 1) / 100 - (dt1.year) / 100) +
+                   ((dt2.year - 1) / 400 - (dt1.year) / 400));
 
             for (long long i = 1; i < dt1.month; i++)
                 dd -= dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
@@ -445,59 +439,120 @@ public:
         return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
     }
 
-    long long seconds_to_end_of_year(datetime start, datetime end) {
-        return days_between_end_of_years(end, start) * 86400;
-    }
-
     int days_of_this_month() const {
         return (is_leap() && month == 2 ? 1 : 0) + days_of_months[month - 1];
     }
 
-    datetime operator++() {
-        sec++;
-        if (sec == 60) {
-            min++;
-            if (min == 60) {
-                hrs++;
-                if (hrs == 24) {
-                    day++;
-                    if (day > days_of_this_month()) {
-                        month++;
-                        if (month == 13) {
-                            year++;
-                        }
-                        month = 1;
-                    }
-                    day = 1;
-                }
-                hrs = 0;
-            }
-            sec = 0;
-        }
-        return *this;
+    datetime go_on_one_year() {
+        datetime dt = *this;
+        dt.year++;
+        return dt;
     }
 
-    datetime operator--() {
-        sec++;
-        if (sec == 60) {
-            min++;
-            if (min == 60) {
-                hrs++;
-                if (hrs == 24) {
-                    day++;
-                    if (day > days_of_this_month()) {
-                        month++;
-                        if (month == 13) {
-                            year++;
-                        }
-                        month = 1;
-                    }
-                    day = 1;
-                }
-                hrs = 0;
-            }
-            sec = 0;
+    datetime go_on_one_month() {
+        datetime dt = *this;
+        dt.month++;
+        if (dt.month == 13) {
+            dt = go_on_one_year();
+            dt.month = 1;
         }
+        return dt;
+    }
+
+    datetime go_back_one_year() {
+        datetime dt = *this;
+        dt.year--;
+        return dt;
+    }
+
+    datetime go_back_one_month() {
+        datetime dt = *this;
+        dt.month--;
+        if (dt.month == 0) {
+            dt = go_back_one_year();
+            dt.month = 12;
+        }
+        return dt;
+    }
+
+    datetime go_on_one_day() {
+        datetime dt = *this;
+        dt.day++;
+        if (dt.day > days_of_this_month()) {
+            dt = go_on_one_month();
+            dt.day = 1;
+        }
+        return dt;
+    }
+
+    datetime go_back_one_day() {
+        datetime dt = *this;
+        dt.day--;
+        if (dt.day == 0) {
+            dt = go_back_one_month();
+            dt.day = days_of_this_month();
+        }
+        return dt;
+    }
+
+    datetime go_on_one_hrs() {
+        datetime dt = *this;
+        dt.hrs++;
+        if (dt.hrs == 24) {
+            dt = go_on_one_day();
+            dt.hrs = 0;
+        }
+        return dt;
+    }
+
+    datetime go_back_one_hrs() {
+        datetime dt = *this;
+        dt.hrs--;
+        if (dt.hrs == -1) {
+            dt = go_back_one_day();
+            dt.hrs = 23;
+        }
+        return dt;
+    }
+
+    datetime go_on_one_min() {
+        datetime dt = *this;
+        dt.min++;
+        if (dt.min == 60) {
+            dt = go_on_one_day();
+            dt.min = 0;
+        }
+        return dt;
+    }
+
+    datetime go_back_one_min() {
+        datetime dt = *this;
+        dt.min--;
+        if (dt.min == -1) {
+            dt = go_back_one_day();
+            dt.min = 59;
+        }
+        return dt;
+    }
+
+    datetime go_on_one_sec() {
+        datetime dt = *this;
+        dt.sec++;
+        if (dt.sec == 60) {
+            dt = go_on_one_day();
+            dt.sec = 0;
+        }
+        return dt;
+    }
+
+    datetime go_back_one_sec() {
+        datetime dt = *this;
+        dt.sec--;
+        if (dt.sec == -1) {
+            dt = go_back_one_day();
+            dt.sec = 59;
+        }
+        return dt;
     }
 
 /*
@@ -559,14 +614,8 @@ public:
         return operator-=(p);
     }
 */
-    long long seconds_from_epoch() {
-        long long res = days_between_beginning_of_years(*this, datetime(1, 1, 1970));
-        for (int i = 1; i < month; i++) {
-            res += days_of_months[i - 1];
-        }
-        if (month > 2 && is_leap())
-            res += 1;
-        return (res + day - 1) * 86400 + hrs * 3600 + min * 60 + sec;
+    long long to_timestamp() const {
+        return seconds_from(datetime(1, 1, 1970));
     }
 
     bool is_leap() const {
