@@ -5,9 +5,9 @@ using namespace std;
 
 void test(long long size) {
     //auto t1 = chrono::high_resolution_clock::now();
-    for (long long i = 26438400; i < size; i++) {//63072000
+    for (long long i = 0; i < size; i++) {//63072000
         datetime dt(i);
-        if (dt.seconds_from_epoch() != -i) {
+        if (dt.seconds_from_epoch() != i) {
             cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.seconds_from_epoch() << endl;
             return;
         }
@@ -24,11 +24,15 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 }
 
 
-
 int main() {
 
     //cout << datetime() << endl;30000000000
-    test(16744099741);
+
+    long start_year = 1970;
+    long seconds = 63072000;
+
+    cout << datetime(1, 1, 1970).seconds_to(datetime(2, 1, 1970)) << endl;
+    //test(16744099741);
     cout << "\nFaster!" << endl;
 
     return 0;

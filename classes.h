@@ -108,127 +108,36 @@ public:
 
 class datetime {
 private:
-    datetime after(datetime start, long long seconds) {
+    datetime afterI(datetime start, long long seconds) {
 
         datetime dt;
         dt.day = start.day;
         dt.month = start.month;
-        dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = seconds_between_beginning_of_years(dt, start);
-        long long orig = seconds;
+        dt.year = start.year;
 
-        seconds = period(seconds).strip_time();
-        long long ddays;
-        while (r1 > seconds) {
-            ddays = 365;
-            if (((dt.year - 1) % 400 == 0) || ((dt.year - 1) % 4 == 0 && (dt.year - 1) % 100 != 0))
-                ddays += 1;
-            r1 -= ddays * 86400;
-            dt.year--;
-        }
-
-        if (r1 <= seconds) {
-            while (r1 <= seconds) {
-                ddays = 365;
-                if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
-                    ddays += 1;
-                r1 += ddays * 86400;
-                dt.year++;
-            }
-            dt.year--;
-            ddays = 365;
-            if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
-                ddays += 1;
-            r1 -= ddays * 86400;
-        }
-
-        bool leap = (dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0);
-
-        if (r1 <= seconds) {
-            while (r1 <= seconds) {
-                r1 += (leap && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) * 86400;
-                dt.month++;
-            }
-            dt.month--;
-            r1 -= (leap && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) * 86400;
-        }
-
-        if (r1 <= seconds) {
-            while (r1 <= seconds) {
-                r1 += 86400;
-                dt.day++;
-            }
-            dt.day--;
-        }
-
-
-        int hhrs = start.hrs + (orig - orig / (86400) * 86400) / 3600;
-        dt.hrs = hhrs;
-        if (dt.hrs >= 24) {
-            dt.day++;
-            if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
-                dt.month++;
-                if (dt.month > 12) {
-                    dt.year++;
-                    dt.month -= 12;
-                }
-                dt.day = 1;
-            }
-            dt.hrs -= 24;
-        }
-
-        int mmin = start.min + (orig - orig / (86400) * 86400 - hhrs * 3600) / 60;
-        dt.min = mmin;
-        if (dt.min >= 60) {
-            dt.hrs++;
-            if (dt.hrs >= 24) {
-                dt.day++;
-                if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
-                    dt.month++;
-                    if (dt.month > 12) {
-                        dt.year++;
-                        dt.month -= 12;
-                    }
-                    dt.day = 1;
-                }
-                dt.hrs -= 24;
-            }
-            dt.min -= 60;
-        }
-
-        int ssec = start.sec + orig - orig / (86400) * 86400 - hhrs * 3600 - mmin * 60;
-        dt.sec = ssec;
-        if (dt.sec >= 60) {
-            dt.min++;
-            if (dt.min >= 60) {
-                dt.hrs++;
-                if (dt.hrs >= 24) {
-                    dt.day++;
-                    if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
-                        dt.month++;
-                        if (dt.month > 12) {
-                            dt.year++;
-                            dt.month -= 12;
-                        }
-                        dt.day = 1;
-                    }
-                    dt.hrs -= 24;
-                }
-                dt.min -= 60;
-            }
-            dt.sec -= 60;
+        while (seconds > 0) {
+            ++dt;
+            seconds--;
         }
 
         return dt;
     }
 
+    datetime afterII(datetime start, long long seconds) {
+
+        long long estimated_final_year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
+
+
+        return datetime();
+    }
+/*
     datetime before2(datetime start, long long seconds) {
         //assume start is always 1.1.1970
         datetime dt;
         dt.day = start.day;
         dt.month = start.month;
         dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = seconds_between_beginning_of_years(dt, start);
+        long long r1 = seconds_to(dt, start);
         long long orig = seconds;
 
         seconds = period(seconds).strip_time();
@@ -361,7 +270,7 @@ private:
 
         return dt;
     }
-
+*/
 
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -385,8 +294,7 @@ public:
                                                                                                             year(year) {}
 
     explicit datetime(long long timestamp) {
-        //datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
-        datetime dt = before2(datetime(0, 0, 0, 1, 1, 1970), -timestamp);
+        datetime dt = afterI(datetime(0, 0, 0, 1, 1, 1970), timestamp);
         *this = dt;
     }
 
@@ -458,7 +366,7 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-    [[deprecated]]
+
     long long days_between_beginning_of_years(datetime end, datetime start) {
 
         if (start.year == end.year)
@@ -476,7 +384,7 @@ public:
         return var;
     }
 
-    [[deprecated]]
+
     long long days_between_end_of_years(datetime end, datetime start) {
 
         if (start.year == end.year)
@@ -495,61 +403,119 @@ public:
         return var;
     }
 
-    long long days_between_beginning_of_years(datetime start) {
+    long long seconds_to(datetime dt) const {
 
-        //not true anymore
-        if (start.year == year)
-            return 0;
 
-        long long var = 0;
+        if (year == dt.year) {
+            if (month == dt.month) {
+                if (day == dt.day) {
+                    if (hrs == dt.hrs) {
+                        if (min == dt.min) {
+                            return dt.sec - sec;
+                        } else {
+                            long long ssec = dt.sec - sec;
+                            long long mmin = dt.min - min;
+                            return ssec + mmin * 60;
+                        }
+                    } else {
 
-        if (start.is_leap())
-            var++;
-        var += (year - start.year) * 365 +
-               (((year - 1) / 4 - (start.year) / 4) -
-                ((year - 1) / 100 - (start.year) / 100) +
-                ((year - 1) / 400 - (start.year) / 400));
+                    }
+                } else {
 
-        for (int i = 1; i < month; i++) {
-            var += days_of_months[i - 1];
+                }
+            } else {
+
+            }
+        } else {
+
         }
-        if (month > 2 && is_leap())
-            var += 1;
-        return (var + day - 1) * 86400 + hrs * 3600 + min * 60 + sec;
 
-        return var;
+
+        long long time = 86400 - sec - min * 60 - hrs * 3600;
+
+        long long days = days_of_this_month() - day;
+
+        for (long long i = month + 1; i <= 12; i++) {
+            days += days_of_months[i - 1];
+        }
+        if (is_leap() && month > 2)
+            days++;
+
+        if (year != dt.year) {
+            if (is_leap())
+                days++;
+
+            days += (dt.year - year) * 365 +
+                    (((dt.year - 1) / 4 - (year) / 4) -
+                     ((dt.year - 1) / 100 - (year) / 100) +
+                     ((dt.year - 1) / 400 - (year) / 400));
+        }
+        return time + days * 86400;
+
     }
 
-    long long days_between_end_of_years(datetime start) {
-
-        if (start.year == year)
-            return 0;
-
-        long long var = 0;
-
-        if (is_leap())
-            var++;
-
-        var += (year - start.year) * 365 +
-               (((year - 1) / 4 - (start.year) / 4) -
-                ((year - 1) / 100 - (start.year) / 100) +
-                ((year - 1) / 400 - (start.year) / 400));
-
-        return var;
-    }
-
-    long long seconds_between_beginning_of_years(datetime end, datetime start) {
-        return days_between_beginning_of_years(end, start) * 86400;
-    }
-
-    long long seconds_between_end_of_years(datetime end, datetime start) {
+    long long seconds_to_end_of_year(datetime start, datetime end) {
         return days_between_end_of_years(end, start) * 86400;
     }
+
+    int days_of_this_month() const {
+        return (is_leap() && month == 2 ? 1 : 0) + days_of_months[month - 1];
+    }
+
+    datetime operator++() {
+        sec++;
+        if (sec == 60) {
+            min++;
+            if (min == 60) {
+                hrs++;
+                if (hrs == 24) {
+                    day++;
+                    if (day > days_of_this_month()) {
+                        month++;
+                        if (month == 13) {
+                            year++;
+                        }
+                        month = 1;
+                    }
+                    day = 1;
+                }
+                hrs = 0;
+            }
+            sec = 0;
+        }
+        return *this;
+    }
+
+    datetime operator--() {
+        sec++;
+        if (sec == 60) {
+            min++;
+            if (min == 60) {
+                hrs++;
+                if (hrs == 24) {
+                    day++;
+                    if (day > days_of_this_month()) {
+                        month++;
+                        if (month == 13) {
+                            year++;
+                        }
+                        month = 1;
+                    }
+                    day = 1;
+                }
+                hrs = 0;
+            }
+            sec = 0;
+        }
+    }
+
+/*
+
 
     datetime operator+(period &p) {
         if (p.to_seconds() < 0)
             return before2(*this, p.to_seconds());
-        return after(*this, p.to_seconds());
+        return afterI(*this, p.to_seconds());
     }
 
     datetime operator+(period &&p) {
@@ -561,7 +527,7 @@ public:
         if (p.to_seconds() < 0)
             dt = before2(*this, p.to_seconds());
         else
-            dt = after(*this, p.to_seconds());
+            dt = afterI(*this, p.to_seconds());
         *this = dt;
         return *this;
     }
@@ -572,7 +538,7 @@ public:
 
     datetime operator-(period &p) {
         if (p.to_seconds() < 0)
-            return after(*this, -p.to_seconds());
+            return afterI(*this, -p.to_seconds());
         return before2(*this, -p.to_seconds());
     }
 
@@ -591,7 +557,7 @@ public:
     datetime operator-=(period &p) {
         datetime dt;
         if (p.to_seconds() < 0)
-            dt = after(*this, -p.to_seconds());
+            dt = afterI(*this, -p.to_seconds());
         else
             dt = before2(*this, -p.to_seconds());
         *this = dt;
@@ -601,7 +567,7 @@ public:
     datetime operator-=(period &&p) {
         return operator-=(p);
     }
-
+*/
     long long seconds_from_epoch() {
         long long res = days_between_beginning_of_years(*this, datetime(1, 1, 1970));
         for (int i = 1; i < month; i++) {
