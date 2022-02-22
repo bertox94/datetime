@@ -152,11 +152,11 @@ class datetime {
                 }
             }
             dt.month--;
-            curr -= dt.days_of_this_month() * 86400;
             if (dt.month == 0) {
                 dt.year--;
                 dt.month = 12;
             }
+            curr -= dt.days_of_this_month() * 86400;
         }
 
         //come close with days

@@ -7,6 +7,7 @@ using namespace std;
 void test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
+        //datetime dt(i);
         if (datetime(i).to_timestamp() != i) {
             cout << "Error 1: " << i << ", instead dt.timestamp()= " << datetime(i).to_timestamp() << endl;
             return;
@@ -28,10 +29,11 @@ int main() {
 
     cout << datetime(16744079044) << endl;//30000000000
 
-    long start_year = 1970;
-    long seconds = 63072000;
 
-    test(1670000000); //16700000
+    long epoch = 63072000;
+
+    test(epoch); //16700000
+    cout << datetime(epoch) << endl;//30000000000
     cout << "\nFaster!" << endl;
 
     return 0;
