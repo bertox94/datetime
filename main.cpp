@@ -7,8 +7,12 @@ using namespace chrono;
 
 void test(long long size) {
     auto t1 = high_resolution_clock::now();
-    for (long long i = 0; i <= size; i++) {
-        //datetime c1 = timestamp_to_date(i);
+    for (long long i = 1; i < size; i++) {
+        datetime dt(i);
+        if (dt.to_timestamp() != i) {
+            cout << "Error 1: " << i << endl;
+            return;
+        }
     }
     auto t2 = high_resolution_clock::now();
 
@@ -23,26 +27,10 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    //datetime dt(1, 1, 2000);
-    //cout << dt;
-    //period p(1, 0, 0, 0, 0, 0);
-    //dt += p;
-    //cout << dt;
-    //dt -= p;
-    //cout << dt;
+    //cout << datetime() << endl;30000000000
 
-
-    for (long long i = 0; i < 30000000000; i++) {
-        if (datetime(i).to_timestamp() != i) {
-            cout << "Error: " << i << endl;
-            return 0;
-        }
-    }
-
-
-    //cout << datetime() << endl;
-
-    cout << "Faster!" << endl;
+    test(16744099741);
+    cout << "\nFaster!" << endl;
 
     return 0;
 }

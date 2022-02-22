@@ -107,95 +107,7 @@ public:
 };
 
 class datetime {
-public:
-    int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
-    long long sec{};
-    long long min{};
-    long long hrs{};
-    long long day{};
-    long long month{};
-    long long year{};
-
-    datetime() = default;
-
-    datetime(long long int day, long long int month, long long int year) : day(day), month(month), year(year) {}
-
-    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) : sec(sec),
-                                                                                                            min(min),
-                                                                                                            hrs(hrs),
-                                                                                                            day(day),
-                                                                                                            month(month),
-                                                                                                            year(year) {}
-
-    explicit datetime(long long timestamp) {
-        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
-        *this = dt;
-    }
-
-    bool operator==(datetime &dt) const {
-        return sec == dt.sec &&
-               min == dt.min &&
-               hrs == dt.hrs &&
-               day == dt.day &&
-               month == dt.month &&
-               year == dt.year;
-    }
-
-    bool operator!=(datetime &dt) const {
-        return !(*this == dt);
-    }
-
-    bool operator<(datetime &dt) const {
-        if (year < dt.year)
-            return true;
-        else if (year == dt.year) {
-            if (month < dt.month)
-                return true;
-            else if (month == dt.month) {
-                if (day < dt.day)
-                    return true;
-                else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
-    }
-
-    bool operator>(datetime &dt) const {
-        if (year > dt.year)
-            return true;
-        else if (year == dt.year) {
-            if (month > dt.month)
-                return true;
-            else if (month == dt.month) {
-                if (day > dt.day)
-                    return true;
-                else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
-    }
-
-    bool operator<=(datetime &d2) const {
-        return (*this == d2 || *this < d2);
-    }
-
-    bool operator>=(datetime &d2) const {
-        return (*this == d2 || *this > d2);
-    }
-
-    long long seconds_between_years(datetime a2, datetime a1) {
-        return a1 == a2 ? 0 : ((a1.is_leap() ? 1 : 0) + ((a2.year - a1.year) * 365 +
-                                                         (((a2.year - 1) / 4 - (a1.year) / 4) -
-                                                          ((a2.year - 1) / 100 - (a1.year) / 100) +
-                                                          ((a2.year - 1) / 400 - (a1.year) / 400)))) * 86400;
-    }
-
-
+private:
     datetime after(datetime start, long long seconds) {
 
         datetime dt;
@@ -251,10 +163,10 @@ public:
 
 
         dt.hrs = start.hrs +
-                 (orig - orig / (86400) * 86400) / 3600; //those can overflow but it is in canonic form
+                 (orig - orig / (86400) * 86400) / 3600;
         if (dt.hrs >= 24) {
             dt.day++;
-            if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month]) {
+            if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
                 dt.month++;
                 if (dt.month > 12) {
                     dt.year++;
@@ -270,7 +182,7 @@ public:
             dt.hrs++;
             if (dt.hrs >= 24) {
                 dt.day++;
-                if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month]) {
+                if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
                     dt.month++;
                     if (dt.month > 12) {
                         dt.year++;
@@ -290,7 +202,7 @@ public:
                 dt.hrs++;
                 if (dt.hrs >= 24) {
                     dt.day++;
-                    if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month]) {
+                    if (dt.day > (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1]) {
                         dt.month++;
                         if (dt.month > 12) {
                             dt.year++;
@@ -311,80 +223,21 @@ public:
     datetime before(datetime start, long long seconds) {
 
         datetime dt;
-
-        dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-
-        dt.month = start.month;
         dt.day = start.day;
-        dt.hrs = start.hrs +
-                 (seconds - seconds / (86400) * 86400) / 3600; //those can overflow but it is in canonic form
-        if (dt.hrs < 0) {
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month <= 0) {
-                    dt.year--;
-                    dt.month += 12;
-                }
-                dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month];
-            }
-            dt.hrs += 24;
-        }
-
-        dt.min = (seconds - seconds / (86400) * 86400 - dt.hrs * 3600) / 60;
-        if (dt.min < 0) {
-            dt.hrs--;
-            if (dt.hrs < 0) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) +
-                             days_of_months[dt.month];  //TODO: controlla se e' l'anno prima dopo o lo stesso da guardare!
-                }
-                dt.hrs += 24;
-            }
-            dt.min += 60;
-        }
-
-        dt.sec = seconds - seconds / (86400) * 86400 - dt.hrs * 3600 - dt.min * 60;
-        if (dt.sec < 0) {
-            dt.min--;
-            if (dt.min < 0) {
-                dt.hrs--;
-                if (dt.hrs < 0) {
-                    dt.day--;
-                    if (dt.day == 0) {
-                        dt.month--;
-                        if (dt.month <= 0) {
-                            dt.year--;
-                            dt.month += 12;
-                        }
-                        dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) +
-                                 days_of_months[dt.month];
-                    }
-                    dt.hrs += 24;
-                }
-                dt.min += 60;
-            }
-            dt.sec += 60;
-        }
-        seconds -= dt.hrs * 3600 + dt.min * 60 + dt.sec;
-
+        dt.month = start.month;
+        dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
         long long r1 = seconds_between_years(dt, start);
+        long long orig = seconds;
 
+        seconds = period(seconds).strip_time();
         long long ddays;
-        while (r1 <= seconds) {
+        while (r1 < seconds) {
             ddays = 365;
             if (((dt.year + 1) % 400 == 0) || ((dt.year + 1) % 4 == 0 && (dt.year + 1) % 100 != 0))
                 ddays += 1;
             r1 += ddays * 86400;
             dt.year++;
         }
-
 
         if (r1 > seconds) {
             while (r1 > seconds) {
@@ -419,27 +272,219 @@ public:
             }
             dt.day++;
         }
+
+        dt.hrs = start.hrs + (orig - orig / (86400) * 86400) / 3600;
+        if (dt.hrs < 0) {
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month <= 0) {
+                    dt.year--;
+                    dt.month += 12;
+                }
+                dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1];
+            }
+            dt.hrs += 24;
+        }
+
+        dt.min = (orig - orig / (86400) * 86400 - dt.hrs * 3600) / 60;
+        if (dt.min < 0) {
+            dt.hrs--;
+            if (dt.hrs < 0) {
+                dt.day--;
+                if (dt.day == 0) {
+                    dt.month--;
+                    if (dt.month <= 0) {
+                        dt.year--;
+                        dt.month += 12;
+                    }
+                    dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1];
+                }
+                dt.hrs += 24;
+            }
+            dt.min += 60;
+        }
+
+        dt.sec = orig - orig / (86400) * 86400 - dt.hrs * 3600 - dt.min * 60;
+        if (dt.sec < 0) {
+            dt.min--;
+            if (dt.min < 0) {
+                dt.hrs--;
+                if (dt.hrs < 0) {
+                    dt.day--;
+                    if (dt.day == 0) {
+                        dt.month--;
+                        if (dt.month <= 0) {
+                            dt.year--;
+                            dt.month += 12;
+                        }
+                        dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + dt.days_of_months[dt.month - 1];
+                    }
+                    dt.hrs += 24;
+                }
+                dt.min += 60;
+            }
+            dt.sec += 60;
+        }
+
         return dt;
     }
 
+public:
+    int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    long long sec{};
+    long long min{};
+    long long hrs{};
+    long long day{};
+    long long month{};
+    long long year{};
+
+    datetime() = default;
+
+    datetime(long long int day, long long int month, long long int year) : day(day), month(month), year(year) {}
+
+    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) : sec(sec),
+                                                                                                            min(min),
+                                                                                                            hrs(hrs),
+                                                                                                            day(day),
+                                                                                                            month(month),
+                                                                                                            year(year) {}
+
+    explicit datetime(long long timestamp) {
+        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        *this = dt;
+    }
+
+    bool operator==(datetime &dt) const {
+        return sec == dt.sec &&
+               min == dt.min &&
+               hrs == dt.hrs &&
+               day == dt.day &&
+               month == dt.month &&
+               year == dt.year;
+    }
+
+    bool operator==(datetime &&dt) const {
+        return sec == dt.sec &&
+               min == dt.min &&
+               hrs == dt.hrs &&
+               day == dt.day &&
+               month == dt.month &&
+               year == dt.year;
+    }
+
+    bool operator!=(datetime &dt) const {
+        return !(*this == dt);
+    }
+
+    bool operator!=(datetime &&dt) const {
+        return !(*this == dt);
+    }
+
+    bool operator<(datetime &dt) const {
+        if (year < dt.year)
+            return true;
+        else if (year == dt.year) {
+            if (month < dt.month)
+                return true;
+            else if (month == dt.month) {
+                if (day < dt.day)
+                    return true;
+                else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
+    }
+
+    bool operator>(datetime &dt) const {
+        if (year > dt.year)
+            return true;
+        else if (year == dt.year) {
+            if (month > dt.month)
+                return true;
+            else if (month == dt.month) {
+                if (day > dt.day)
+                    return true;
+                else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
+    }
+
+    bool operator<=(datetime &d2) const {
+        return (*this == d2 || *this < d2);
+    }
+
+    bool operator>=(datetime &d2) const {
+        return (*this == d2 || *this > d2);
+    }
+
+    long long seconds_between_years(datetime a2, datetime a1) {
+        return a1 == a2 ? 0 : ((a1.is_leap() ? 1 : 0) + ((a2.year - a1.year) * 365 +
+                                                         (((a2.year - 1) / 4 - (a1.year) / 4) -
+                                                          ((a2.year - 1) / 100 - (a1.year) / 100) +
+                                                          ((a2.year - 1) / 400 - (a1.year) / 400)))) * 86400;
+    }
+
     datetime operator+(period &p) {
+        if (p.to_seconds() < 0)
+            return before(*this, p.to_seconds());
         return after(*this, p.to_seconds());
     }
 
+    datetime operator+(period &&p) {
+        return operator+(p);
+    }
+
     datetime operator+=(period &p) {
-        datetime dt = after(*this, p.to_seconds());
+        datetime dt;
+        if (p.to_seconds() < 0)
+            dt = before(*this, p.to_seconds());
+        else
+            dt = after(*this, p.to_seconds());
         *this = dt;
         return *this;
+    }
+
+    datetime operator+=(period &&p) {
+        return operator+=(p);
     }
 
     datetime operator-(period &p) {
+        if (p.to_seconds() < 0)
+            return after(*this, -p.to_seconds());
         return before(*this, -p.to_seconds());
     }
 
+    datetime operator-(period &&p) {
+        return operator-(p);
+    }
+
+    period operator-(datetime &dt) {
+        return period();
+    }
+
+    period operator-(datetime &&dt) {
+        return period();
+    }
+
     datetime operator-=(period &p) {
-        datetime dt = before(*this, -p.to_seconds());
+        datetime dt;
+        if (p.to_seconds() < 0)
+            dt = after(*this, -p.to_seconds());
+        else
+            dt = before(*this, -p.to_seconds());
         *this = dt;
         return *this;
+    }
+
+    datetime operator-=(period &&p) {
+        return operator-=(p);
     }
 
     long long to_timestamp() {
