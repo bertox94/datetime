@@ -46,76 +46,103 @@ public:
 
     datetime() = default;
 
+    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) : sec(sec),
+                                                                                                            min(min),
+                                                                                                            hrs(hrs),
+                                                                                                            day(day),
+                                                                                                            month(month),
+                                                                                                            year(year) {}
+
     explicit datetime(long long timestamp) {
-        year = 1970 + timestamp / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = ((year - 1970) * 365 + ((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
-                        ((year - 1) / 400 - 1970 / 400));
-        month = 1;
-        day = 1;
-        hrs = (timestamp - timestamp / (86400) * 86400) / 3600;
-        min = (timestamp - timestamp / (86400) * 86400 - hrs * 3600) / 60;
-        sec = timestamp - timestamp / (86400) * 86400 - hrs * 3600 - min * 60;
-        timestamp -= hrs * 3600 + min * 60 + sec;
-        timestamp /= 86400;
+        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        *this = dt;
+    }
+
+    datetime after(datetime start, long seconds) {
+
+        datetime dt;
+
+        dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
+        long long r1 = ((dt.year - start.year) * 365 +
+                        (((dt.year - 1) / 4 - start.year / 4) - ((dt.year - 1) / 100 - start.year / 100) +
+                         ((dt.year - 1) / 400 - start.year / 400))) * 86400;
+        dt.month = start.month;
+        dt.day = start.day;
+        dt.hrs = start.hrs +
+                 (seconds - seconds / (86400) * 86400) / 3600; //those can overflow but it is in canonic form
+        if (dt.hrs >= 24) {
+            dt.hrs -= 24;
+            dt.day++;
+        }
+        dt.min = (seconds - seconds / (86400) * 86400 - dt.hrs * 3600) / 60;
+        if (dt.min >= 60) {
+            dt.min -= 60;
+            if (dt.hrs >= 24) {
+                dt.hrs -= 24;
+                dt.day++;
+            }
+        }
+        dt.sec = seconds - seconds / (86400) * 86400 - dt.hrs * 3600 - dt.min * 60;
+        if (dt.sec >= 60) {
+            dt.sec -= 60;
+            if (dt.min >= 60) {
+                dt.min -= 60;
+                if (dt.hrs >= 24) {
+                    dt.hrs -= 24;
+                    dt.day++;
+                }
+            }
+        }
+        seconds -= dt.hrs * 3600 + dt.min * 60 + dt.sec;
 
         long long ddays;
-        while (r1 > timestamp) {
+        while (r1 > seconds) {
             ddays = 365;
-            if (((year - 1) % 400 == 0) || ((year - 1) % 4 == 0 && (year - 1) % 100 != 0))
+            if (((dt.year - 1) % 400 == 0) || ((dt.year - 1) % 4 == 0 && (dt.year - 1) % 100 != 0))
                 ddays += 1;
-            r1 -= ddays;
-            year--;
+            r1 -= ddays * 86400;
+            dt.year--;
         }
 
-        if (r1 <= timestamp) {
-            while (r1 <= timestamp) {
+        if (r1 <= seconds) {
+            while (r1 <= seconds) {
                 ddays = 365;
-                if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
+                if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
                     ddays += 1;
-                r1 += ddays;
-                year++;
+                r1 += ddays * 86400;
+                dt.year++;
             }
-            year--;
+            dt.year--;
             ddays = 365;
-            if ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
+            if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
                 ddays += 1;
-            r1 -= ddays;
+            r1 -= ddays * 86400;
         }
 
-        bool leap = (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
+        bool leap = (dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0);
 
-        if (r1 <= timestamp) {
-            while (r1 <= timestamp) {
-                r1 += (leap && month == 2 ? 1 + days_of_months[month - 1] : days_of_months[month - 1]);
-                month++;
+        if (r1 <= seconds) {
+            while (r1 <= seconds) {
+                r1 += (leap && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) * 86400;
+                dt.month++;
             }
-            month--;
-            r1 -= (leap && month == 2 ? 1 + days_of_months[month - 1] : days_of_months[month - 1]);
+            dt.month--;
+            r1 -= (leap && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) * 86400;
         }
 
-        if (r1 <= timestamp) {
-            while (r1 <= timestamp) {
-                r1++;
-                day++;
+        if (r1 <= seconds) {
+            while (r1 <= seconds) {
+                r1 += 86400;
+                dt.day++;
             }
-            day--;
+            dt.day--;
         }
+        return dt;
     }
 
     datetime operator+(period &p) {
         datetime dt = *this;
-        dt.year += p.years;
-
-        dt.month += p.months;
-        dt.year += dt.month / 12;
-        dt.month = (dt.month % 12 == 0 ? 12 : dt.month - (dt.month / 12) * 12);
-
-
-        dt.day += p.days;
-
-        long long estimated_year = year = 1970 + dt.day / (((double) 146097 / 400));
-        long long r1 = (year - 1970) * 365 + (((year - 1) / 4 - 1970 / 4) - ((year - 1) / 100 - 1970 / 100) +
-                                              ((year - 1) / 400 - 1970 / 400));
+        long long timestamp = p.to_seconds();
 
 
     }

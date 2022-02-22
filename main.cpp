@@ -23,7 +23,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    for (long long i = 1000000000; i < 30000000000; i++) {
+    for (long long i = 0; i < 30000000000; i++) {
         if (datetime(i).to_timestamp() != i) {
             cout << "Error: " << i << endl;
             return 0;
