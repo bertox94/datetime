@@ -109,49 +109,175 @@ class datetime {
 
         //while curr>target go back 1 year
         while (dt.to_timestamp() > target)
-            dt = dt.go_back_one_year();
+            dt.year--;
 
 
         //come close with years
         if (dt.to_timestamp() <= target) {
             while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_year();
-            dt = dt.go_back_one_year();
+                dt.year++;
+            dt.year--;
         }
 
         //come close with months
         if (dt.to_timestamp() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_month();
-            dt = dt.go_back_one_month();
+            while (dt.to_timestamp() <= target) {
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
+                }
+            }
+            dt.month--;
+            if (dt.month == 0) {
+                dt.year--;
+                dt.month = 12;
+            }
         }
 
         //come close with days
         if (dt.to_timestamp() + period(1, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_day();
-            dt = dt.go_back_one_day();
+            while (dt.to_timestamp() <= target) {
+                dt.day++;
+                if (dt.day > dt.days_of_this_month()) {
+                    dt.month++;
+                    if (dt.month == 13) {
+                        dt.year++;
+                        dt.month = 1;
+                    }
+                    dt.day = 1;
+                }
+            }
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month == 0) {
+                    dt.year--;
+                    dt.month = 12;
+                }
+                dt.day = dt.days_of_this_month();
+            }
         }
 
         //come close with hrs
         if (dt.to_timestamp() + period(0, 0, 1, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_hrs();
-            dt = dt.go_back_one_hrs();
+            while (dt.to_timestamp() <= target) {
+                dt.hrs++;
+                if (dt.hrs == 24) {
+                    dt.day++;
+                    if (dt.day > dt.days_of_this_month()) {
+                        dt.month++;
+                        if (dt.month == 13) {
+                            dt.year++;
+                            dt.month = 1;
+                        }
+                        dt.day = 1;
+                    }
+                    dt.hrs = 0;
+                }
+            }
+            dt.hrs--;
+            if (dt.hrs == -1) {
+                dt.day--;
+                if (dt.day == 0) {
+                    dt.month--;
+                    if (dt.month == 0) {
+                        dt.year--;
+                        dt.month = 12;
+                    }
+                    dt.day = dt.days_of_this_month();
+                }
+                dt.hrs = 23;
+            }
         }
 
         //come close with min
         if (dt.to_timestamp() + period(0, 1, 0, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_min();
-            dt = dt.go_back_one_min();
+            while (dt.to_timestamp() <= target) {
+                dt.min++;
+                if (dt.min == 60) {
+                    dt.hrs++;
+                    if (dt.hrs == 24) {
+                        dt.day++;
+                        if (dt.day > dt.days_of_this_month()) {
+                            dt.month++;
+                            if (dt.month == 13) {
+                                dt.year++;
+                                dt.month = 1;
+                            }
+                            dt.day = 1;
+                        }
+                        dt.hrs = 0;
+                    }
+                    dt.min = 0;
+                }
+            }
+            dt.min--;
+            if (dt.min == -1) {
+                dt.hrs--;
+                if (dt.hrs == -1) {
+                    dt.day--;
+                    if (dt.day == 0) {
+                        dt.month--;
+                        if (dt.month == 0) {
+                            dt.year--;
+                            dt.month = 12;
+                        }
+                        dt.day = dt.days_of_this_month();
+                    }
+                    dt.hrs = 23;
+                }
+                dt.min = 59;
+            }
         }
 
         //reach with sec
         if (dt.to_timestamp() + period(1, 0, 0, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt = dt.go_on_one_sec();
-            dt = dt.go_back_one_sec();
+            while (dt.to_timestamp() <= target) {
+
+                dt.sec++;
+                if (dt.sec == 60) {
+                    dt.min++;
+                    if (dt.min == 60) {
+                        dt.hrs++;
+                        if (dt.hrs == 24) {
+                            dt.day++;
+                            if (dt.day > dt.days_of_this_month()) {
+                                dt.month++;
+                                if (dt.month == 13) {
+                                    dt.year++;
+                                    dt.month = 1;
+                                }
+                                dt.day = 1;
+                            }
+                            dt.hrs = 0;
+                        }
+                        dt.min = 0;
+                    }
+                    dt.sec = 0;
+                }
+            }
+            dt.sec--;
+            if (dt.sec == -1) {
+                dt.min--;
+                if (dt.min == -1) {
+                    dt.hrs--;
+                    if (dt.hrs == -1) {
+                        dt.day--;
+                        if (dt.day == 0) {
+                            dt.month--;
+                            if (dt.month == 0) {
+                                dt.year--;
+                                dt.month = 12;
+                            }
+                            dt.day = dt.days_of_this_month();
+                        }
+                        dt.hrs = 23;
+                    }
+                    dt.min = 59;
+                }
+                dt.sec = 59;
+            }
         }
 
 
@@ -442,115 +568,16 @@ public:
         return (is_leap() && month == 2 ? 1 : 0) + days_of_months[month - 1];
     }
 
-    datetime go_on_one_year() {
-        datetime dt = *this;
-        dt.year++;
-        return dt;
-    }
-
-    datetime go_on_one_month() {
-        datetime dt = *this;
-        dt.month++;
-        if (dt.month == 13) {
-            dt = go_on_one_year();
-            dt.month = 1;
-        }
-        return dt;
-    }
-
-    datetime go_back_one_year() {
-        datetime dt = *this;
-        dt.year--;
-        return dt;
-    }
-
-    datetime go_back_one_month() {
-        datetime dt = *this;
-        dt.month--;
-        if (dt.month == 0) {
-            dt = go_back_one_year();
-            dt.month = 12;
-        }
-        return dt;
-    }
-
-    datetime go_on_one_day() {
-        datetime dt = *this;
-        dt.day++;
-        if (dt.day > days_of_this_month()) {
-            dt = go_on_one_month();
-            dt.day = 1;
-        }
-        return dt;
-    }
-
-    datetime go_back_one_day() {
-        datetime dt = *this;
-        dt.day--;
-        if (dt.day == 0) {
-            dt = go_back_one_month();
-            dt.day = days_of_this_month();
-        }
-        return dt;
-    }
-
-    datetime go_on_one_hrs() {
-        datetime dt = *this;
-        dt.hrs++;
-        if (dt.hrs == 24) {
-            dt = go_on_one_day();
-            dt.hrs = 0;
-        }
-        return dt;
-    }
-
-    datetime go_back_one_hrs() {
-        datetime dt = *this;
-        dt.hrs--;
-        if (dt.hrs == -1) {
-            dt = go_back_one_day();
-            dt.hrs = 23;
-        }
-        return dt;
-    }
-
-    datetime go_on_one_min() {
-        datetime dt = *this;
-        dt.min++;
-        if (dt.min == 60) {
-            dt = go_on_one_day();
-            dt.min = 0;
-        }
-        return dt;
-    }
-
-    datetime go_back_one_min() {
-        datetime dt = *this;
-        dt.min--;
-        if (dt.min == -1) {
-            dt = go_back_one_day();
-            dt.min = 59;
-        }
-        return dt;
-    }
 
     datetime go_on_one_sec() {
         datetime dt = *this;
-        dt.sec++;
-        if (dt.sec == 60) {
-            dt = go_on_one_day();
-            dt.sec = 0;
-        }
+
         return dt;
     }
 
     datetime go_back_one_sec() {
         datetime dt = *this;
-        dt.sec--;
-        if (dt.sec == -1) {
-            dt = go_back_one_day();
-            dt.sec = 59;
-        }
+
         return dt;
     }
 
