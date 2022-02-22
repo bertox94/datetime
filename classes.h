@@ -126,8 +126,8 @@ class datetime {
 
         //while curr>target go back 1 year
         while (curr > target) {
-            curr -= dt.days_of_this_year() * 86400;
             dt.year--;
+            curr -= dt.days_of_this_year() * 86400;
         }
 
 

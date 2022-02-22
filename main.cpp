@@ -27,10 +27,10 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    cout << datetime(16744079044) << endl;//30000000000
+    cout << datetime(94670856) << endl;//30000000000
 
 
-    long epoch = 63072000;
+    long epoch = 630720000;
 
     test(epoch); //16700000
     cout << datetime(epoch) << endl;//30000000000
