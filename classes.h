@@ -122,21 +122,29 @@ class datetime {
         const long long target = period(start.to_timestamp() + seconds).strip_time();
         period time(seconds - target);
 
+        long long curr = dt.to_timestamp();
+
         //while curr>target go back 1 year
-        while (dt.to_timestamp() > target)
-            dt.year--;
-
-
-        //come close with years
-        if (dt.to_timestamp() <= target) {
-            while (dt.to_timestamp() <= target)
-                dt.year++;
+        while (curr > target) {
+            curr -= dt.days_of_this_year() * 86400;
             dt.year--;
         }
 
+
+        //come close with years
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += dt.days_of_this_year() * 86400;
+                dt.year++;
+            }
+            dt.year--;
+            curr -= dt.days_of_this_year() * 86400;
+        }
+
         //come close with months
-        if (dt.to_timestamp() <= target) {
-            while (dt.to_timestamp() <= target) {
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += dt.days_of_this_month() * 86400;
                 dt.month++;
                 if (dt.month == 13) {
                     dt.year++;
@@ -144,6 +152,7 @@ class datetime {
                 }
             }
             dt.month--;
+            curr -= dt.days_of_this_month() * 86400;
             if (dt.month == 0) {
                 dt.year--;
                 dt.month = 12;
@@ -151,8 +160,9 @@ class datetime {
         }
 
         //come close with days
-        if (dt.to_timestamp() + period(1, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target) {
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += 86400;
                 dt.day++;
                 if (dt.day > dt.days_of_this_month()) {
                     dt.month++;
@@ -163,6 +173,7 @@ class datetime {
                     dt.day = 1;
                 }
             }
+            curr -= 86400;
             dt.day--;
             if (dt.day == 0) {
                 dt.month--;
@@ -511,6 +522,10 @@ public:
         long long hh = dt2.hrs - dt1.hrs;
 
         return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
+    }
+
+    int days_of_this_year() const {
+        return is_leap() + 365;
     }
 
     int days_of_this_month() const {

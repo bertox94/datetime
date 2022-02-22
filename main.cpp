@@ -8,10 +8,10 @@ void test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
         datetime dt(i);
-        //if (dt.to_timestamp() != i) {
-        //    cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.to_timestamp() << endl;
-        //    return;
-        //}
+        if (dt.to_timestamp() != i) {
+            cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.to_timestamp() << endl;
+            return;
+        }
     }
     auto t2 = chrono::high_resolution_clock::now();
 
@@ -32,7 +32,7 @@ int main() {
     long start_year = 1970;
     long seconds = 63072000;
 
-    test(16700000);
+    test(16700000); //16700000
     cout << "\nFaster!" << endl;
 
     return 0;
