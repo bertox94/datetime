@@ -114,7 +114,7 @@ private:
         dt.day = start.day;
         dt.month = start.month;
         dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = seconds_between_years(dt, start);
+        long long r1 = seconds_between_beginning_of_years(dt, start);
         long long orig = seconds;
 
         seconds = period(seconds).strip_time();
@@ -228,7 +228,7 @@ private:
         dt.day = start.day;
         dt.month = start.month;
         dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = seconds_between_years(dt, start);
+        long long r1 = seconds_between_beginning_of_years(dt, start);
         long long orig = seconds;
 
         seconds = period(seconds).strip_time();
@@ -457,7 +457,7 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-    long long days_between_years(datetime end, datetime start) {
+    long long days_between_beginning_of_years(datetime end, datetime start) {
 
         if (start.year == end.year)
             return 0;
@@ -474,7 +474,7 @@ public:
         return var;
     }
 
-    long long seconds_between_years(datetime end, datetime start) {
+    long long seconds_between_beginning_of_years(datetime end, datetime start) {
 
         if (start.year == end.year)
             return 0;
@@ -548,7 +548,7 @@ public:
     }
 
     long long seconds_from_epoch() {
-        long long res = days_between_years(*this, datetime(1, 1, 1970));
+        long long res = days_between_beginning_of_years(*this, datetime(1, 1, 1970));
         for (int i = 1; i < month; i++) {
             res += days_of_months[i - 1];
         }
