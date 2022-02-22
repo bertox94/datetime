@@ -1,23 +1,21 @@
 #include <iostream>
-#include <chrono>
 #include "classes.h"
 
 using namespace std;
-using namespace chrono;
 
 void test(long long size) {
-    auto t1 = high_resolution_clock::now();
-    for (long long i = 1; i < size; i++) {
+    //auto t1 = chrono::high_resolution_clock::now();
+    for (long long i = 0; i < size; i++) {//63072000
         datetime dt(i);
-        if (dt.to_timestamp() != i) {
-            cout << "Error 1: " << i << endl;
+        if (dt.seconds_from_epoch() != -i) {
+            cout << "Error 1: " << i << ", instead dt.timestamp()= " << dt.seconds_from_epoch() << endl;
             return;
         }
     }
-    auto t2 = high_resolution_clock::now();
+    //auto t2 = chrono::high_resolution_clock::now();
 
-    chrono::duration<double, std::milli> ms_double = t2 - t1;
-    std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
+    //chrono::duration<double, std::milli> ms_double = t2 - t1;
+    //std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
