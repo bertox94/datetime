@@ -32,7 +32,7 @@ int main() {
     long start_year = 1970;
     long seconds = 63072000;
 
-    test(167000);
+    test(16700000);
     cout << "\nFaster!" << endl;
 
     return 0;

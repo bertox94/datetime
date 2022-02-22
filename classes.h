@@ -95,6 +95,20 @@ public:
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
 
+    long long extract_time() {
+        period pd = *this;
+        pd.days = 0;
+        return pd.to_seconds();
+    }
+
+    long long strip_time() {
+        period pd = *this;
+        pd.hrs = 0;
+        pd.min = 0;
+        pd.sec = 0;
+        return pd.to_seconds();
+    }
+
 
 };
 
@@ -105,7 +119,8 @@ class datetime {
         long long estimation = seconds / (((double) 146097 / 400) * 86400);
         dt.year += estimation;
 
-        long long target = start.to_timestamp() + seconds;
+        const long long target = period(start.to_timestamp() + seconds).strip_time();
+        period time(seconds - target);
 
         //while curr>target go back 1 year
         while (dt.to_timestamp() > target)
@@ -159,9 +174,11 @@ class datetime {
             }
         }
 
-        //come close with hrs
-        if (dt.to_timestamp() + period(0, 0, 1, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target) {
+        //Since they are in canonical form we can do it easily
+        dt.sec += time.sec;
+        if (dt.sec >= 60) {
+            dt.min++;
+            if (dt.min == 60) {
                 dt.hrs++;
                 if (dt.hrs == 24) {
                     dt.day++;
@@ -173,111 +190,43 @@ class datetime {
                         }
                         dt.day = 1;
                     }
-                    dt.hrs = 0;
+                    dt.hrs -= 24;
                 }
+                dt.min -= 60;
             }
-            dt.hrs--;
-            if (dt.hrs == -1) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month == 0) {
-                        dt.year--;
-                        dt.month = 12;
-                    }
-                    dt.day = dt.days_of_this_month();
-                }
-                dt.hrs = 23;
-            }
+            dt.sec -= 60;
         }
 
-        //come close with min
-        if (dt.to_timestamp() + period(0, 1, 0, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target) {
-                dt.min++;
-                if (dt.min == 60) {
-                    dt.hrs++;
-                    if (dt.hrs == 24) {
-                        dt.day++;
-                        if (dt.day > dt.days_of_this_month()) {
-                            dt.month++;
-                            if (dt.month == 13) {
-                                dt.year++;
-                                dt.month = 1;
-                            }
-                            dt.day = 1;
-                        }
-                        dt.hrs = 0;
+        dt.min += time.min;
+        if (dt.min >= 60) {
+            dt.hrs++;
+            if (dt.hrs == 24) {
+                dt.day++;
+                if (dt.day > dt.days_of_this_month()) {
+                    dt.month++;
+                    if (dt.month == 13) {
+                        dt.year++;
+                        dt.month = 1;
                     }
-                    dt.min = 0;
+                    dt.day = 1;
                 }
+                dt.hrs -= 24;
             }
-            dt.min--;
-            if (dt.min == -1) {
-                dt.hrs--;
-                if (dt.hrs == -1) {
-                    dt.day--;
-                    if (dt.day == 0) {
-                        dt.month--;
-                        if (dt.month == 0) {
-                            dt.year--;
-                            dt.month = 12;
-                        }
-                        dt.day = dt.days_of_this_month();
-                    }
-                    dt.hrs = 23;
-                }
-                dt.min = 59;
-            }
+            dt.min -= 60;
         }
 
-        //reach with sec
-        if (dt.to_timestamp() + period(1, 0, 0, 0, 0, 0).to_seconds() <= target) {
-            while (dt.to_timestamp() <= target) {
-
-                dt.sec++;
-                if (dt.sec == 60) {
-                    dt.min++;
-                    if (dt.min == 60) {
-                        dt.hrs++;
-                        if (dt.hrs == 24) {
-                            dt.day++;
-                            if (dt.day > dt.days_of_this_month()) {
-                                dt.month++;
-                                if (dt.month == 13) {
-                                    dt.year++;
-                                    dt.month = 1;
-                                }
-                                dt.day = 1;
-                            }
-                            dt.hrs = 0;
-                        }
-                        dt.min = 0;
-                    }
-                    dt.sec = 0;
+        dt.hrs += time.hrs;
+        if (dt.hrs == 24) {
+            dt.day++;
+            if (dt.day > dt.days_of_this_month()) {
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
                 }
+                dt.day = 1;
             }
-            dt.sec--;
-            if (dt.sec == -1) {
-                dt.min--;
-                if (dt.min == -1) {
-                    dt.hrs--;
-                    if (dt.hrs == -1) {
-                        dt.day--;
-                        if (dt.day == 0) {
-                            dt.month--;
-                            if (dt.month == 0) {
-                                dt.year--;
-                                dt.month = 12;
-                            }
-                            dt.day = dt.days_of_this_month();
-                        }
-                        dt.hrs = 23;
-                    }
-                    dt.min = 59;
-                }
-                dt.sec = 59;
-            }
+            dt.hrs -= 24;
         }
 
 
