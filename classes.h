@@ -403,55 +403,46 @@ public:
         return var;
     }
 
-    long long seconds_to(datetime dt) const {
+    long long seconds_to(datetime d2) const {
+        datetime d1 = *this;
 
+        int flag = (d2 > d1 ? 1 : -1);
+        datetime dt1 = (d2 > d1 ? d1 : d2);
+        datetime dt2 = (d2 > d1 ? d2 : d1);
+        long long dd = 0;
 
-        if (year == dt.year) {
-            if (month == dt.month) {
-                if (day == dt.day) {
-                    if (hrs == dt.hrs) {
-                        if (min == dt.min) {
-                            return dt.sec - sec;
-                        } else {
-                            long long ssec = dt.sec - sec;
-                            long long mmin = dt.min - min;
-                            return ssec + mmin * 60;
-                        }
-                    } else {
-
-                    }
-                } else {
-
-                }
+        if (dt1.year == dt2.year) {
+            if (dt1.month == dt2.month) {
+                dd += dt2.day - dt1.day;
             } else {
-
+                dd += dt1.days_of_this_month() - dt1.day;
+                for (long long i = dt1.month + 1; i < dt2.month; i++)
+                    dd += dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
+                dd += dt2.day;
             }
         } else {
+            if (dt1.is_leap())
+                dd++;
 
+            dd += (dt2.year - dt1.year) * 365 +
+                  (((dt2.year - 1) / 4 - (dt1.year) / 4) -
+                    ((dt2.year - 1) / 100 - (dt1.year) / 100) +
+                    ((dt2.year - 1) / 400 - (dt1.year) / 400));
+
+            for (long long i = 1; i < dt1.month; i++)
+                dd -= dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
+            for (long long i = 1; i < dt2.month; i++)
+                dd += dt2.days_of_months[i - 1] + (dt2.is_leap() && i == 2 ? 1 : 0);
+
+            dd -= dt1.day;
+            dd += dt2.day;
         }
 
+        long long ss = dt2.sec - dt1.sec;
+        long long mm = dt2.min - dt1.min;
+        long long hh = dt2.hrs - dt1.hrs;
 
-        long long time = 86400 - sec - min * 60 - hrs * 3600;
-
-        long long days = days_of_this_month() - day;
-
-        for (long long i = month + 1; i <= 12; i++) {
-            days += days_of_months[i - 1];
-        }
-        if (is_leap() && month > 2)
-            days++;
-
-        if (year != dt.year) {
-            if (is_leap())
-                days++;
-
-            days += (dt.year - year) * 365 +
-                    (((dt.year - 1) / 4 - (year) / 4) -
-                     ((dt.year - 1) / 100 - (year) / 100) +
-                     ((dt.year - 1) / 400 - (year) / 400));
-        }
-        return time + days * 86400;
-
+        return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
     }
 
     long long seconds_to_end_of_year(datetime start, datetime end) {

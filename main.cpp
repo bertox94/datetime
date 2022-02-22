@@ -31,7 +31,7 @@ int main() {
     long start_year = 1970;
     long seconds = 63072000;
 
-    cout << datetime(1, 1, 1970).seconds_to(datetime(2, 1, 1970)) << endl;
+    cout << datetime(0, 0, 0, 1, 1, 1970).seconds_to(datetime(1, 2, 3, 3, 11, 1607)) << endl;
     //test(16744099741);
     cout << "\nFaster!" << endl;
 
