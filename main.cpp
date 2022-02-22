@@ -23,14 +23,24 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    for (long long i = 0; i < 30000000000; i++) {
+    //datetime dt(1, 1, 2000);
+    //cout << dt;
+    //period p(1, 0, 0, 0, 0, 0);
+    //dt += p;
+    //cout << dt;
+    //dt -= p;
+    //cout << dt;
+
+
+    for (long long i = 86401; i < 30000000000; i++) {
         if (datetime(i).to_timestamp() != i) {
             cout << "Error: " << i << endl;
             return 0;
         }
     }
 
-    cout << datetime(253375202774) << endl;
+
+    //cout << datetime() << endl;
 
     cout << "Faster!" << endl;
 
