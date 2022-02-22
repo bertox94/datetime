@@ -457,24 +457,38 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-    //TODO:temporary absolute difference, make non absolute
-    long long seconds_between_years(datetime end, datetime start) {
-        bool flag = false;
-        datetime a3;
-        if (end < start) {
-            a3 = end;
-            end = start;
-            start = a3;
-            flag = true;
-        }
+    long long days_between_years(datetime end, datetime start) {
 
-        return (flag ? -1 : 1) * (start == end ? 0 : ((start.is_leap() ? 1 : 0) + ((end.year - start.year) * 365 +
-                                                                                   (((end.year - 1) / 4 -
-                                                                                     (start.year) / 4) -
-                                                                                    ((end.year - 1) / 100 -
-                                                                                     (start.year) / 100) +
-                                                                                    ((end.year - 1) / 400 -
-                                                                                     (start.year) / 400)))) * 86400);
+        if (start.year == end.year)
+            return 0;
+
+        long long var = 0;
+
+        if (start.is_leap())
+            var++;
+        var += (end.year - start.year) * 365 +
+               (((end.year - 1) / 4 - (start.year) / 4) -
+                ((end.year - 1) / 100 - (start.year) / 100) +
+                ((end.year - 1) / 400 - (start.year) / 400));
+
+        return var;
+    }
+
+    long long seconds_between_years(datetime end, datetime start) {
+
+        if (start.year == end.year)
+            return 0;
+
+        long long var = 0;
+
+        if (start.is_leap())
+            var++;
+        var += (end.year - start.year) * 365 +
+               (((end.year - 1) / 4 - (start.year) / 4) -
+                ((end.year - 1) / 100 - (start.year) / 100) +
+                ((end.year - 1) / 400 - (start.year) / 400));
+
+        return var * 86400;
     }
 
     datetime operator+(period &p) {
@@ -534,7 +548,7 @@ public:
     }
 
     long long seconds_from_epoch() {
-        long long res = seconds_between_years(*this, datetime(1, 1, 1970));
+        long long res = days_between_years(*this, datetime(1, 1, 1970));
         for (int i = 1; i < month; i++) {
             res += days_of_months[i - 1];
         }
