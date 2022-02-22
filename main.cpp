@@ -27,7 +27,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    //cout << datetime() << endl;30000000000
+    cout << datetime(16744079044) << endl;//30000000000
 
     long start_year = 1970;
     long seconds = 63072000;

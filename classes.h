@@ -392,7 +392,6 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-
     long long seconds_from(datetime d2) const {
         return d2.seconds_to(*this);
     }
