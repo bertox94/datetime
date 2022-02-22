@@ -32,7 +32,7 @@ int main() {
     //cout << dt;
 
 
-    for (long long i = 86401; i < 30000000000; i++) {
+    for (long long i = 0; i < 30000000000; i++) {
         if (datetime(i).to_timestamp() != i) {
             cout << "Error: " << i << endl;
             return 0;
