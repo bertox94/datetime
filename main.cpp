@@ -1,8 +1,13 @@
 #include <iostream>
+#include <iomanip>
 #include <chrono>
 #include "classes.h"
 
 using namespace std;
+
+std::ostream &operator<<(std::ostream &os, datetime const &d) {
+    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec;
+}
 
 void test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
@@ -17,8 +22,9 @@ void test(long long size) {
             return;
         }
 
-        if (i % 1000000 == 0)
-            cout << (long) (i / (double) size * 100) << " %" << endl;
+        if (i % 10000000 == 0)
+            cout << setw(10) << datetime(i) << "          " << (long) (i / (double) size * 100) << " %" << setw(10)
+                 << datetime(size) << endl;
     }
     cout << 100 << " %" << endl;
 
@@ -26,11 +32,6 @@ void test(long long size) {
     chrono::duration<double, std::milli> ms_double = t2 - t1;
     //std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
     //std::cout << (long) ms_double.count() << " ms\n";
-}
-
-std::ostream &operator<<(std::ostream &os, datetime const &d) {
-    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec
-              << std::endl;
 }
 
 
