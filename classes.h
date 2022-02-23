@@ -336,22 +336,17 @@ public:
     }
 
     int days_of_this_year() const {
-        return is_leap() + 365;
+        return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0));
     }
 
     int days_of_this_month() const {
-        return (is_leap() && month == 2 ? 1 : 0) + days_of_months[month - 1];
+        return (((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 2 ? 1 : 0) +
+               days_of_months[month - 1];
     }
 
     long long to_timestamp() const {
         return seconds_from(datetime(1, 1, 1970));
     }
-
-    [[deprecated]]
-    bool is_leap() const {
-        return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
-    }
-
 };
 
 period operator-(period &p) {
@@ -546,8 +541,6 @@ datetime after(datetime start, long long seconds) {
         }
         dt.hrs += 24;
     }
-
-
     return dt;
 }
 
@@ -563,23 +556,25 @@ long long seconds_to(datetime d1, datetime d2) {
             dd += dt2.day - dt1.day;
         } else {
             dd += dt1.days_of_this_month() - dt1.day;
-            for (long long i = dt1.month + 1; i < dt2.month; i++)
-                dd += dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
+            //because of the next check it is not a problem if month==13
+            for(datetime ddd(1,dt1.month+1,dt1.year); ddd.month<dt2.month; ddd.month++)
+                dd +=ddd.days_of_this_month();
             dd += dt2.day;
         }
     } else {
-        if (dt1.is_leap())
-            dd++;
+        dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
 
         dd += (dt2.year - dt1.year) * 365 +
               (((dt2.year - 1) / 4 - (dt1.year) / 4) -
                ((dt2.year - 1) / 100 - (dt1.year) / 100) +
                ((dt2.year - 1) / 400 - (dt1.year) / 400));
 
-        for (long long i = 1; i < dt1.month; i++)
-            dd -= dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
-        for (long long i = 1; i < dt2.month; i++)
-            dd += dt2.days_of_months[i - 1] + (dt2.is_leap() && i == 2 ? 1 : 0);
+        datetime ddd(1, 1, dt1.year);
+        for (ddd.month = 1; ddd.month < dt1.month; ddd.month++)
+            dd -= ddd.days_of_this_month();
+        ddd = datetime(1, 1, dt2.year);
+        for (ddd.month = 1; ddd.month < dt2.month; ddd.month++)
+            dd += ddd.days_of_this_month();
 
         dd -= dt1.day;
         dd += dt2.day;

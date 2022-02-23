@@ -8,12 +8,13 @@ using namespace std;
 void test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
-        //datetime dt(i);
-        if (datetime(i).to_timestamp() != i) {
+        datetime dtp(i);
+        datetime dtn(-i);
+        if (dtp.to_timestamp() != i) {
             cout << "Error 1: " << i << ", instead dt.timestamp()= " << datetime(i).to_timestamp() << endl;
             return;
         }
-        if (datetime(-i).to_timestamp() != -i) {
+        if (dtn.to_timestamp() != -i) {
             cout << "Error 2: " << -i << ", instead dt.timestamp()= " << datetime(-i).to_timestamp() << endl;
             return;
         }
@@ -27,30 +28,14 @@ void test(long long size) {
 
     auto t2 = chrono::high_resolution_clock::now();
     chrono::duration<double, std::milli> ms_double = t2 - t1;
-    //std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
+    std::cout << ms_double.count() * 1000000 / size << " ns/op\n";
     //std::cout << (long) ms_double.count() << " ms\n";
 }
 
 
 int main() {
-
-    //cout << datetime(94670856) << endl;
-
-
-    period pd(10);
-    period pdl(-10);
-
-    cout << -pd << endl;
-    cout << pd << endl;
-
-    cout << (pdl < pd) << endl;
-
-    datetime d1(100);
-    datetime d2(900);
-
-    cout << d2 - d1 << endl;
-
-    long long epoch = 15000000000;
+    //long long epoch = 15000000000;
+    long long epoch = 1500000;
 
     test(epoch); //16700000
     cout << datetime(epoch) << endl;//30000000000
