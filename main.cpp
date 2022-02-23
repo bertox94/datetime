@@ -37,7 +37,8 @@ int main() {
     //cout << datetime(94670856) << endl;
 
     period pd(10);
-    pd = pd.to_negative();
+    cout<<-pd<<endl;
+    cout<<pd<<endl;
 
     datetime d1(100);
     datetime d2(900);
