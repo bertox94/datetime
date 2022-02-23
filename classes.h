@@ -173,7 +173,7 @@ public:
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
             sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
 
-    /**
+/**
  * Constructor based on
  * @param timestamp: seconds from epoch time.
  */
@@ -315,7 +315,7 @@ public:
 
 /**
  * Computes the (signed) time from @dt to @this
- * @param dt: a lvalue date
+ * @param dt: an lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &&dt) const {
