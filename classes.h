@@ -91,7 +91,7 @@ public:
         return *this;
     }
 
-    [[nodiscard]] long long to_seconds() const {
+    long long to_seconds() const {
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
 
@@ -113,6 +113,117 @@ public:
 };
 
 class datetime {
+public:
+    int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+    long long sec{};
+    long long min{};
+    long long hrs{};
+    long long day{};
+    long long month{};
+    long long year{};
+
+    datetime() = default;
+
+    datetime(long long int day, long long int month, long long int year) :
+            day(day), month(month), year(year) {}
+
+    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
+            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
+
+    /**
+ * Constructor based on
+ * @param timestamp: seconds from epoch time.
+ */
+    explicit datetime(long long timestamp) {
+        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        *this = dt;
+    }
+
+    bool operator==(datetime &dt) const {
+        return sec == dt.sec && min == dt.min && hrs == dt.hrs && day == dt.day && month == dt.month && year == dt.year;
+    }
+
+    bool operator==(datetime &&dt) const {
+        return *this == dt;
+    }
+
+    bool operator!=(datetime &dt) const {
+        return !(*this == dt);
+    }
+
+    bool operator!=(datetime &&dt) const {
+        return *this != dt;
+    }
+
+    bool operator<(datetime &dt) const {
+        return !(year < dt.year && month < dt.month && day < dt.day);
+    }
+
+    bool operator>(datetime &dt) const {
+        return !(year > dt.year && month > dt.month && day > dt.day);
+    }
+
+    bool operator<=(datetime &d2) const {
+        return (*this == d2 || *this < d2);
+    }
+
+    bool operator>=(datetime &d2) const {
+        return (*this == d2 || *this > d2);
+    }
+
+    datetime operator+(period &p) {
+        return after(p.to_seconds());
+    }
+
+    datetime operator+(period &&p) {
+        return operator+(p);
+    }
+
+    datetime operator+=(period &p) {
+        *this = after(p.to_seconds());
+        return *this;
+    }
+
+    datetime operator+=(period &&p) {
+        return operator+=(p);
+    }
+
+    datetime operator-(period &p) {
+        return after(-p.to_seconds());
+    }
+
+    datetime operator-(period &&p) {
+        return operator-(p);
+    }
+
+    datetime operator-=(period &p) {
+        *this = after(-p.to_seconds());
+        return *this;
+    }
+
+    datetime operator-=(period &&p) {
+        return operator-=(p);
+    }
+
+    /**
+ * Computes the (signed) time from @this to @dt
+ * @param dt: a date
+ * @return a period (days, hrs, min, sec) in canonical form
+ */
+    period operator-(datetime &dt) {
+        return period();
+    }
+
+    /**
+ * Computes the (signed) time from @this to @dt
+ * @param dt: a lvalue date
+ * @return a period (days, hrs, min, sec) in canonical form
+ */
+    period operator-(datetime &&dt) {
+        return period();
+    }
+
     datetime after(datetime start, long long seconds) {
 
         datetime dt = start;
@@ -289,97 +400,180 @@ class datetime {
         return dt;
     }
 
-public:
-    int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+    datetime after(long long seconds) {
 
-    long long sec{};
-    long long min{};
-    long long hrs{};
-    long long day{};
-    long long month{};
-    long long year{};
+        datetime dt = *this;
+        long long estimation = seconds / (((double) 146097 / 400) * 86400);
+        dt.year += estimation;
 
-    datetime() = default;
+        const long long target = period(this->to_timestamp() + seconds).strip_time();
+        period time(seconds - target);
 
-    datetime(long long int day, long long int month, long long int year) : day(day), month(month), year(year) {}
+        long long curr = dt.to_timestamp();
 
-    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) : sec(sec),
-                                                                                                            min(min),
-                                                                                                            hrs(hrs),
-                                                                                                            day(day),
-                                                                                                            month(month),
-                                                                                                            year(year) {}
+        //while curr>target go back 1 year
+        while (curr > target) {
+            dt.year--;
+            curr -= dt.days_of_this_year() * 86400;
+        }
 
-/**
- * Constructor based on
- * @param timestamp: seconds from epoch time.
- */
-    explicit datetime(long long timestamp) {
-        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
-        *this = dt;
-    }
 
-    bool operator==(datetime &dt) const {
-        return sec == dt.sec &&
-               min == dt.min &&
-               hrs == dt.hrs &&
-               day == dt.day &&
-               month == dt.month &&
-               year == dt.year;
-    }
+        //come close with years
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += dt.days_of_this_year() * 86400;
+                dt.year++;
+            }
+            dt.year--;
+            curr -= dt.days_of_this_year() * 86400;
+        }
 
-    bool operator==(datetime &&dt) const {
-        return *this == dt;
-    }
+        //come close with months
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += dt.days_of_this_month() * 86400;
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
+                }
+            }
+            dt.month--;
+            if (dt.month == 0) {
+                dt.year--;
+                dt.month = 12;
+            }
+            curr -= dt.days_of_this_month() * 86400;
+        }
 
-    bool operator!=(datetime &dt) const {
-        return !(*this == dt);
-    }
+        //come close with days
+        if (curr <= target) {
+            while (curr <= target) {
+                curr += 86400;
+                dt.day++;
+                if (dt.day > dt.days_of_this_month()) {
+                    dt.month++;
+                    if (dt.month == 13) {
+                        dt.year++;
+                        dt.month = 1;
+                    }
+                    dt.day = 1;
+                }
+            }
+            curr -= 86400;
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month == 0) {
+                    dt.year--;
+                    dt.month = 12;
+                }
+                dt.day = dt.days_of_this_month();
+            }
+        }
 
-    bool operator!=(datetime &&dt) const {
-        return *this != dt;
-    }
+        //Since they are in canonical form we can do it easily
+        dt.sec += time.sec;
+        if (dt.sec >= 60) {
+            dt.min++;
+            if (dt.min == 60) {
+                dt.hrs++;
+                if (dt.hrs == 24) {
+                    dt.day++;
+                    if (dt.day > dt.days_of_this_month()) {
+                        dt.month++;
+                        if (dt.month == 13) {
+                            dt.year++;
+                            dt.month = 1;
+                        }
+                        dt.day = 1;
+                    }
+                    dt.hrs -= 24;
+                }
+                dt.min -= 60;
+            }
+            dt.sec -= 60;
+        } else if (dt.sec < 0) {
+            dt.min--;
+            if (dt.min < 0) {
+                dt.hrs--;
+                if (dt.hrs < 0) {
+                    dt.day--;
+                    if (dt.day == 0) {
+                        dt.month--;
+                        if (dt.month <= 0) {
+                            dt.year--;
+                            dt.month += 12;
+                        }
+                        dt.day = dt.days_of_this_month();
+                    }
+                    dt.hrs += 24;
+                }
+                dt.min += 60;
+            }
+            dt.sec += 60;
+        }
 
-    bool operator<(datetime &dt) const {
-        if (year < dt.year)
-            return true;
-        else if (year == dt.year) {
-            if (month < dt.month)
-                return true;
-            else if (month == dt.month) {
-                if (day < dt.day)
-                    return true;
-                else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
-    }
+        dt.min += time.min;
+        if (dt.min >= 60) {
+            dt.hrs++;
+            if (dt.hrs == 24) {
+                dt.day++;
+                if (dt.day > dt.days_of_this_month()) {
+                    dt.month++;
+                    if (dt.month == 13) {
+                        dt.year++;
+                        dt.month = 1;
+                    }
+                    dt.day = 1;
+                }
+                dt.hrs -= 24;
+            }
+            dt.min -= 60;
+        } else if (dt.min < 0) {
+            dt.hrs--;
+            if (dt.hrs < 0) {
+                dt.day--;
+                if (dt.day == 0) {
+                    dt.month--;
+                    if (dt.month <= 0) {
+                        dt.year--;
+                        dt.month += 12;
+                    }
+                    dt.day = dt.days_of_this_month();
+                }
+                dt.hrs += 24;
+            }
+            dt.min += 60;
+        }
 
-    bool operator>(datetime &dt) const {
-        if (year > dt.year)
-            return true;
-        else if (year == dt.year) {
-            if (month > dt.month)
-                return true;
-            else if (month == dt.month) {
-                if (day > dt.day)
-                    return true;
-                else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
-    }
+        dt.hrs += time.hrs;
+        if (dt.hrs >= 24) {
+            dt.day++;
+            if (dt.day > dt.days_of_this_month()) {
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
+                }
+                dt.day = 1;
+            }
+            dt.hrs -= 24;
+        } else if (dt.hrs < 0) {
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month <= 0) {
+                    dt.year--;
+                    dt.month += 12;
+                }
+                dt.day = dt.days_of_this_month();
+            }
+            dt.hrs += 24;
+        }
 
-    bool operator<=(datetime &d2) const {
-        return (*this == d2 || *this < d2);
-    }
 
-    bool operator>=(datetime &d2) const {
-        return (*this == d2 || *this > d2);
+        return dt;
     }
 
     long long seconds_from(datetime d2) const {
@@ -436,82 +630,11 @@ public:
         return (is_leap() && month == 2 ? 1 : 0) + days_of_months[month - 1];
     }
 
-
-    datetime go_on_one_sec() {
-        datetime dt = *this;
-
-        return dt;
-    }
-
-    datetime go_back_one_sec() {
-        datetime dt = *this;
-
-        return dt;
-    }
-
-/*
-
-
-    datetime operator+(period &p) {
-        if (p.to_seconds() < 0)
-            return before2(*this, p.to_seconds());
-        return afterI(*this, p.to_seconds());
-    }
-
-    datetime operator+(period &&p) {
-        return operator+(p);
-    }
-
-    datetime operator+=(period &p) {
-        datetime dt;
-        if (p.to_seconds() < 0)
-            dt = before2(*this, p.to_seconds());
-        else
-            dt = afterI(*this, p.to_seconds());
-        *this = dt;
-        return *this;
-    }
-
-    datetime operator+=(period &&p) {
-        return operator+=(p);
-    }
-
-    datetime operator-(period &p) {
-        if (p.to_seconds() < 0)
-            return afterI(*this, -p.to_seconds());
-        return before2(*this, -p.to_seconds());
-    }
-
-    datetime operator-(period &&p) {
-        return operator-(p);
-    }
-
-    period operator-(datetime &dt) {
-        return period();
-    }
-
-    period operator-(datetime &&dt) {
-        return period();
-    }
-
-    datetime operator-=(period &p) {
-        datetime dt;
-        if (p.to_seconds() < 0)
-            dt = afterI(*this, -p.to_seconds());
-        else
-            dt = before2(*this, -p.to_seconds());
-        *this = dt;
-        return *this;
-    }
-
-    datetime operator-=(period &&p) {
-        return operator-=(p);
-    }
-*/
     long long to_timestamp() const {
         return seconds_from(datetime(1, 1, 1970));
     }
 
+    [[deprecated]]
     bool is_leap() const {
         return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
     }
