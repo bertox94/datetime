@@ -1,5 +1,0 @@
-Refill; true; 10.3.2022; 1; months; 340;
-AMZ GoPro; true; 18.7.2022; -610.43;
-AMZ Dish etc.; true; 18.7.2022; -552.77;
-AMZ Dell dock; true; 18.7.2022; -492.14;
-AMZ Razor & stapler; true; 18.8.2022; -379.65;
