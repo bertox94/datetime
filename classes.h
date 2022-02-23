@@ -206,6 +206,25 @@ class datetime {
                 dt.min -= 60;
             }
             dt.sec -= 60;
+        } else if (dt.sec < 0) {
+            dt.min--;
+            if (dt.min < 0) {
+                dt.hrs--;
+                if (dt.hrs < 0) {
+                    dt.day--;
+                    if (dt.day == 0) {
+                        dt.month--;
+                        if (dt.month <= 0) {
+                            dt.year--;
+                            dt.month += 12;
+                        }
+                        dt.day = dt.days_of_this_month();
+                    }
+                    dt.hrs += 24;
+                }
+                dt.min += 60;
+            }
+            dt.sec += 60;
         }
 
         dt.min += time.min;
@@ -224,10 +243,25 @@ class datetime {
                 dt.hrs -= 24;
             }
             dt.min -= 60;
+        } else if (dt.min < 0) {
+            dt.hrs--;
+            if (dt.hrs < 0) {
+                dt.day--;
+                if (dt.day == 0) {
+                    dt.month--;
+                    if (dt.month <= 0) {
+                        dt.year--;
+                        dt.month += 12;
+                    }
+                    dt.day = dt.days_of_this_month();
+                }
+                dt.hrs += 24;
+            }
+            dt.min += 60;
         }
 
         dt.hrs += time.hrs;
-        if (dt.hrs == 24) {
+        if (dt.hrs >= 24) {
             dt.day++;
             if (dt.day > dt.days_of_this_month()) {
                 dt.month++;
@@ -238,95 +272,7 @@ class datetime {
                 dt.day = 1;
             }
             dt.hrs -= 24;
-        }
-
-
-        return dt;
-    }
-/*
-    datetime before2(datetime start, long long seconds) {
-        //assume start is always 1.1.1970
-        datetime dt;
-        dt.day = start.day;
-        dt.month = start.month;
-        dt.year = start.year + seconds / (((double) 146097 / 400) * 24 * 60 * 60);
-        long long r1 = seconds_to(dt, start);
-        long long orig = seconds;
-
-        seconds = period(seconds).strip_time();
-        long long ddays;
-        while (r1 < seconds) {
-            ddays = 365;
-            if (dt.is_leap())
-                ddays += 1;
-            r1 += ddays * 86400;
-            dt.year++;
-        }
-        r1 = dt.seconds_from_epoch();//assume always from epoch here
-
-        if (r1 > seconds) {
-            while (r1 > seconds) {
-                ddays = 365;
-                if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
-                    ddays += 1;
-                r1 -= ddays * 86400;
-                dt.year--;
-            }
-            dt.year++;
-            ddays = 365;
-            if ((dt.year % 400 == 0) || (dt.year % 4 == 0 && dt.year % 100 != 0))
-                ddays += 1;
-            r1 += ddays * 86400;
-        }
-        r1 = dt.seconds_from_epoch();
-
-        if (r1 > seconds) {
-            while (r1 > seconds) {
-                r1 -= (dt.is_leap() && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month -
-                                                                                                         1]) * 86400;
-                dt.month--;
-                if (dt.month <= 0) {
-                    dt.year--;
-                    dt.month += 12;
-                }
-            }
-            dt.month++;
-            if (dt.month > 12) {
-                dt.year++;
-                dt.month -= 12;
-            }
-            r1 += (dt.is_leap() && dt.month == 2 ? 1 + days_of_months[dt.month - 1] : days_of_months[dt.month - 1]) *
-                  86400;
-        }
-        r1 = dt.to_timestamp();
-
-        if (r1 >= seconds) {
-            while (r1 >= seconds) {
-                r1 -= 86400;
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1];
-                }
-            }
-            dt.day++;
-            if (dt.day > days_of_months[dt.month - 1] + (dt.is_leap() && dt.month == 2 ? 1 : 0)) {
-                dt.month++;
-                if (dt.month > 12) {
-                    dt.year++;
-                    dt.month -= 12;
-                }
-                dt.day = 1;
-            }
-        }
-
-        int hhrs = start.hrs + (orig - orig / (86400) * 86400) / 3600;
-        dt.hrs = hhrs;
-        if (dt.hrs < 0) {
+        } else if (dt.hrs < 0) {
             dt.day--;
             if (dt.day == 0) {
                 dt.month--;
@@ -334,56 +280,14 @@ class datetime {
                     dt.year--;
                     dt.month += 12;
                 }
-                dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1];
+                dt.day = dt.days_of_this_month();
             }
             dt.hrs += 24;
         }
 
-        int mmin = (orig - orig / (86400) * 86400 - hhrs * 3600) / 60;
-        dt.min = mmin;
-        if (dt.min < 0) {
-            dt.hrs--;
-            if (dt.hrs < 0) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + days_of_months[dt.month - 1];
-                }
-                dt.hrs += 24;
-            }
-            dt.min += 60;
-        }
-
-        int ssec = orig - orig / (86400) * 86400 - hhrs * 3600 - mmin * 60;
-        dt.sec = ssec;
-        if (dt.sec < 0) {
-            dt.min--;
-            if (dt.min < 0) {
-                dt.hrs--;
-                if (dt.hrs < 0) {
-                    dt.day--;
-                    if (dt.day == 0) {
-                        dt.month--;
-                        if (dt.month <= 0) {
-                            dt.year--;
-                            dt.month += 12;
-                        }
-                        dt.day = (dt.is_leap() && dt.month == 2 ? 1 : 0) + dt.days_of_months[dt.month - 1];
-                    }
-                    dt.hrs += 24;
-                }
-                dt.min += 60;
-            }
-            dt.sec += 60;
-        }
 
         return dt;
     }
-*/
 
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};

@@ -12,6 +12,10 @@ void test(long long size) {
             cout << "Error 1: " << i << ", instead dt.timestamp()= " << datetime(i).to_timestamp() << endl;
             return;
         }
+        if (datetime(-i).to_timestamp() != -i) {
+            cout << "Error 2: " << -i << ", instead dt.timestamp()= " << datetime(-i).to_timestamp() << endl;
+            return;
+        }
     }
     auto t2 = chrono::high_resolution_clock::now();
 
@@ -27,10 +31,10 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 int main() {
 
-    cout << datetime(94670856) << endl;//30000000000
+    //cout << datetime(94670856) << endl;
 
 
-    long epoch = 630720000;
+    long long epoch = 30000000000;
 
     test(epoch); //16700000
     cout << datetime(epoch) << endl;//30000000000
