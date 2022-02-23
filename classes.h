@@ -556,7 +556,7 @@ long long seconds_to(datetime d1, datetime d2) {
             dd += dt2.day - dt1.day;
         } else {
             dd += dt1.days_of_this_month() - dt1.day;
-            //because of the next check it is not a problem if month==13
+            //because of the check on dt2 it is not a problem if ddd.month==13
             for(datetime ddd(1,dt1.month+1,dt1.year); ddd.month<dt2.month; ddd.month++)
                 dd +=ddd.days_of_this_month();
             dd += dt2.day;
