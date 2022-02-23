@@ -32,7 +32,6 @@ void test(long long size) {
     //std::cout << (long) ms_double.count() << " ms\n";
 }
 
-
 int main() {
     long long epoch = 15000000000;
 
