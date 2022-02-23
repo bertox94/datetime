@@ -153,7 +153,7 @@ class datetime;
 
 datetime after(datetime start, long long seconds);
 
-long long seconds_to(datetime d1, datetime d2);
+long long seconds_to(datetime start, datetime end);
 
 class datetime {
 public:
@@ -305,7 +305,7 @@ public:
         return operator-=(p);
     }
 
-    /**
+/**
  * Computes the (signed) time from @dt to @this
  * @param dt: an rvalue date
  * @return a period (days, hrs, min, sec) in canonical form
@@ -314,7 +314,7 @@ public:
         return period(seconds_from(dt));
     }
 
-    /**
+/**
  * Computes the (signed) time from @dt to @this
  * @param dt: a lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
@@ -370,6 +370,9 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
               << std::setfill('0') << std::setw(2) << d.sec;
 }
 
+/**
+ * @return = @param start + @param seconds
+ */
 datetime after(datetime start, long long seconds) {
 
     datetime dt = start;
@@ -544,11 +547,14 @@ datetime after(datetime start, long long seconds) {
     return dt;
 }
 
-long long seconds_to(datetime d1, datetime d2) {
+/**
+ * @return = @param end - @param start
+ */
+long long seconds_to(datetime start, datetime end) {
 
-    int flag = (d2 > d1 ? 1 : -1);
-    datetime dt1 = (d2 > d1 ? d1 : d2);
-    datetime dt2 = (d2 > d1 ? d2 : d1);
+    int flag = (end > start ? 1 : -1);
+    datetime dt1 = (end > start ? start : end);
+    datetime dt2 = (end > start ? end : start);
     long long dd = 0;
 
     if (dt1.year == dt2.year) {
@@ -557,8 +563,8 @@ long long seconds_to(datetime d1, datetime d2) {
         } else {
             dd += dt1.days_of_this_month() - dt1.day;
             //because of the check on dt2 it is not a problem if ddd.month==13
-            for(datetime ddd(1,dt1.month+1,dt1.year); ddd.month<dt2.month; ddd.month++)
-                dd +=ddd.days_of_this_month();
+            for (datetime ddd(1, dt1.month + 1, dt1.year); ddd.month < dt2.month; ddd.month++)
+                dd += ddd.days_of_this_month();
             dd += dt2.day;
         }
     } else {
