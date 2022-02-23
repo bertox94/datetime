@@ -146,7 +146,6 @@ public:
         return pd.to_seconds();
     }
 
-
 };
 
 class datetime;
