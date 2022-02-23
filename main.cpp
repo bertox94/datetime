@@ -19,7 +19,7 @@ void test(long long size) {
             return;
         }
 
-        if (i % 10000000 == 0) //10000000
+        if (i % 10000000 == 0)
             cout << datetime(i) << "          " << setw(3) << (long) (i / (double) size * 100) << " %          "
                  << datetime(size) << endl;
     }
@@ -34,8 +34,7 @@ void test(long long size) {
 
 
 int main() {
-    //long long epoch = 15000000000;
-    long long epoch = 1500000;
+    long long epoch = 15000000000;
 
     test(epoch); //16700000
     cout << datetime(epoch) << endl;//30000000000
