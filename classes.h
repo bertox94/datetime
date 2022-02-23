@@ -100,10 +100,6 @@ public:
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
 
-    period to_negative() const {
-        return period(-to_seconds());
-    }
-
     long long extract_time() const {
         period pd = *this;
         pd.days = 0;
@@ -649,6 +645,14 @@ public:
     }
 
 };
+
+period operator-(period &p) {
+    return period(-p.to_seconds());
+}
+
+period operator-(period &&p) {
+    return -p;
+}
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
     return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
