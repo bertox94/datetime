@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "modernize-use-nodiscard"
 //
 // Created by Halib on 21.02.2022.
 //
@@ -21,9 +23,12 @@ public:
 
     explicit period(long long seconds) {
         days = seconds / (86400);
-        hrs = (seconds - days * 86400) / 3600;
-        min = (seconds - days * 86400 - hrs * 3600) / 60;
-        sec = seconds - days * 86400 - hrs * 3600 - min * 60;
+        long long ss = days * 86400;
+        hrs = (seconds - ss) / 3600;
+        ss += hrs * 3600;
+        min = (seconds - ss) / 60;
+        ss += min * 60;
+        sec = seconds - ss;
     }
 
     period(long long int days, long long int months, long long int years) : days(days), months(months), years(years) {}
@@ -95,13 +100,17 @@ public:
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
 
-    long long extract_time() {
+    period to_negative() const {
+        return period(-to_seconds());
+    }
+
+    long long extract_time() const {
         period pd = *this;
         pd.days = 0;
         return pd.to_seconds();
     }
 
-    long long strip_time() {
+    long long strip_time() const {
         period pd = *this;
         pd.hrs = 0;
         pd.min = 0;
@@ -172,11 +181,11 @@ public:
         return (*this == d2 || *this > d2);
     }
 
-    datetime operator+(period &p) {
+    datetime operator+(period &p) const {
         return after(p.to_seconds());
     }
 
-    datetime operator+(period &&p) {
+    datetime operator+(period &&p) const {
         return operator+(p);
     }
 
@@ -189,11 +198,11 @@ public:
         return operator+=(p);
     }
 
-    datetime operator-(period &p) {
+    datetime operator-(period &p) const {
         return after(-p.to_seconds());
     }
 
-    datetime operator-(period &&p) {
+    datetime operator-(period &&p) const {
         return operator-(p);
     }
 
@@ -211,7 +220,7 @@ public:
  * @param dt: a date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    period operator-(datetime &dt) {
+    period operator-(datetime &dt) const {
         return period();
     }
 
@@ -220,11 +229,11 @@ public:
  * @param dt: a lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    period operator-(datetime &&dt) {
+    period operator-(datetime &&dt) const {
         return period();
     }
 
-    datetime after(datetime start, long long seconds) {
+    datetime after(datetime start, long long seconds) const {
 
         datetime dt = start;
         long long estimation = seconds / (((double) 146097 / 400) * 86400);
@@ -400,7 +409,7 @@ public:
         return dt;
     }
 
-    datetime after(long long seconds) {
+    datetime after(long long seconds) const {
 
         datetime dt = *this;
         long long estimation = seconds / (((double) 146097 / 400) * 86400);
@@ -644,3 +653,5 @@ public:
 
 
 #endif //UNTITLED9_CLASSES_H
+
+#pragma clang diagnostic pop

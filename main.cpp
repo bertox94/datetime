@@ -42,6 +42,8 @@ int main() {
 
     //cout << datetime(94670856) << endl;
 
+    period pd(10);
+    pd=pd.to_negative();
 
     long long epoch = 15000000000;
 
