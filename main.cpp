@@ -36,9 +36,14 @@ int main() {
 
     //cout << datetime(94670856) << endl;
 
+
     period pd(10);
-    cout<<-pd<<endl;
-    cout<<pd<<endl;
+    period pdl(-10);
+
+    cout << -pd << endl;
+    cout << pd << endl;
+
+    cout << (pdl < pd) << endl;
 
     datetime d1(100);
     datetime d2(900);

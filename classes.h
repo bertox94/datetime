@@ -16,8 +16,6 @@ public:
     long long min{};
     long long hrs{};
     long long days{};
-    long long months{};
-    long long years{};
 
     period() = default;
 
@@ -31,13 +29,11 @@ public:
         sec = seconds - ss;
     }
 
-    period(long long int days, long long int months, long long int years) : days(days), months(months), years(years) {}
+    period(long long int sec, long long int min, long long int hrs, long long int days) :
+            sec(sec), min(min), hrs(hrs), days(days) {}
 
-    period(long long int sec, long long int min, long long int hrs, long long int days, long long int months,
-           long long int years) : sec(sec), min(min), hrs(hrs), days(days), months(months), years(years) {}
-
-    bool operator==(period &dt) const {
-        return to_seconds() == dt.to_seconds();
+    bool operator==(period &pd) const {
+        return !(*this > pd || *this < pd);
     }
 
     bool operator!=(period &dt) const {
@@ -45,19 +41,55 @@ public:
     }
 
     bool operator<(period &pd) const {
-        return to_seconds() < pd.to_seconds();
+        if (days < pd.days) {
+            return true;
+        } else if (days == pd.days) {
+            if (hrs < pd.hrs) {
+                return true;
+            } else if (hrs == pd.hrs) {
+                if (min < pd.min) {
+                    return true;
+                } else if (min == pd.min) {
+                    if (sec < pd.sec) {
+                        return true;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
     }
 
     bool operator>(period &pd) const {
-        return to_seconds() < pd.to_seconds();
+        if (days > pd.days) {
+            return true;
+        } else if (days == pd.days) {
+            if (hrs > pd.hrs) {
+                return true;
+            } else if (hrs == pd.hrs) {
+                if (min > pd.min) {
+                    return true;
+                } else if (min == pd.min) {
+                    if (sec > pd.sec) {
+                        return true;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
     }
 
     bool operator<=(period &pd) const {
-        return (*this == pd || *this < pd);
+        return !(*this > pd);
     }
 
     bool operator>=(period &pd) const {
-        return (*this == pd || *this > pd);
+        return !(*this < pd);
     }
 
     period operator+(period &pd) const {
@@ -117,6 +149,12 @@ public:
 
 };
 
+class datetime;
+
+datetime after(datetime start, long long seconds);
+
+long long seconds_to(datetime d1, datetime d2);
+
 class datetime {
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -141,12 +179,12 @@ public:
  * @param timestamp: seconds from epoch time.
  */
     explicit datetime(long long timestamp) {
-        datetime dt = after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        datetime dt = ::after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
         *this = dt;
     }
 
     bool operator==(datetime &dt) const {
-        return sec == dt.sec && min == dt.min && hrs == dt.hrs && day == dt.day && month == dt.month && year == dt.year;
+        return !(*this < dt || *this > dt);
     }
 
     bool operator==(datetime &&dt) const {
@@ -162,19 +200,75 @@ public:
     }
 
     bool operator<(datetime &dt) const {
-        return !(year < dt.year && month < dt.month && day < dt.day);
+        if (year < dt.year) {
+            return true;
+        } else if (year == dt.year) {
+            if (month < dt.month) {
+                return true;
+            } else if (month == dt.month) {
+                if (day < dt.day) {
+                    return true;
+                } else if (day == dt.day) {
+                    if (hrs < dt.hrs) {
+                        return true;
+                    } else if (hrs == dt.hrs) {
+                        if (min < dt.min) {
+                            return true;
+                        } else if (min == dt.min) {
+                            if (sec < dt.sec) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
     }
 
     bool operator>(datetime &dt) const {
-        return !(year > dt.year && month > dt.month && day > dt.day);
+        if (year > dt.year) {
+            return true;
+        } else if (year == dt.year) {
+            if (month > dt.month) {
+                return true;
+            } else if (month == dt.month) {
+                if (day > dt.day) {
+                    return true;
+                } else if (day == dt.day) {
+                    if (hrs > dt.hrs) {
+                        return true;
+                    } else if (hrs == dt.hrs) {
+                        if (min > dt.min) {
+                            return true;
+                        } else if (min == dt.min) {
+                            if (sec > dt.sec) {
+                                return true;
+                            } else
+                                return false;
+                        } else
+                            return false;
+                    } else
+                        return false;
+                } else
+                    return false;
+            } else
+                return false;
+        } else
+            return false;
     }
 
     bool operator<=(datetime &d2) const {
-        return (*this == d2 || *this < d2);
+        return !(*this > d2);
     }
 
     bool operator>=(datetime &d2) const {
-        return (*this == d2 || *this > d2);
+        return !(*this < d2);
     }
 
     datetime operator+(period &p) const {
@@ -212,8 +306,8 @@ public:
     }
 
     /**
- * Computes the (signed) time from @this to @dt
- * @param dt: a date
+ * Computes the (signed) time from @dt to @this
+ * @param dt: an rvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &dt) const {
@@ -221,7 +315,7 @@ public:
     }
 
     /**
- * Computes the (signed) time from @this to @dt
+ * Computes the (signed) time from @dt to @this
  * @param dt: a lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
@@ -229,356 +323,8 @@ public:
         return period(seconds_from(dt));
     }
 
-    datetime after(datetime start, long long seconds) const {
-
-        datetime dt = start;
-        long long estimation = seconds / (((double) 146097 / 400) * 86400);
-        dt.year += estimation;
-
-        const long long target = period(start.to_timestamp() + seconds).strip_time();
-        period time(seconds - target);
-
-        long long curr = dt.to_timestamp();
-
-        //while curr>target go back 1 year
-        while (curr > target) {
-            dt.year--;
-            curr -= dt.days_of_this_year() * 86400;
-        }
-
-
-        //come close with years
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += dt.days_of_this_year() * 86400;
-                dt.year++;
-            }
-            dt.year--;
-            curr -= dt.days_of_this_year() * 86400;
-        }
-
-        //come close with months
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += dt.days_of_this_month() * 86400;
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-            }
-            dt.month--;
-            if (dt.month == 0) {
-                dt.year--;
-                dt.month = 12;
-            }
-            curr -= dt.days_of_this_month() * 86400;
-        }
-
-        //come close with days
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += 86400;
-                dt.day++;
-                if (dt.day > dt.days_of_this_month()) {
-                    dt.month++;
-                    if (dt.month == 13) {
-                        dt.year++;
-                        dt.month = 1;
-                    }
-                    dt.day = 1;
-                }
-            }
-            curr -= 86400;
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month == 0) {
-                    dt.year--;
-                    dt.month = 12;
-                }
-                dt.day = dt.days_of_this_month();
-            }
-        }
-
-        //Since they are in canonical form we can do it easily
-        dt.sec += time.sec;
-        if (dt.sec >= 60) {
-            dt.min++;
-            if (dt.min == 60) {
-                dt.hrs++;
-                if (dt.hrs == 24) {
-                    dt.day++;
-                    if (dt.day > dt.days_of_this_month()) {
-                        dt.month++;
-                        if (dt.month == 13) {
-                            dt.year++;
-                            dt.month = 1;
-                        }
-                        dt.day = 1;
-                    }
-                    dt.hrs -= 24;
-                }
-                dt.min -= 60;
-            }
-            dt.sec -= 60;
-        } else if (dt.sec < 0) {
-            dt.min--;
-            if (dt.min < 0) {
-                dt.hrs--;
-                if (dt.hrs < 0) {
-                    dt.day--;
-                    if (dt.day == 0) {
-                        dt.month--;
-                        if (dt.month <= 0) {
-                            dt.year--;
-                            dt.month += 12;
-                        }
-                        dt.day = dt.days_of_this_month();
-                    }
-                    dt.hrs += 24;
-                }
-                dt.min += 60;
-            }
-            dt.sec += 60;
-        }
-
-        dt.min += time.min;
-        if (dt.min >= 60) {
-            dt.hrs++;
-            if (dt.hrs == 24) {
-                dt.day++;
-                if (dt.day > dt.days_of_this_month()) {
-                    dt.month++;
-                    if (dt.month == 13) {
-                        dt.year++;
-                        dt.month = 1;
-                    }
-                    dt.day = 1;
-                }
-                dt.hrs -= 24;
-            }
-            dt.min -= 60;
-        } else if (dt.min < 0) {
-            dt.hrs--;
-            if (dt.hrs < 0) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = dt.days_of_this_month();
-                }
-                dt.hrs += 24;
-            }
-            dt.min += 60;
-        }
-
-        dt.hrs += time.hrs;
-        if (dt.hrs >= 24) {
-            dt.day++;
-            if (dt.day > dt.days_of_this_month()) {
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-                dt.day = 1;
-            }
-            dt.hrs -= 24;
-        } else if (dt.hrs < 0) {
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month <= 0) {
-                    dt.year--;
-                    dt.month += 12;
-                }
-                dt.day = dt.days_of_this_month();
-            }
-            dt.hrs += 24;
-        }
-
-
-        return dt;
-    }
-
     datetime after(long long seconds) const {
-
-        datetime dt = *this;
-        long long estimation = seconds / (((double) 146097 / 400) * 86400);
-        dt.year += estimation;
-
-        const long long target = period(this->to_timestamp() + seconds).strip_time();
-        period time(seconds - target);
-
-        long long curr = dt.to_timestamp();
-
-        //while curr>target go back 1 year
-        while (curr > target) {
-            dt.year--;
-            curr -= dt.days_of_this_year() * 86400;
-        }
-
-
-        //come close with years
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += dt.days_of_this_year() * 86400;
-                dt.year++;
-            }
-            dt.year--;
-            curr -= dt.days_of_this_year() * 86400;
-        }
-
-        //come close with months
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += dt.days_of_this_month() * 86400;
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-            }
-            dt.month--;
-            if (dt.month == 0) {
-                dt.year--;
-                dt.month = 12;
-            }
-            curr -= dt.days_of_this_month() * 86400;
-        }
-
-        //come close with days
-        if (curr <= target) {
-            while (curr <= target) {
-                curr += 86400;
-                dt.day++;
-                if (dt.day > dt.days_of_this_month()) {
-                    dt.month++;
-                    if (dt.month == 13) {
-                        dt.year++;
-                        dt.month = 1;
-                    }
-                    dt.day = 1;
-                }
-            }
-            curr -= 86400;
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month == 0) {
-                    dt.year--;
-                    dt.month = 12;
-                }
-                dt.day = dt.days_of_this_month();
-            }
-        }
-
-        //Since they are in canonical form we can do it easily
-        dt.sec += time.sec;
-        if (dt.sec >= 60) {
-            dt.min++;
-            if (dt.min == 60) {
-                dt.hrs++;
-                if (dt.hrs == 24) {
-                    dt.day++;
-                    if (dt.day > dt.days_of_this_month()) {
-                        dt.month++;
-                        if (dt.month == 13) {
-                            dt.year++;
-                            dt.month = 1;
-                        }
-                        dt.day = 1;
-                    }
-                    dt.hrs -= 24;
-                }
-                dt.min -= 60;
-            }
-            dt.sec -= 60;
-        } else if (dt.sec < 0) {
-            dt.min--;
-            if (dt.min < 0) {
-                dt.hrs--;
-                if (dt.hrs < 0) {
-                    dt.day--;
-                    if (dt.day == 0) {
-                        dt.month--;
-                        if (dt.month <= 0) {
-                            dt.year--;
-                            dt.month += 12;
-                        }
-                        dt.day = dt.days_of_this_month();
-                    }
-                    dt.hrs += 24;
-                }
-                dt.min += 60;
-            }
-            dt.sec += 60;
-        }
-
-        dt.min += time.min;
-        if (dt.min >= 60) {
-            dt.hrs++;
-            if (dt.hrs == 24) {
-                dt.day++;
-                if (dt.day > dt.days_of_this_month()) {
-                    dt.month++;
-                    if (dt.month == 13) {
-                        dt.year++;
-                        dt.month = 1;
-                    }
-                    dt.day = 1;
-                }
-                dt.hrs -= 24;
-            }
-            dt.min -= 60;
-        } else if (dt.min < 0) {
-            dt.hrs--;
-            if (dt.hrs < 0) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = dt.days_of_this_month();
-                }
-                dt.hrs += 24;
-            }
-            dt.min += 60;
-        }
-
-        dt.hrs += time.hrs;
-        if (dt.hrs >= 24) {
-            dt.day++;
-            if (dt.day > dt.days_of_this_month()) {
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-                dt.day = 1;
-            }
-            dt.hrs -= 24;
-        } else if (dt.hrs < 0) {
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month <= 0) {
-                    dt.year--;
-                    dt.month += 12;
-                }
-                dt.day = dt.days_of_this_month();
-            }
-            dt.hrs += 24;
-        }
-
-
-        return dt;
+        return ::after(*this, seconds);
     }
 
     long long seconds_from(datetime d2) const {
@@ -586,45 +332,7 @@ public:
     }
 
     long long seconds_to(datetime d2) const {
-        datetime d1 = *this;
-
-        int flag = (d2 > d1 ? 1 : -1);
-        datetime dt1 = (d2 > d1 ? d1 : d2);
-        datetime dt2 = (d2 > d1 ? d2 : d1);
-        long long dd = 0;
-
-        if (dt1.year == dt2.year) {
-            if (dt1.month == dt2.month) {
-                dd += dt2.day - dt1.day;
-            } else {
-                dd += dt1.days_of_this_month() - dt1.day;
-                for (long long i = dt1.month + 1; i < dt2.month; i++)
-                    dd += dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
-                dd += dt2.day;
-            }
-        } else {
-            if (dt1.is_leap())
-                dd++;
-
-            dd += (dt2.year - dt1.year) * 365 +
-                  (((dt2.year - 1) / 4 - (dt1.year) / 4) -
-                   ((dt2.year - 1) / 100 - (dt1.year) / 100) +
-                   ((dt2.year - 1) / 400 - (dt1.year) / 400));
-
-            for (long long i = 1; i < dt1.month; i++)
-                dd -= dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
-            for (long long i = 1; i < dt2.month; i++)
-                dd += dt2.days_of_months[i - 1] + (dt2.is_leap() && i == 2 ? 1 : 0);
-
-            dd -= dt1.day;
-            dd += dt2.day;
-        }
-
-        long long ss = dt2.sec - dt1.sec;
-        long long mm = dt2.min - dt1.min;
-        long long hh = dt2.hrs - dt1.hrs;
-
-        return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
+        return ::seconds_to(*this, d2);
     }
 
     int days_of_this_year() const {
@@ -667,6 +375,222 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
               << std::setfill('0') << std::setw(2) << d.sec;
 }
 
+datetime after(datetime start, long long seconds) {
+
+    datetime dt = start;
+    long long estimation = seconds / (((double) 146097 / 400) * 86400);
+    dt.year += estimation;
+
+    const long long target = period(start.to_timestamp() + seconds).strip_time();
+    period time(seconds - target);
+
+    long long curr = dt.to_timestamp();
+
+    //while curr>target go back 1 year
+    while (curr > target) {
+        dt.year--;
+        curr -= dt.days_of_this_year() * 86400;
+    }
+
+
+    //come close with years
+    if (curr <= target) {
+        while (curr <= target) {
+            curr += dt.days_of_this_year() * 86400;
+            dt.year++;
+        }
+        dt.year--;
+        curr -= dt.days_of_this_year() * 86400;
+    }
+
+    //come close with months
+    if (curr <= target) {
+        while (curr <= target) {
+            curr += dt.days_of_this_month() * 86400;
+            dt.month++;
+            if (dt.month == 13) {
+                dt.year++;
+                dt.month = 1;
+            }
+        }
+        dt.month--;
+        if (dt.month == 0) {
+            dt.year--;
+            dt.month = 12;
+        }
+        curr -= dt.days_of_this_month() * 86400;
+    }
+
+    //come close with days
+    if (curr <= target) {
+        while (curr <= target) {
+            curr += 86400;
+            dt.day++;
+            if (dt.day > dt.days_of_this_month()) {
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
+                }
+                dt.day = 1;
+            }
+        }
+        curr -= 86400;
+        dt.day--;
+        if (dt.day == 0) {
+            dt.month--;
+            if (dt.month == 0) {
+                dt.year--;
+                dt.month = 12;
+            }
+            dt.day = dt.days_of_this_month();
+        }
+    }
+
+    //Since they are in canonical form we can do it easily
+    dt.sec += time.sec;
+    if (dt.sec >= 60) {
+        dt.min++;
+        if (dt.min == 60) {
+            dt.hrs++;
+            if (dt.hrs == 24) {
+                dt.day++;
+                if (dt.day > dt.days_of_this_month()) {
+                    dt.month++;
+                    if (dt.month == 13) {
+                        dt.year++;
+                        dt.month = 1;
+                    }
+                    dt.day = 1;
+                }
+                dt.hrs -= 24;
+            }
+            dt.min -= 60;
+        }
+        dt.sec -= 60;
+    } else if (dt.sec < 0) {
+        dt.min--;
+        if (dt.min < 0) {
+            dt.hrs--;
+            if (dt.hrs < 0) {
+                dt.day--;
+                if (dt.day == 0) {
+                    dt.month--;
+                    if (dt.month <= 0) {
+                        dt.year--;
+                        dt.month += 12;
+                    }
+                    dt.day = dt.days_of_this_month();
+                }
+                dt.hrs += 24;
+            }
+            dt.min += 60;
+        }
+        dt.sec += 60;
+    }
+
+    dt.min += time.min;
+    if (dt.min >= 60) {
+        dt.hrs++;
+        if (dt.hrs == 24) {
+            dt.day++;
+            if (dt.day > dt.days_of_this_month()) {
+                dt.month++;
+                if (dt.month == 13) {
+                    dt.year++;
+                    dt.month = 1;
+                }
+                dt.day = 1;
+            }
+            dt.hrs -= 24;
+        }
+        dt.min -= 60;
+    } else if (dt.min < 0) {
+        dt.hrs--;
+        if (dt.hrs < 0) {
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month <= 0) {
+                    dt.year--;
+                    dt.month += 12;
+                }
+                dt.day = dt.days_of_this_month();
+            }
+            dt.hrs += 24;
+        }
+        dt.min += 60;
+    }
+
+    dt.hrs += time.hrs;
+    if (dt.hrs >= 24) {
+        dt.day++;
+        if (dt.day > dt.days_of_this_month()) {
+            dt.month++;
+            if (dt.month == 13) {
+                dt.year++;
+                dt.month = 1;
+            }
+            dt.day = 1;
+        }
+        dt.hrs -= 24;
+    } else if (dt.hrs < 0) {
+        dt.day--;
+        if (dt.day == 0) {
+            dt.month--;
+            if (dt.month <= 0) {
+                dt.year--;
+                dt.month += 12;
+            }
+            dt.day = dt.days_of_this_month();
+        }
+        dt.hrs += 24;
+    }
+
+
+    return dt;
+}
+
+long long seconds_to(datetime d1, datetime d2) {
+
+    int flag = (d2 > d1 ? 1 : -1);
+    datetime dt1 = (d2 > d1 ? d1 : d2);
+    datetime dt2 = (d2 > d1 ? d2 : d1);
+    long long dd = 0;
+
+    if (dt1.year == dt2.year) {
+        if (dt1.month == dt2.month) {
+            dd += dt2.day - dt1.day;
+        } else {
+            dd += dt1.days_of_this_month() - dt1.day;
+            for (long long i = dt1.month + 1; i < dt2.month; i++)
+                dd += dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
+            dd += dt2.day;
+        }
+    } else {
+        if (dt1.is_leap())
+            dd++;
+
+        dd += (dt2.year - dt1.year) * 365 +
+              (((dt2.year - 1) / 4 - (dt1.year) / 4) -
+               ((dt2.year - 1) / 100 - (dt1.year) / 100) +
+               ((dt2.year - 1) / 400 - (dt1.year) / 400));
+
+        for (long long i = 1; i < dt1.month; i++)
+            dd -= dt1.days_of_months[i - 1] + (dt1.is_leap() && i == 2 ? 1 : 0);
+        for (long long i = 1; i < dt2.month; i++)
+            dd += dt2.days_of_months[i - 1] + (dt2.is_leap() && i == 2 ? 1 : 0);
+
+        dd -= dt1.day;
+        dd += dt2.day;
+    }
+
+    long long ss = dt2.sec - dt1.sec;
+    long long mm = dt2.min - dt1.min;
+    long long hh = dt2.hrs - dt1.hrs;
+
+    return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
+}
 
 #endif //UNTITLED9_CLASSES_H
 
