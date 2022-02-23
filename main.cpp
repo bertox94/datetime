@@ -6,7 +6,10 @@
 using namespace std;
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
-    return os << d.day << "." << d.month << "." << d.year << ", " << d.hrs << ":" << d.min << ":" << d.sec;
+    return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
+              << "." << std::setfill('0') << std::setw(4) << d.year << ", " << std::setfill('0') << std::setw(2)
+              << d.hrs << ":" << std::setfill('0') << std::setw(2) << d.min << ":" << std::setfill('0') << std::setw(2)
+              << d.sec;
 }
 
 void test(long long size) {
@@ -22,9 +25,9 @@ void test(long long size) {
             return;
         }
 
-        if (i % 10000000 == 0)
-            cout << setw(10) << datetime(i) << "          " << (long) (i / (double) size * 100) << " %" << setw(10)
-                 << datetime(size) << endl;
+        if (i % 10000000 == 0) //10000000
+            cout << datetime(i) << "          " << (long) (i / (double) size * 100) << " %          " << datetime(size)
+                 << endl;
     }
     cout << 100 << " %" << endl;
 
