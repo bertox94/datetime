@@ -221,7 +221,7 @@ public:
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &dt) const {
-        return period();
+        return period(seconds_from(dt));
     }
 
     /**
@@ -230,7 +230,7 @@ public:
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &&dt) const {
-        return period();
+        return period(seconds_from(dt));
     }
 
     datetime after(datetime start, long long seconds) const {
@@ -648,8 +648,20 @@ public:
         return (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
     }
 
-
 };
+
+std::ostream &operator<<(std::ostream &os, datetime const &d) {
+    return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
+              << "." << std::setfill('0') << std::setw(4) << d.year << ", " << std::setfill('0') << std::setw(2)
+              << d.hrs << ":" << std::setfill('0') << std::setw(2) << d.min << ":" << std::setfill('0') << std::setw(2)
+              << d.sec;
+}
+
+std::ostream &operator<<(std::ostream &os, period const &d) {
+    return os << "Days: " << std::setfill('0') << std::setw(2) << d.days << ", hrs: " << std::setfill('0')
+              << std::setw(2) << d.hrs << ", min: " << std::setfill('0') << std::setw(2) << d.min << ", sec: "
+              << std::setfill('0') << std::setw(2) << d.sec;
+}
 
 
 #endif //UNTITLED9_CLASSES_H

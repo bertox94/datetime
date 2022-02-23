@@ -5,13 +5,6 @@
 
 using namespace std;
 
-std::ostream &operator<<(std::ostream &os, datetime const &d) {
-    return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
-              << "." << std::setfill('0') << std::setw(4) << d.year << ", " << std::setfill('0') << std::setw(2)
-              << d.hrs << ":" << std::setfill('0') << std::setw(2) << d.min << ":" << std::setfill('0') << std::setw(2)
-              << d.sec;
-}
-
 void test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
@@ -26,10 +19,11 @@ void test(long long size) {
         }
 
         if (i % 10000000 == 0) //10000000
-            cout << datetime(i) << "          " << (long) (i / (double) size * 100) << " %          " << datetime(size)
-                 << endl;
+            cout << datetime(i) << "          " << setw(3) << (long) (i / (double) size * 100) << " %          "
+                 << datetime(size) << endl;
     }
-    cout << 100 << " %" << endl;
+    cout << datetime(size) << "          " << setw(3) << (long) (size / (double) size * 100) << " %          "
+         << datetime(size) << endl;
 
     auto t2 = chrono::high_resolution_clock::now();
     chrono::duration<double, std::milli> ms_double = t2 - t1;
@@ -43,7 +37,12 @@ int main() {
     //cout << datetime(94670856) << endl;
 
     period pd(10);
-    pd=pd.to_negative();
+    pd = pd.to_negative();
+
+    datetime d1(100);
+    datetime d2(900);
+
+    cout << d2 - d1 << endl;
 
     long long epoch = 15000000000;
 
