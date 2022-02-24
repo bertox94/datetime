@@ -133,17 +133,11 @@ public:
     }
 
     period extract_time() const {
-        period pd = *this;
-        pd.days = 0;
-        return pd;
+        return {sec, min, hrs, 0};
     }
 
-    long long strip_time() const {
-        period pd = *this;
-        pd.hrs = 0;
-        pd.min = 0;
-        pd.sec = 0;
-        return pd.to_seconds();
+    period strip_time() const {
+        return {0, 0, 0, days};
     }
 
 };
@@ -346,6 +340,10 @@ public:
     long long to_timestamp() const {
         return seconds_from(datetime(1, 1, 1970));
     }
+
+    period extract_time() {
+        return {sec, min, hrs, 0};
+    }
 };
 
 period operator-(period &p) {
@@ -383,7 +381,8 @@ datetime after(datetime start, long long seconds) {
     long long estimation = t1.to_seconds() / (((double) 146097 / 400) * 86400);
     dt.year += estimation;
 
-    const long long target = period(start.to_timestamp()).strip_time() + period(seconds).strip_time();
+    const long long target =
+            period(start.to_timestamp()).strip_time().to_seconds() + period(seconds).strip_time().to_seconds();
 
     long long curr = dt.to_timestamp();
 

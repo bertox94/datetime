@@ -68,9 +68,8 @@ int main() {
 
     //Error: l1= 1742863086, l2= 1438850937
 
-    long l1 = -473558400;
-    //long l1 = 1351727964;
-    long l2 = -1565614346;
+    long l1 = 638828928;
+    long l2 = 1297654017;
 
     datetime d1(l1);
     datetime d2 = after(d1, l2);
