@@ -152,12 +152,12 @@ class datetime {
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-    long long sec{};
-    long long min{};
-    long long hrs{};
-    long long day{};
-    long long month{};
-    long long year{};
+    long long sec = 0;
+    long long min = 0;
+    long long hrs = 0;
+    long long day = 1;
+    long long month = 1;
+    long long year = 1970;
 
     datetime() = default;
 
