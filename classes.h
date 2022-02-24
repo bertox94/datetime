@@ -374,13 +374,16 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
  */
 datetime after(datetime start, long long seconds) {
 
-    datetime dt(start.sec, start.min, start.hrs, 1, 1, start.year);
-    period time = period(seconds).extract_time();
+    datetime dt(0, 0, 0, 1, 1, start.year);
+    period t1 = period(start.to_timestamp()).extract_time();
+    period t2 = period(seconds).extract_time();
 
-    long long estimation = seconds / (((double) 146097 / 400) * 86400);
+    period time = period(t1.to_seconds() + t2.to_seconds());
+
+    long long estimation = t1.to_seconds() / (((double) 146097 / 400) * 86400);
     dt.year += estimation;
 
-    const long long target = start.to_timestamp() + seconds;
+    const long long target = period(start.to_timestamp()).strip_time() + period(seconds).strip_time();
 
     long long curr = dt.to_timestamp();
 
@@ -434,17 +437,15 @@ datetime after(datetime start, long long seconds) {
                 dt.day = 1;
             }
         }
-        if (time.to_seconds() >= 0) {
-            curr -= 86400;
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month == 0) {
-                    dt.year--;
-                    dt.month = 12;
-                }
-                dt.day = dt.days_of_this_month();
+        curr -= 86400;
+        dt.day--;
+        if (dt.day == 0) {
+            dt.month--;
+            if (dt.month == 0) {
+                dt.year--;
+                dt.month = 12;
             }
+            dt.day = dt.days_of_this_month();
         }
     }
 
@@ -547,6 +548,24 @@ datetime after(datetime start, long long seconds) {
         }
         dt.hrs += 24;
     }
+
+    dt.day += time.days;
+    if (dt.day > dt.days_of_this_month()) {
+        dt.month++;
+        if (dt.month == 13) {
+            dt.year++;
+            dt.month = 1;
+        }
+        dt.day = 1;
+    } else if (dt.day == 0) {
+        dt.month--;
+        if (dt.month <= 0) {
+            dt.year--;
+            dt.month += 12;
+        }
+        dt.day = dt.days_of_this_month();
+    }
+
     return dt;
 }
 

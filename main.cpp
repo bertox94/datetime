@@ -41,8 +41,8 @@ void test2(long long size) {
 
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {//63072000
-        long l1 = distribution(generator);
-        long l2 = distribution(generator);
+        long long l1 = distribution(generator)*distribution(generator);
+        long long l2 = distribution(generator)*distribution(generator);
 
         datetime d1(l1);
         datetime d2 = after(d1, l2);
