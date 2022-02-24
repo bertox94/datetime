@@ -65,10 +65,25 @@ void test2(long long size) {
 }
 
 int main() {
-    long long epoch = 15000000000;
 
+    //Error: l1= 1742863086, l2= 1438850937
+
+    long l1 = -473558400;
+    //long l1 = 1351727964;
+    long l2 = -1565614346;
+
+    datetime d1(l1);
+    datetime d2 = after(d1, l2);
+    datetime d3 = after(d2, -l2);
+
+
+
+
+
+    long long epoch = 15000000000;
     test2(epoch); //16700000
-    //cout << datetime(epoch) << endl;//30000000000
+
+
     cout << "\nFaster!" << endl;
 
     return 0;

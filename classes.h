@@ -132,10 +132,10 @@ public:
         return days * 86400 + hrs * 3600 + min * 60 + sec;
     }
 
-    long long extract_time() const {
+    period extract_time() const {
         period pd = *this;
         pd.days = 0;
-        return pd.to_seconds();
+        return pd;
     }
 
     long long strip_time() const {
@@ -374,14 +374,16 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
  */
 datetime after(datetime start, long long seconds) {
 
-    datetime dt = start;
+    datetime dt(start.sec, start.min, start.hrs, 1, 1, start.year);
+    period time = period(seconds).extract_time();
+
     long long estimation = seconds / (((double) 146097 / 400) * 86400);
     dt.year += estimation;
 
-    const long long target = period(start.to_timestamp() + seconds).strip_time();
-    period time(seconds - target);
+    const long long target = start.to_timestamp() + seconds;
 
     long long curr = dt.to_timestamp();
+
 
     //while curr>target go back 1 year
     while (curr > target) {
@@ -432,15 +434,17 @@ datetime after(datetime start, long long seconds) {
                 dt.day = 1;
             }
         }
-        curr -= 86400;
-        dt.day--;
-        if (dt.day == 0) {
-            dt.month--;
-            if (dt.month == 0) {
-                dt.year--;
-                dt.month = 12;
+        if (time.to_seconds() >= 0) {
+            curr -= 86400;
+            dt.day--;
+            if (dt.day == 0) {
+                dt.month--;
+                if (dt.month == 0) {
+                    dt.year--;
+                    dt.month = 12;
+                }
+                dt.day = dt.days_of_this_month();
             }
-            dt.day = dt.days_of_this_month();
         }
     }
 
