@@ -64,9 +64,7 @@ void test2(long long size) {
 
 int main() {
 
-
     srand(time(nullptr));
-
 
     // tt= 1775435781
     //datetime d1(29, 25, 2, 31, 11, -16076);

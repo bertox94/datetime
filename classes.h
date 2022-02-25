@@ -4,8 +4,8 @@
 // Created by Halib on 21.02.2022.
 //
 
-#ifndef UNTITLED9_CLASSES_H
-#define UNTITLED9_CLASSES_H
+#ifndef DATETIME_CLASSES_H
+#define DATETIME_CLASSES_H
 
 using namespace std;
 
@@ -520,6 +520,6 @@ long long seconds_to(datetime start, datetime end) {
     return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
 }
 
-#endif //UNTITLED9_CLASSES_H
+#endif //DATETIME_CLASSES_H
 
 #pragma clang diagnostic pop
