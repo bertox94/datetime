@@ -402,44 +402,30 @@ datetime after(datetime start, long long seconds) {
     datetime dt(0, 0, 0, 1, 1, 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
     period increment(start_timestamp + seconds - dt.to_timestamp());
 
-    //time can only be in canonic positive or negative. Only negative needs to be treated as follows.
     dt.sec += increment.sec;
     if (dt.sec < 0) {
-        dt.min--;
-        if (dt.min < 0) {
-            dt.hrs--;
-            if (dt.hrs < 0) {
-                dt.day--;
-                if (dt.day == 0) {
-                    dt.month--;
-                    if (dt.month <= 0) {
-                        dt.year--;
-                        dt.month += 12;
-                    }
-                    dt.day = dt.days_of_this_month();
-                }
-                dt.hrs += 24;
-            }
-            dt.min += 60;
-        }
+        dt.year--;
+        dt.month = 12;
+        dt.day = 31;
+        dt.hrs = 23;
+        dt.min = 59;
         dt.sec += 60;
     }
 
-
     dt.min += increment.min;
-    if (dt.min < 0) {
+    if (dt.min < 0) { // here min and sec can be anything
         dt.hrs--;
-        if (dt.hrs < 0) {
+        if (dt.hrs == -1) { //here hrs can be either -1 or 22
             dt.day--;
-            if (dt.day == 0) {
+            if (dt.day == 0) { //here day can be either 0 or 30
                 dt.month--;
-                if (dt.month <= 0) {
+                if (dt.month == 0) { // here month can be either 0 or 11
                     dt.year--;
-                    dt.month += 12;
+                    dt.month = 12;
                 }
                 dt.day = dt.days_of_this_month();
             }
-            dt.hrs += 24;
+            dt.hrs = 23;
         }
         dt.min += 60;
     }
@@ -449,9 +435,9 @@ datetime after(datetime start, long long seconds) {
         dt.day--;
         if (dt.day == 0) {
             dt.month--;
-            if (dt.month <= 0) {
+            if (dt.month == 0) {
                 dt.year--;
-                dt.month += 12;
+                dt.month = 12;
             }
             dt.day = dt.days_of_this_month();
         }
@@ -469,9 +455,9 @@ datetime after(datetime start, long long seconds) {
     }
     while (dt.day <= 0) {
         dt.month--;
-        if (dt.month <= 0) {
+        if (dt.month == 0) {
             dt.year--;
-            dt.month += 12;
+            dt.month = 12;
         }
         dt.day += dt.days_of_this_month();
     }
