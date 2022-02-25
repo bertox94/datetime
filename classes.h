@@ -29,7 +29,7 @@ public:
         sec = seconds - ss;
     }
 
-    period(long long int sec, long long int min, long long int hrs, long long int days) :
+    period(long long sec, long long min, long long hrs, long long days) :
             sec(sec), min(min), hrs(hrs), days(days) {}
 
     bool operator==(period &pd) const {
@@ -161,8 +161,13 @@ public:
 
     datetime() = default;
 
-    datetime(long long int day, long long int month, long long int year) :
-            day(day), month(month), year(year) {}
+    datetime(long long day, long long month, long long year) :
+            day(day), month(month), year(year) {
+        if (day > days_of_this_month()) {
+            //throw exception
+            this->day = days_of_this_month();
+        }
+    }
 
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
             sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
@@ -178,7 +183,7 @@ public:
  * @param timestamp: seconds from epoch time.
  */
     explicit datetime(long long timestamp) {
-        datetime dt = ::after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        datetime dt = ::after(datetime(), timestamp);
         *this = dt;
     }
 
@@ -319,7 +324,7 @@ public:
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &&dt) const {
-        return period(seconds_from(dt));
+        return operator-(dt);
     }
 
     datetime after(long long seconds) const {
@@ -344,7 +349,7 @@ public:
     }
 
     long long to_timestamp() const {
-        return seconds_from(datetime(1, 1, 1970));
+        return seconds_from(datetime());
     }
 
     period extract_time() {
@@ -375,9 +380,9 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
 
 long long fK(int PERIOD, long long x, long long y) {
     if (x >= 0)
-        y = y - PERIOD * ((PERIOD + x - 1) / PERIOD);
+        y -= PERIOD * ((PERIOD + x - 1) / PERIOD);
     else
-        y = y - PERIOD * (x / PERIOD);
+        y -= PERIOD * (x / PERIOD);
 
     if (y <= 0)
         return y / PERIOD;
