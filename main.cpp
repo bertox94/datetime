@@ -45,8 +45,8 @@ void test2(long long size) {
         long long l2 = distribution(generator) * distribution(generator);
 
         datetime d1(l1);
-        datetime d2 = aafter(d1, l2);
-        datetime d3 = aafter(d2, -l2);
+        datetime d2 = after(d1, l2);
+        datetime d3 = after(d2, -l2);
 
         if (d1 != d3) {
             cout << "Error: l1= " << setw(12) << l1 << ", l2= " << setw(12) << l2 << endl;
@@ -70,16 +70,19 @@ void test3(long long size) {
     std::uniform_int_distribution<long> distribution(LONG_MIN, LONG_MAX);
 
     auto t1 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < size; i++) {//63072000
-        datetime d1(rand() % 60, rand() % 60, rand() % 60, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2);
-        datetime d2(rand() % 60, rand() % 60, rand() % 60, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2);
+    for (long long i = 0; i < size; i++) {
+        datetime d1(rand() % 60, rand() % 60, rand() % 24, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2);
+        long long tt = distribution(generator);
+        datetime d2 = after(after(d1, tt), -tt);
 
         if (d1 != d2) {
-            cout << "Error: l1= " << d1.to_timestamp() << ", l2= " << d2.to_timestamp() << endl;
+            cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2
+                 << ", tt= " << tt << endl;
+            return;
         }
 
         if (i % 1000000 == 0) {
-            cout << "OK: l1= " << d1 << ", l2= " << d2 << endl;
+            cout << "OK: l1= " << setw(12) << d1.to_timestamp() << ", l2= " << setw(12) << d2.to_timestamp() << endl;
         }
 
     }
@@ -96,19 +99,24 @@ int main() {
 
     srand(time(nullptr));
 
-    long long l1 = 419591466376;
-    long long l2 = -11670644390;
+    //Error: l1= 18.10.-5451, 05:09:06, l2= 17.10.-5451, 05:09:06, tt= 1351727964
 
-    datetime d1(l1);
-    datetime d2 = aafter(d1, l2);
-    datetime d3 = aafter(d2, -l2);
+    //datetime d1(06, 9, 5, 18, 10, -5851);
+    //datetime d2 = after(d1, 1351727964);
+    //datetime d3 = datetime(d1.to_timestamp() + 1351727964);
+    //datetime d4 = after(d2, -1351727964);
+//
+//
+    //long long epoch = 15000000000;
+    //test3(epoch); //16700000
 
-    //test1(300000000);
 
-
-    long long epoch = 15000000000;
-    //test1(epoch); //16700000
-    test2(epoch); //16700000
+    for (int i = -6; i <= 6; i++) {
+        for (int j = -10; j <= 10; j++) {
+            cout << "f(" << i << "," << j << ") = " << f(i, j) << endl;
+        }
+        cout << "-------" << endl;
+    }
 
 
     cout << "\nFaster!" << endl;

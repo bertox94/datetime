@@ -144,7 +144,7 @@ public:
 
 class datetime;
 
-datetime aafter(datetime start, long long seconds);
+datetime after(datetime start, long long seconds);
 
 long long seconds_to(datetime start, datetime end);
 
@@ -178,7 +178,7 @@ public:
  * @param timestamp: seconds from epoch time.
  */
     explicit datetime(long long timestamp) {
-        datetime dt = ::aafter(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        datetime dt = ::after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
         *this = dt;
     }
 
@@ -323,7 +323,7 @@ public:
     }
 
     datetime after(long long seconds) const {
-        return ::aafter(*this, seconds);
+        return ::after(*this, seconds);
     }
 
     long long seconds_from(datetime d2) const {
@@ -374,9 +374,27 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
 }
 
 /**
+ * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
+ */
+long long f(long long x, long long y) {
+    if (x == 0) {
+        if (y <= 0)
+            return y / 4;
+        else
+            return 1 + (y - 1) / 4;
+    }
+
+    if (x >= 0)
+        return (y - x) * 365 + f(0, y - 4 * ((4 + x - 1) / 4));
+    else
+        return (y - x) * 365 + f(0, y - 4 * (x / 4));
+
+}
+
+/**
  * @return = @param start + @param seconds
  */
-datetime aafter(datetime start, long long seconds) {
+datetime after(datetime start, long long seconds) {
 
     datetime dt(0, 0, 0, 1, 1, 1970 + ((start.to_timestamp() + seconds) / (((double) 146097 / 400) * 86400)));
     period increment(start.to_timestamp() + seconds - dt.to_timestamp());
@@ -479,7 +497,15 @@ long long seconds_to(datetime start, datetime end) {
             dd += dt2.day;
         }
     } else {
-        dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
+        if (dt1.year >= 0 && dt2.year >= 0) {
+            dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
+        } else if (dt1.year < 0 && dt2.year >= 0) {
+
+        } else if (dt1.year >= 0 && dt2.year < 0) {
+
+        } else {
+            dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
+        }
 
         dd += (dt2.year - dt1.year) * 365 +
               (((dt2.year - 1) / 4 - (dt1.year) / 4) -
