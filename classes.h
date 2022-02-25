@@ -165,7 +165,13 @@ public:
             day(day), month(month), year(year) {}
 
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
-            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
+            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
+        if (day > days_of_this_month()) {
+            //throw exception
+            day = days_of_this_month();
+        }
+
+    }
 
 /**
  * Constructor based on
