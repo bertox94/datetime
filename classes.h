@@ -32,13 +32,9 @@ public:
     period(long long sec, long long min, long long hrs, long long days) :
             sec(sec), min(min), hrs(hrs), days(days) {}
 
-    bool operator==(period &pd) const {
-        return !(*this > pd || *this < pd);
-    }
+    bool operator==(period &pd) const { return !(*this > pd || *this < pd); }
 
-    bool operator!=(period &dt) const {
-        return !(*this == dt);
-    }
+    bool operator!=(period &dt) const { return !(*this == dt); }
 
     bool operator<(period &pd) const {
         if (days < pd.days) {
@@ -84,61 +80,43 @@ public:
             return false;
     }
 
-    bool operator<=(period &pd) const {
-        return !(*this > pd);
-    }
+    bool operator<=(period &pd) const { return !(*this > pd); }
 
-    bool operator>=(period &pd) const {
-        return !(*this < pd);
-    }
+    bool operator>=(period &pd) const { return !(*this < pd); }
 
-    period operator+(period &pd) const {
-        return period(this->to_seconds() + pd.to_seconds());
-    }
+    period operator+(period &pd) const { return period(this->to_seconds() + pd.to_seconds()); }
 
     period operator+=(period &pd) {
         *this = period(this->to_seconds() + pd.to_seconds());
         return *this;
     }
 
-    period operator-(period &pd) const {
-        return period(this->to_seconds() - pd.to_seconds());
-    }
+    period operator-(period &pd) const { return period(this->to_seconds() - pd.to_seconds()); }
 
     period operator-=(period &pd) {
         *this = period(this->to_seconds() - pd.to_seconds());
         return *this;
     }
 
-    period operator*(long long times) const {
-        return period(this->to_seconds() * times);
-    }
+    period operator*(long long times) const { return period(this->to_seconds() * times); }
 
     period operator*=(long long times) {
         *this = period(this->to_seconds() * times);
         return *this;
     }
 
-    period operator/(long long times) const {
-        return period(this->to_seconds() / times);
-    }
+    period operator/(long long times) const { return period(this->to_seconds() / times); }
 
     period operator/=(long long times) {
         *this = period(this->to_seconds() / times);
         return *this;
     }
 
-    long long to_seconds() const {
-        return days * 86400 + hrs * 3600 + min * 60 + sec;
-    }
+    long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
-    period extract_time() const {
-        return {sec, min, hrs, 0};
-    }
+    period extract_time() const { return {sec, min, hrs, 0}; }
 
-    period strip_time() const {
-        return {0, 0, 0, days};
-    }
+    period strip_time() const { return {0, 0, 0, days}; }
 
 };
 
@@ -187,21 +165,13 @@ public:
         *this = dt;
     }
 
-    bool operator==(datetime &dt) const {
-        return !(*this < dt || *this > dt);
-    }
+    bool operator==(datetime &dt) const { return !(*this < dt || *this > dt); }
 
-    bool operator==(datetime &&dt) const {
-        return *this == dt;
-    }
+    bool operator==(datetime &&dt) const { return *this == dt; }
 
-    bool operator!=(datetime &dt) const {
-        return !(*this == dt);
-    }
+    bool operator!=(datetime &dt) const { return !(*this == dt); }
 
-    bool operator!=(datetime &&dt) const {
-        return *this != dt;
-    }
+    bool operator!=(datetime &&dt) const { return *this != dt; }
 
     bool operator<(datetime &dt) const {
         if (year < dt.year) {
@@ -267,103 +237,67 @@ public:
             return false;
     }
 
-    bool operator<=(datetime &d2) const {
-        return !(*this > d2);
-    }
+    bool operator<=(datetime &d2) const { return !(*this > d2); }
 
-    bool operator>=(datetime &d2) const {
-        return !(*this < d2);
-    }
+    bool operator>=(datetime &d2) const { return !(*this < d2); }
 
-    datetime operator+(period &p) const {
-        return after(p.to_seconds());
-    }
+    datetime operator+(period &p) const { return after(p.to_seconds()); }
 
-    datetime operator+(period &&p) const {
-        return operator+(p);
-    }
+    datetime operator+(period &&p) const { return operator+(p); }
 
     datetime operator+=(period &p) {
         *this = after(p.to_seconds());
         return *this;
     }
 
-    datetime operator+=(period &&p) {
-        return operator+=(p);
-    }
+    datetime operator+=(period &&p) { return operator+=(p); }
 
-    datetime operator-(period &p) const {
-        return after(-p.to_seconds());
-    }
+    datetime operator-(period &p) const { return after(-p.to_seconds()); }
 
-    datetime operator-(period &&p) const {
-        return operator-(p);
-    }
+    datetime operator-(period &&p) const { return operator-(p); }
 
     datetime operator-=(period &p) {
         *this = after(-p.to_seconds());
         return *this;
     }
 
-    datetime operator-=(period &&p) {
-        return operator-=(p);
-    }
+    datetime operator-=(period &&p) { return operator-=(p); }
 
 /**
  * Computes the (signed) time from @dt to @this
  * @param dt: an rvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    period operator-(datetime &dt) const {
-        return period(seconds_from(dt));
-    }
+    period operator-(datetime &dt) const { return period(seconds_from(dt)); }
 
 /**
  * Computes the (signed) time from @dt to @this
  * @param dt: an lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    period operator-(datetime &&dt) const {
-        return operator-(dt);
-    }
+    period operator-(datetime &&dt) const { return operator-(dt); }
 
-    datetime after(long long seconds) const {
-        return ::after(*this, seconds);
-    }
+    datetime after(long long seconds) const { return ::after(*this, seconds); }
 
-    long long seconds_from(datetime d2) const {
-        return d2.seconds_to(*this);
-    }
+    long long seconds_from(datetime d2) const { return d2.seconds_to(*this); }
 
-    long long seconds_to(datetime d2) const {
-        return ::seconds_to(*this, d2);
-    }
+    long long seconds_to(datetime d2) const { return ::seconds_to(*this, d2); }
 
-    int days_of_this_year() const {
-        return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0));
-    }
+    int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
 
     int days_of_this_month() const {
         return (((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 2 ? 1 : 0) +
                days_of_months[month - 1];
     }
 
-    long long to_timestamp() const {
-        return seconds_from(datetime());
-    }
+    long long to_timestamp() const { return seconds_from(datetime()); }
 
-    period extract_time() {
-        return {sec, min, hrs, 0};
-    }
+    period extract_time() { return {sec, min, hrs, 0}; }
 };
 
-period operator-(period &p) {
-    return period(-p.to_seconds());
-}
+period operator-(period &p) { return period(-p.to_seconds()); }
 
-period operator-(period &&p) {
-    return -p;
-}
+period operator-(period &&p) { return -p; }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
     return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
@@ -394,9 +328,7 @@ long long fK(int PERIOD, long long x, long long y) {
 /**
  * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
  */
-long long f(long long x, long long y) {
-    return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y);
-}
+long long f(long long x, long long y) { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
 
 /**
  * @return = @param start + @param seconds
