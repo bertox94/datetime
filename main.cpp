@@ -45,15 +45,15 @@ void test2(long long size) {
         long long l2 = distribution(generator) * distribution(generator);
 
         datetime d1(l1);
-        datetime d2 = after(d1, l2);
-        datetime d3 = after(d2, -l2);
+        datetime d2 = aafter(d1, l2);
+        datetime d3 = aafter(d2, -l2);
 
         if (d1 != d3) {
-            cout << "Error: l1= " << l1 << ", l2= " << l2 << endl;
+            cout << "Error: l1= " << setw(12) << l1 << ", l2= " << setw(12) << l2 << endl;
         }
 
         if (i % 1000000 == 0) {
-            cout << "OK: l1= " << l1 << ", l2= " << l2 << endl;
+            cout << "OK: l1= " << setw(12) << l1 << ", l2= " << setw(12) << l2 << endl;
         }
 
     }
@@ -75,7 +75,7 @@ void test3(long long size) {
         datetime d2(rand() % 60, rand() % 60, rand() % 60, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2);
 
         if (d1 != d2) {
-            cout << "Error: l1= " << d1 << ", l2= " << d2 << endl;
+            cout << "Error: l1= " << d1.to_timestamp() << ", l2= " << d2.to_timestamp() << endl;
         }
 
         if (i % 1000000 == 0) {
@@ -96,17 +96,19 @@ int main() {
 
     srand(time(nullptr));
 
-    long l1 = 638828928;
-    long l2 = 1297654017;
+    long long l1 = 419591466376;
+    long long l2 = -11670644390;
 
     datetime d1(l1);
-    datetime d2 = after(d1, l2);
-    datetime d3 = after(d2, -l2);
+    datetime d2 = aafter(d1, l2);
+    datetime d3 = aafter(d2, -l2);
+
+    //test1(300000000);
 
 
     long long epoch = 15000000000;
+    //test1(epoch); //16700000
     test2(epoch); //16700000
-    //test3(epoch); //16700000
 
 
     cout << "\nFaster!" << endl;

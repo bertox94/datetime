@@ -144,7 +144,7 @@ public:
 
 class datetime;
 
-datetime after(datetime start, long long seconds);
+datetime aafter(datetime start, long long seconds);
 
 long long seconds_to(datetime start, datetime end);
 
@@ -178,7 +178,7 @@ public:
  * @param timestamp: seconds from epoch time.
  */
     explicit datetime(long long timestamp) {
-        datetime dt = ::after(datetime(0, 0, 0, 1, 1, 1970), timestamp);
+        datetime dt = ::aafter(datetime(0, 0, 0, 1, 1, 1970), timestamp);
         *this = dt;
     }
 
@@ -323,7 +323,7 @@ public:
     }
 
     datetime after(long long seconds) const {
-        return ::after(*this, seconds);
+        return ::aafter(*this, seconds);
     }
 
     long long seconds_from(datetime d2) const {
@@ -376,106 +376,14 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
 /**
  * @return = @param start + @param seconds
  */
-datetime after(datetime start, long long seconds) {
+datetime aafter(datetime start, long long seconds) {
 
-    datetime dt(0, 0, 0, 1, 1, start.year);
-    period t1 = period(start.to_timestamp()).extract_time();
-    period t2 = period(seconds).extract_time();
-
-    period time = period(t1.to_seconds() + t2.to_seconds());
-
-    long long estimation = t1.to_seconds() / (((double) 146097 / 400) * 86400);
-    dt.year += estimation;
-
-    const long long target =
-            period(start.to_timestamp()).strip_time().to_seconds() + period(seconds).strip_time().to_seconds();
-
-    long long curr = dt.to_timestamp();
-
-
-    //while curr>target go back 1 year
-    while (curr > target) {
-        dt.year--;
-        curr -= dt.days_of_this_year() * 86400;
-    }
-
-
-    //come close with years
-    if (curr <= target) {
-        while (curr <= target) {
-            curr += dt.days_of_this_year() * 86400;
-            dt.year++;
-        }
-        dt.year--;
-        curr -= dt.days_of_this_year() * 86400;
-    }
-
-    //come close with months
-    if (curr <= target) {
-        while (curr <= target) {
-            curr += dt.days_of_this_month() * 86400;
-            dt.month++;
-            if (dt.month == 13) {
-                dt.year++;
-                dt.month = 1;
-            }
-        }
-        dt.month--;
-        if (dt.month == 0) {
-            dt.year--;
-            dt.month = 12;
-        }
-        curr -= dt.days_of_this_month() * 86400;
-    }
-
-    //come close with days
-    if (curr <= target) {
-        while (curr <= target) {
-            curr += 86400;
-            dt.day++;
-            if (dt.day > dt.days_of_this_month()) {
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-                dt.day = 1;
-            }
-        }
-        curr -= 86400;
-        dt.day--;
-        if (dt.day == 0) {
-            dt.month--;
-            if (dt.month == 0) {
-                dt.year--;
-                dt.month = 12;
-            }
-            dt.day = dt.days_of_this_month();
-        }
-    }
+    datetime dt(0, 0, 0, 1, 1, 1970 + ((start.to_timestamp() + seconds) / (((double) 146097 / 400) * 86400)));
+    period increment(start.to_timestamp() + seconds - dt.to_timestamp());
 
     //Since they are in canonical form we can do it easily
-    dt.sec += time.sec;
-    if (dt.sec >= 60) {
-        dt.min++;
-        if (dt.min == 60) {
-            dt.hrs++;
-            if (dt.hrs == 24) {
-                dt.day++;
-                if (dt.day > dt.days_of_this_month()) {
-                    dt.month++;
-                    if (dt.month == 13) {
-                        dt.year++;
-                        dt.month = 1;
-                    }
-                    dt.day = 1;
-                }
-                dt.hrs -= 24;
-            }
-            dt.min -= 60;
-        }
-        dt.sec -= 60;
-    } else if (dt.sec < 0) {
+    dt.sec += increment.sec;
+    if (dt.sec < 0) {
         dt.min--;
         if (dt.min < 0) {
             dt.hrs--;
@@ -496,23 +404,9 @@ datetime after(datetime start, long long seconds) {
         dt.sec += 60;
     }
 
-    dt.min += time.min;
-    if (dt.min >= 60) {
-        dt.hrs++;
-        if (dt.hrs == 24) {
-            dt.day++;
-            if (dt.day > dt.days_of_this_month()) {
-                dt.month++;
-                if (dt.month == 13) {
-                    dt.year++;
-                    dt.month = 1;
-                }
-                dt.day = 1;
-            }
-            dt.hrs -= 24;
-        }
-        dt.min -= 60;
-    } else if (dt.min < 0) {
+
+    dt.min += increment.min;
+    if (dt.min < 0) {
         dt.hrs--;
         if (dt.hrs < 0) {
             dt.day--;
@@ -529,19 +423,8 @@ datetime after(datetime start, long long seconds) {
         dt.min += 60;
     }
 
-    dt.hrs += time.hrs;
-    if (dt.hrs >= 24) {
-        dt.day++;
-        if (dt.day > dt.days_of_this_month()) {
-            dt.month++;
-            if (dt.month == 13) {
-                dt.year++;
-                dt.month = 1;
-            }
-            dt.day = 1;
-        }
-        dt.hrs -= 24;
-    } else if (dt.hrs < 0) {
+    dt.hrs += increment.hrs;
+    if (dt.hrs < 0) {
         dt.day--;
         if (dt.day == 0) {
             dt.month--;
@@ -554,21 +437,22 @@ datetime after(datetime start, long long seconds) {
         dt.hrs += 24;
     }
 
-    dt.day += time.days;
-    if (dt.day > dt.days_of_this_month()) {
+    dt.day += increment.days;
+    while (dt.day > dt.days_of_this_month()) {
+        dt.day -= dt.days_of_this_month();
         dt.month++;
         if (dt.month == 13) {
             dt.year++;
             dt.month = 1;
         }
-        dt.day = 1;
-    } else if (dt.day == 0) {
+    }
+    while (dt.day <= 0) {
         dt.month--;
         if (dt.month <= 0) {
             dt.year--;
             dt.month += 12;
         }
-        dt.day = dt.days_of_this_month();
+        dt.day += dt.days_of_this_month();
     }
 
     return dt;
