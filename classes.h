@@ -168,7 +168,7 @@ public:
             sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
         if (day > days_of_this_month()) {
             //throw exception
-            day = days_of_this_month();
+            this->day = days_of_this_month();
         }
 
     }
@@ -373,22 +373,24 @@ std::ostream &operator<<(std::ostream &os, period const &d) {
               << std::setfill('0') << std::setw(2) << d.sec;
 }
 
+long long fK(int PERIOD, long long x, long long y) {
+    if (x >= 0)
+        y = y - PERIOD * ((PERIOD + x - 1) / PERIOD);
+    else
+        y = y - PERIOD * (x / PERIOD);
+
+    if (y <= 0)
+        return y / PERIOD;
+    else
+        return 1 + (y - 1) / PERIOD;
+
+}
+
 /**
  * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
  */
 long long f(long long x, long long y) {
-    if (x == 0) {
-        if (y <= 0)
-            return y / 4;
-        else
-            return 1 + (y - 1) / 4;
-    }
-
-    if (x >= 0)
-        return (y - x) * 365 + f(0, y - 4 * ((4 + x - 1) / 4));
-    else
-        return (y - x) * 365 + f(0, y - 4 * (x / 4));
-
+    return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y);
 }
 
 /**
@@ -497,20 +499,8 @@ long long seconds_to(datetime start, datetime end) {
             dd += dt2.day;
         }
     } else {
-        if (dt1.year >= 0 && dt2.year >= 0) {
-            dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
-        } else if (dt1.year < 0 && dt2.year >= 0) {
 
-        } else if (dt1.year >= 0 && dt2.year < 0) {
-
-        } else {
-            dd += (dt1.year % 400 == 0) || (dt1.year % 4 == 0 && dt1.year % 100 != 0);
-        }
-
-        dd += (dt2.year - dt1.year) * 365 +
-              (((dt2.year - 1) / 4 - (dt1.year) / 4) -
-               ((dt2.year - 1) / 100 - (dt1.year) / 100) +
-               ((dt2.year - 1) / 400 - (dt1.year) / 400));
+        dd += f(dt1.year, dt2.year);
 
         datetime ddd(1, 1, dt1.year);
         for (ddd.month = 1; ddd.month < dt1.month; ddd.month++)
