@@ -398,10 +398,11 @@ long long f(long long x, long long y) {
  */
 datetime after(datetime start, long long seconds) {
 
-    datetime dt(0, 0, 0, 1, 1, 1970 + ((start.to_timestamp() + seconds) / (((double) 146097 / 400) * 86400)));
-    period increment(start.to_timestamp() + seconds - dt.to_timestamp());
+    long long start_timestamp = start.to_timestamp();
+    datetime dt(0, 0, 0, 1, 1, 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
+    period increment(start_timestamp + seconds - dt.to_timestamp());
 
-    //Since they are in canonical form we can do it easily
+    //time can only be in canonic positive or negative. Only negative needs to be treated as follows.
     dt.sec += increment.sec;
     if (dt.sec < 0) {
         dt.min--;
