@@ -29,6 +29,20 @@ public:
         return *this;
     }
 
+    calendar_period operator*(long long times) const { return {months * times, years * times}; }
+
+    calendar_period operator*=(long long times) {
+        *this = this->operator*(times);
+        return *this;
+    }
+
+    calendar_period operator/(long long times) const { return {months / times, years / times}; }
+
+    calendar_period operator/=(long long times) {
+        *this = this->operator*(times);
+        return *this;
+    }
+
 };
 
 class period {
