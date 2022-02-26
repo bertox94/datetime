@@ -12,6 +12,24 @@
 
 using namespace std;
 
+class calendar_period {
+public:
+    long long months{};
+    long long years{};
+
+    calendar_period(long long int months, long long int years) : months(months), years(years) {}
+
+    calendar_period operator+(calendar_period &cp) const {
+        return calendar_period(months + cp.months, years + cp.months);
+    }
+
+    calendar_period operator+=(calendar_period &cp) {
+        *this = calendar_period(months + cp.months, years + cp.months);
+        return *this;
+    }
+
+};
+
 class period {
 public:
 
@@ -287,12 +305,11 @@ public:
 /**
  * For example add to a date 13 months
  */
-    datetime operator+(datetime &dt) const {
-        period pd = dt.extract_period();
-        datetime curr = *this + pd;
+    datetime operator+(calendar_period &cp) const {
+        datetime curr = *this;
 
-        curr.year += (dt.month - 1) / 12;
-        long long months = dt.month - dt.month / 12;
+        curr.year += (cp.months - 1) / 12;
+        long long months = cp.months - cp.months / 12;
 
         curr.month += months;
         if (curr.month > 12) {
@@ -303,18 +320,18 @@ public:
             curr.month += 12;
         }
 
-        curr.year += dt.year;
+        curr.year += cp.years;
         return curr;
     }
 
-    datetime operator+(datetime &&p) const { return this->operator+(p); }
+    datetime operator+(calendar_period &&p) const { return this->operator+(p); }
 
-    datetime operator+=(datetime &p) {
+    datetime operator+=(calendar_period &p) {
         *this = this->operator+(p);
         return *this;
     }
 
-    datetime operator+=(datetime &&p) { return operator+=(p); }
+    datetime operator+=(calendar_period &&p) { return operator+=(p); }
 
     int get_week_day() const { return 4 + ((this->to_timestamp() / 86400) % 7); }
 
@@ -356,6 +373,10 @@ public:
 period operator-(period &p) { return period(-p.to_seconds()); }
 
 period operator-(period &&p) { return -p; }
+
+calendar_period operator-(calendar_period &p) { return {-p.months, -p.years}; }
+
+calendar_period operator-(calendar_period &&p) { return -p; }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
     return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
