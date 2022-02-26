@@ -127,19 +127,27 @@ public:
 
     period operator-=(period &&pd) { return this->operator-=(pd); }
 
-    period operator*(long long times) const { return period(this->to_seconds() * times); }
+    period operator*(period &pd) const { return period(this->to_seconds() * pd.to_seconds()); }
 
-    period operator*=(long long times) {
-        *this = period(this->to_seconds() * times);
+    period operator*(period &&pd) const { return this->operator*(pd); }
+
+    period operator*=(period &pd) {
+        *this = this->operator*(pd);
         return *this;
     }
 
-    period operator/(long long times) const { return period(this->to_seconds() / times); }
+    period operator*=(period &&pd) { return this->operator*=(pd); }
 
-    period operator/=(long long times) {
-        *this = period(this->to_seconds() / times);
+    period operator/(period &pd) const { return period(this->to_seconds() / pd.to_seconds()); }
+
+    period operator/(period &&pd) const { return this->operator/(pd); }
+
+    period operator/=(period &pd) {
+        *this = this->operator/(pd);
         return *this;
     }
+
+    period operator/=(period &&pd) { return this->operator/=(pd); }
 
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
@@ -322,12 +330,10 @@ public:
  * @return is the number of months from @this and @param dt regardless of the days,
  * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
  */
-    long long months_between(datetime &dt) const {
-        return 12 * (dt.year - year) + dt.month - month;
-    }
+    long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
 
 /**
- * @return =  @this by @param n months. The obtained date is adjusted to return the last of the when it overflows,
+ * @return =  @this after @param n years. The obtained date is adjusted to return the last of the when it overflows,
  * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
  */
     datetime after_months(long long n) const {
@@ -346,6 +352,21 @@ public:
         }
 
         return dt.fix_date();
+    }
+
+/**
+ * @return is the number of years from @this and @param dt regardless of the days,
+ * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
+ */
+    long long years_between(datetime &dt) const { return dt.year - year; }
+
+/**
+ * @return =  @this after @param n years.
+ */
+    datetime after_years(long long n) const {
+        datetime dt = *this;
+        dt.year += n;
+        return dt;
     }
 
     datetime fix_date() const {
