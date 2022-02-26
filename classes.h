@@ -7,6 +7,8 @@
 #ifndef DATETIME_CLASSES_H
 #define DATETIME_CLASSES_H
 
+#include <iomanip>
+
 using namespace std;
 
 class period {
