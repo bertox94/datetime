@@ -512,8 +512,6 @@ datetime after(datetime start, long long seconds) {
         dt.hrs += 24;
     }
 
-    //todo:consider a for also for years before this one if (days>365 o 366)
-
     dt.day += increment.days;
     while (dt.day > dt.days_of_this_month()) {
         dt.day -= dt.days_of_this_month();
