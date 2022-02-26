@@ -108,9 +108,15 @@ public:
 
     period operator+(period &pd) const { return period(this->to_seconds() + pd.to_seconds()); }
 
+    period operator+(period &&pd) const { return this->operator+(pd); }
+
     period operator+=(period &pd) {
         *this = period(this->to_seconds() + pd.to_seconds());
         return *this;
+    }
+
+    period operator+=(period &&pd) {
+        return this->operator+=(pd);
     }
 
     period operator-(period &pd) const { return period(this->to_seconds() - pd.to_seconds()); }
