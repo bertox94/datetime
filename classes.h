@@ -21,7 +21,7 @@ public:
 
     period() = default;
 
-    period(long long seconds) {
+    explicit period(long long seconds) {
         days = seconds / (86400);
         long long ss = days * 86400;
         hrs = (seconds - ss) / 3600;
@@ -162,7 +162,7 @@ public:
  * Constructor based on
  * @param timestamp: seconds from epoch time.
  */
-    datetime(long long timestamp) {
+    explicit datetime(long long timestamp) {
         datetime dt = ::after(datetime(), timestamp);
         *this = dt;
     }
