@@ -43,7 +43,8 @@ void test3(long long size) {
     std::uniform_int_distribution<long> distribution(LONG_MIN, LONG_MAX);
 
     for (long long i = 0; i < size; i++) {
-        datetime d1(rand() % 60, rand() % 60, rand() % 24, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2);
+        datetime d1(rand() % 60, rand() % 60, rand() % 24, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2,
+                    true);
         long long tt = distribution(generator);
         datetime d2 = after(after(d1, tt), -tt);
 

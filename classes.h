@@ -145,22 +145,23 @@ public:
 
     datetime() = default;
 
-    datetime(long long day, long long month, long long year) :
+    datetime(long long day, long long month, long long year, bool autofix) :
             day(day), month(month), year(year) {
-        if (day > days_of_this_month()) {
-            //throw exception
+        if (day > days_of_this_month())
             this->day = days_of_this_month();
-        }
     }
+
+    datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year, bool autofix)
+            : sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
+        if (day > days_of_this_month())
+            this->day = days_of_this_month();
+    }
+
+    datetime(long long day, long long month, long long year) :
+            day(day), month(month), year(year) {}
 
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
-            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
-        if (day > days_of_this_month()) {
-            //throw exception
-            this->day = days_of_this_month();
-        }
-
-    }
+            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
 
 /**
  * Constructor based on
@@ -291,7 +292,7 @@ public:
         datetime curr = *this + pd;
 
         curr.year += (dt.month - 1) / 12;
-        long long months = dt.month - (dt.month - 1) / 12;
+        long long months = dt.month - dt.month / 12;
 
         curr.month += months;
         if (curr.month > 12) {
