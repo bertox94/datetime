@@ -7,6 +7,7 @@
 #ifndef DATETIME_CLASSES_H
 #define DATETIME_CLASSES_H
 
+#include <ctime>
 #include <iomanip>
 
 using namespace std;
@@ -132,6 +133,9 @@ class datetime {
 public:
     int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+    /**
+     * By default date is epoch time.
+     */
     long long sec = 0;
     long long min = 0;
     long long hrs = 0;
@@ -248,7 +252,7 @@ public:
     datetime operator+(period &&p) const { return operator+(p); }
 
     datetime operator+=(period &p) {
-        *this = after(p.to_seconds());
+        *this = operator+(p);
         return *this;
     }
 
@@ -259,11 +263,11 @@ public:
     datetime operator-(period &&p) const { return operator-(p); }
 
     datetime operator-=(period &p) {
-        *this = after(-p.to_seconds());
+        *this = this->operator-(p);
         return *this;
     }
 
-    datetime operator-=(period &&p) { return operator-=(p); }
+    datetime operator-=(period &&p) { return this->operator-=(p); }
 
 /**
  * Computes the (signed) time from @dt to @this
@@ -278,6 +282,52 @@ public:
  * @return a period (days, hrs, min, sec) in canonical form
  */
     period operator-(datetime &&dt) const { return operator-(dt); }
+
+/**
+ * For example add to a date 13 months
+ */
+    datetime operator+(datetime &dt) const {
+        period pd = dt.extract_period();
+        datetime curr = *this + pd;
+
+        curr.year += (dt.month - 1) / 12;
+        long long months = dt.month - (dt.month - 1) / 12;
+
+        curr.month += months;
+        if (curr.month > 12) {
+            curr.year++;
+            curr.month -= 12;
+        } else if (curr.month <= 0) {
+            curr.year--;
+            curr.month += 12;
+        }
+
+        curr.year += dt.year;
+        return curr;
+    }
+
+    datetime operator+(datetime &&p) const { return this->operator+(p); }
+
+    datetime operator+=(datetime &p) {
+        *this = this->operator+(p);
+        return *this;
+    }
+
+    datetime operator+=(datetime &&p) { return operator+=(p); }
+
+    int get_week_day() const { return 4 + ((this->to_timestamp() / 86400) % 7); }
+
+    datetime first_working_day() const {
+        int wd = get_week_day();
+        period pd;
+        if (wd == 6)
+            pd.days = 2;
+        if (wd == 0)
+            pd.days = 1;
+        return *this + pd;
+    }
+
+    datetime today() const { return datetime(std::time(nullptr)); }
 
     datetime after(long long seconds) const { return ::after(*this, seconds); }
 
@@ -294,7 +344,12 @@ public:
 
     long long to_timestamp() const { return seconds_from(datetime()); }
 
-    period extract_time() { return {sec, min, hrs, 0}; }
+    /**
+     * Be careful, month and year are treated as 0
+     */
+    period extract_period() const { return {sec, min, hrs, day}; }
+
+    period extract_time() const { return {sec, min, hrs, 0}; }
 };
 
 period operator-(period &p) { return period(-p.to_seconds()); }
