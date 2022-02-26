@@ -302,6 +302,31 @@ public:
  */
     period operator-(datetime &&dt) const { return operator-(dt); }
 
+    /**
+ * Computes the (signed) calendar period from @dt to @this
+ * @param dt: an rvalue date
+ * @return a period (days, hrs, min, sec) in canonical form
+ */
+    calendar_period operator/(datetime &dt) const {
+        long long yyears = year - dt.year;
+        long long mmonths = month - dt.month;
+        if (mmonths <= 0) {
+            yyears--;
+            mmonths += 12;
+        } else if (mmonths > 12) {
+            yyears++;
+            mmonths -= 12;
+        }
+        return {mmonths, yyears};
+    }
+
+/**
+ * Computes the (signed) calendar period from @dt to @this
+ * @param dt: an lvalue date
+ * @return a period (days, hrs, min, sec) in canonical form
+ */
+    period operator/(datetime &&dt) const { return operator-(dt); }
+
 /**
  * For example add to a date 13 months
  */
