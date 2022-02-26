@@ -311,10 +311,10 @@ public:
     calendar_period operator/(datetime &dt) const {
         long long yyears = year - dt.year;
         long long mmonths = month - dt.month;
-        if (mmonths <= 0) {
+        if (mmonths < 0) {
             yyears--;
             mmonths += 12;
-        } else if (mmonths > 12) {
+        } else if (mmonths > 11) {
             yyears++;
             mmonths -= 12;
         }
