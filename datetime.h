@@ -384,11 +384,6 @@ public:
 
     long long to_timestamp() const { return seconds_from(datetime()); }
 
-    /**
-     * Be careful, month and year are treated as 0
-     */
-    period extract_period() const { return {sec, min, hrs, day}; }
-
     period extract_time() const { return {sec, min, hrs, 0}; }
 };
 
