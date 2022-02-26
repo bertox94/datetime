@@ -386,6 +386,12 @@ public:
                days_of_months[month - 1];
     }
 
+    datetime end_of_month() const {
+        datetime dt = *this;
+        dt.day = dt.days_of_this_month();
+        return dt;
+    }
+
     long long to_timestamp() const { return seconds_from(datetime()); }
 
     /**
