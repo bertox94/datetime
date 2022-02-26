@@ -296,7 +296,7 @@ public:
     datetime operator-=(period &&p) { return this->operator-=(p); }
 
 /**
- * Computes the (signed) time from @dt to @this
+ * Computes the (signed) period from @dt to @this
  * @param dt: an rvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
@@ -314,7 +314,7 @@ public:
  * @param dt: an rvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    calendar_period operator/(datetime &dt) const {
+    calendar_period operator|(datetime &dt) const {
         long long yyears = year - dt.year;
         long long mmonths = month - dt.month;
         if (mmonths < 0) {
@@ -332,7 +332,7 @@ public:
  * @param dt: an lvalue date
  * @return a period (days, hrs, min, sec) in canonical form
  */
-    period operator/(datetime &&dt) const { return operator-(dt); }
+    calendar_period operator|(datetime &&dt) const { return operator|(dt); }
 
 /**
  * For example add to a date 13 months
