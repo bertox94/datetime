@@ -345,9 +345,13 @@ public:
             dt.month += 12;
         }
 
+        return dt.fix_date();
+    }
+
+    datetime fix_date() const {
+        datetime dt = *this;
         if (dt.day > dt.days_of_this_month())
             dt.day = dt.days_of_this_month();
-
         return dt;
     }
 
