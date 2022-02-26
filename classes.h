@@ -21,7 +21,7 @@ public:
     calendar_period(long long int months, long long int years) : months(months), years(years) {}
 
     calendar_period operator+(calendar_period &cp) const {
-        return calendar_period(months + cp.months, years + cp.months);
+        return {months + cp.months, years + cp.months};
     }
 
     calendar_period operator+=(calendar_period &cp) {
