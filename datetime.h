@@ -18,29 +18,67 @@ public:
     long long months{};
     long long years{};
 
-    calendar_period(long long int months, long long int years) : months(months), years(years) {}
+    calendar_period(long long int _months, long long int _years) : months(_months), years(_years) {
 
-    calendar_period operator+(calendar_period &cp) const {
-        return {months + cp.months, years + cp.months};
+        years += months / 12;
+        months = _months - (_months / 12) * 12;
+
+        if (months > 11) {
+            years++;
+            months = 1;
+        } else if (months < 0) {
+            years--;
+            months = 11;
+        }
+
     }
+
+    calendar_period operator+(calendar_period &cp) const { return {months + cp.months, years + cp.years}; }
+
+    calendar_period operator+(calendar_period &&cp) const { return this->operator+(cp); }
+
+    calendar_period operator-(calendar_period &cp) const { return {months - cp.months, years - cp.years}; }
+
+    calendar_period operator-(calendar_period &&cp) const { return this->operator-(cp); }
 
     calendar_period operator+=(calendar_period &cp) {
-        *this = calendar_period(months + cp.months, years + cp.months);
+        *this = this->operator+(cp);
         return *this;
     }
 
-    calendar_period operator*(long long times) const { return {months * times, years * times}; }
+    calendar_period operator+=(calendar_period &&cp) { return this->operator+=(cp); }
 
-    calendar_period operator*=(long long times) {
-        *this = this->operator*(times);
+    calendar_period operator-=(calendar_period &cp) {
+        *this = this->operator-(cp);
         return *this;
     }
 
-    calendar_period operator/(long long times) const { return {months / times, years / times}; }
+    calendar_period operator-=(calendar_period &&cp) { return this->operator-=(cp); }
 
-    calendar_period operator/=(long long times) {
-        *this = this->operator*(times);
+    calendar_period operator*(calendar_period &cp) const { return {this->get_months() * cp.get_months(), 0}; }
+
+    calendar_period operator*(calendar_period &&cp) const { return this->operator*(cp); }
+
+    calendar_period operator*=(calendar_period &cp) {
+        *this = this->operator*(cp);
         return *this;
+    }
+
+    calendar_period operator*=(calendar_period &&cp) { return this->operator*=(cp); }
+
+    calendar_period operator/(calendar_period &cp) const { return {this->get_months() / cp.get_months(), 0}; }
+
+    calendar_period operator/(calendar_period &&cp) const { return this->operator/(cp); }
+
+    calendar_period operator/=(calendar_period &cp) {
+        *this = this->operator/(cp);
+        return *this;
+    }
+
+    calendar_period operator/=(calendar_period &&cp) { return this->operator/=(cp); }
+
+    long long get_months() const {
+        return years * 12 + months;
     }
 
 };
@@ -70,7 +108,11 @@ public:
 
     bool operator==(period &pd) const { return !(*this > pd || *this < pd); }
 
+    bool operator==(period &&pd) const { return this->operator==(pd); }
+
     bool operator!=(period &dt) const { return !(*this == dt); }
+
+    bool operator!=(period &&dt) const { return this->operator!=(dt); }
 
     bool operator<(period &pd) const {
         if (days < pd.days) {
@@ -94,6 +136,8 @@ public:
             return false;
     }
 
+    bool operator<(period &&pd) const { return this->operator<(pd); }
+
     bool operator>(period &pd) const {
         if (days > pd.days) {
             return true;
@@ -116,9 +160,15 @@ public:
             return false;
     }
 
+    bool operator>(period &&pd) const { return this->operator>(pd); }
+
     bool operator<=(period &pd) const { return !(*this > pd); }
 
+    bool operator<=(period &&pd) const { return this->operator<=(pd); }
+
     bool operator>=(period &pd) const { return !(*this < pd); }
+
+    bool operator>=(period &&pd) const { return this->operator>=(pd); }
 
     period operator+(period &pd) const { return period(this->to_seconds() + pd.to_seconds()); }
 
@@ -135,10 +185,14 @@ public:
 
     period operator-(period &pd) const { return period(this->to_seconds() - pd.to_seconds()); }
 
+    period operator-(period &&pd) const { return this->operator-(pd); }
+
     period operator-=(period &pd) {
         *this = period(this->to_seconds() - pd.to_seconds());
         return *this;
     }
+
+    period operator-=(period &&pd) { return this->operator-=(pd); }
 
     period operator*(long long times) const { return period(this->to_seconds() * times); }
 
@@ -251,6 +305,8 @@ public:
             return false;
     }
 
+    bool operator<(datetime &&dt) const { return this->operator<(dt); }
+
     bool operator>(datetime &dt) const {
         if (year > dt.year) {
             return true;
@@ -283,9 +339,15 @@ public:
             return false;
     }
 
+    bool operator>(datetime &&dt) const { return this->operator>(dt); }
+
     bool operator<=(datetime &d2) const { return !(*this > d2); }
 
+    bool operator<=(datetime &&d2) const { return this->operator<=(d2); }
+
     bool operator>=(datetime &d2) const { return !(*this < d2); }
+
+    bool operator>=(datetime &&d2) const { return this->operator>=(d2); }
 
     datetime operator+(period &p) const { return after(p.to_seconds()); }
 
@@ -329,16 +391,7 @@ public:
  * @return a period (days, hrs, min, sec) in canonical form
  */
     calendar_period operator|(datetime &dt) const {
-        long long yyears = year - dt.year;
-        long long mmonths = month - dt.month;
-        if (mmonths < 0) {
-            yyears--;
-            mmonths += 12;
-        } else if (mmonths > 11) {
-            yyears++;
-            mmonths -= 12;
-        }
-        return {mmonths, yyears};
+        return {month - dt.month, year - dt.year};
     }
 
 /**
