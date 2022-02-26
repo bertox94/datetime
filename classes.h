@@ -12,6 +12,7 @@
 
 using namespace std;
 
+//try to keep in canonical form: only years negative, all in their respective bounds
 class calendar_period {
 public:
     long long months{};
