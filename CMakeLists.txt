@@ -3,4 +3,4 @@ project(datetime)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(datetime main.cpp classes.h )
+add_executable(datetime main.cpp classes.h)
