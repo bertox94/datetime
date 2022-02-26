@@ -12,77 +12,6 @@
 
 using namespace std;
 
-//try to keep in canonical form: only years negative, months from 0 to 11, when 12, years++. Only months and years.
-class calendar_period {
-public:
-    long long months{};
-    long long years{};
-
-    calendar_period(long long int _months, long long int _years) : months(_months), years(_years) {
-
-        years += months / 12;
-        months = _months - (_months / 12) * 12;
-
-        if (months > 11) {
-            years++;
-            months = 1;
-        } else if (months < 0) {
-            years--;
-            months = 11;
-        }
-
-    }
-
-    calendar_period operator+(calendar_period &cp) const { return {months + cp.months, years + cp.years}; }
-
-    calendar_period operator+(calendar_period &&cp) const { return this->operator+(cp); }
-
-    calendar_period operator-(calendar_period &cp) const { return {months - cp.months, years - cp.years}; }
-
-    calendar_period operator-(calendar_period &&cp) const { return this->operator-(cp); }
-
-    calendar_period operator+=(calendar_period &cp) {
-        *this = this->operator+(cp);
-        return *this;
-    }
-
-    calendar_period operator+=(calendar_period &&cp) { return this->operator+=(cp); }
-
-    calendar_period operator-=(calendar_period &cp) {
-        *this = this->operator-(cp);
-        return *this;
-    }
-
-    calendar_period operator-=(calendar_period &&cp) { return this->operator-=(cp); }
-
-    calendar_period operator*(calendar_period &cp) const { return {this->get_months() * cp.get_months(), 0}; }
-
-    calendar_period operator*(calendar_period &&cp) const { return this->operator*(cp); }
-
-    calendar_period operator*=(calendar_period &cp) {
-        *this = this->operator*(cp);
-        return *this;
-    }
-
-    calendar_period operator*=(calendar_period &&cp) { return this->operator*=(cp); }
-
-    calendar_period operator/(calendar_period &cp) const { return {this->get_months() / cp.get_months(), 0}; }
-
-    calendar_period operator/(calendar_period &&cp) const { return this->operator/(cp); }
-
-    calendar_period operator/=(calendar_period &cp) {
-        *this = this->operator/(cp);
-        return *this;
-    }
-
-    calendar_period operator/=(calendar_period &&cp) { return this->operator/=(cp); }
-
-    long long get_months() const {
-        return years * 12 + months;
-    }
-
-};
-
 class period {
 public:
 
@@ -93,6 +22,10 @@ public:
 
     period() = default;
 
+/**
+ * Construct a new date which is @param seconds after epoch time.
+ * To get the current date pass std::time(nullptr) as parameter.
+ */
     explicit period(long long seconds) {
         days = seconds / (86400);
         long long ss = days * 86400;
@@ -385,52 +318,38 @@ public:
  */
     period operator-(datetime &&dt) const { return operator-(dt); }
 
-    /**
- * Computes the (signed) calendar period from @dt to @this
- * @param dt: an rvalue date
- * @return a period (days, hrs, min, sec) in canonical form
+/**
+ * @return is the number of months from @this and @param dt regardless of the days,
+ * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
  */
-    calendar_period operator|(datetime &dt) const {
-        return {month - dt.month, year - dt.year};
+    long long months_between(datetime &dt) const {
+        return 12 * (dt.year - year) + dt.month - month;
     }
 
 /**
- * Computes the (signed) calendar period from @dt to @this
- * @param dt: an lvalue date
- * @return a period (days, hrs, min, sec) in canonical form
+ * @return =  @this by @param n months. The obtained date is adjusted to return the last of the when it overflows,
+ * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
  */
-    calendar_period operator|(datetime &&dt) const { return operator|(dt); }
+    datetime after_months(long long n) const {
+        datetime dt = *this;
+        dt.year += n / 12;
+        dt.month += n - ((n / 12) * 12);
 
-/**
- * For example add to a date 13 months
- */
-    datetime operator+(calendar_period &cp) const {
-        datetime curr = *this;
-
-        curr.year += (cp.months - 1) / 12;
-        long long months = cp.months - cp.months / 12;
-
-        curr.month += months;
-        if (curr.month > 12) {
-            curr.year++;
-            curr.month -= 12;
-        } else if (curr.month <= 0) {
-            curr.year--;
-            curr.month += 12;
+        if (dt.month > 12) {
+            dt.year++;
+            dt.month -= 12;
         }
 
-        curr.year += cp.years;
-        return curr;
+        if (dt.month <= 0) {
+            dt.year--;
+            dt.month += 12;
+        }
+
+        if (dt.day > dt.days_of_this_month())
+            dt.day = dt.days_of_this_month();
+
+        return dt;
     }
-
-    datetime operator+(calendar_period &&p) const { return this->operator+(p); }
-
-    datetime operator+=(calendar_period &p) {
-        *this = this->operator+(p);
-        return *this;
-    }
-
-    datetime operator+=(calendar_period &&p) { return operator+=(p); }
 
     int get_week_day() const { return 4 + ((this->to_timestamp() / 86400) % 7); }
 
@@ -443,8 +362,6 @@ public:
             pd.days = 1;
         return *this + pd;
     }
-
-    datetime today() const { return datetime(std::time(nullptr)); }
 
     datetime after(long long seconds) const { return ::after(*this, seconds); }
 
@@ -478,10 +395,6 @@ public:
 period operator-(period &p) { return period(-p.to_seconds()); }
 
 period operator-(period &&p) { return -p; }
-
-calendar_period operator-(calendar_period &p) { return {-p.months, -p.years}; }
-
-calendar_period operator-(calendar_period &&p) { return -p; }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
     return os << std::setfill('0') << std::setw(2) << d.day << "." << std::setfill('0') << std::setw(2) << d.month
