@@ -367,12 +367,6 @@ public:
         return *this + pd;
     }
 
-    datetime after(long long seconds) const { return ::after(*this, seconds); }
-
-    long long seconds_from(datetime d2) const { return d2.seconds_to(*this); }
-
-    long long seconds_to(datetime d2) const { return ::seconds_to(*this, d2); }
-
     int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
 
     int days_of_this_month() const {
@@ -388,7 +382,11 @@ public:
 
     long long to_timestamp() const { return seconds_from(datetime()); }
 
-    period extract_time() const { return {sec, min, hrs, 0}; }
+    datetime after(long long seconds) const { return ::after(*this, seconds); }
+
+    long long seconds_from(datetime d2) const { return d2.seconds_to(*this); }
+
+    long long seconds_to(datetime d2) const { return ::seconds_to(*this, d2); }
 };
 
 period operator-(period &p) { return period(-p.to_seconds()); }
