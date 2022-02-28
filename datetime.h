@@ -471,9 +471,9 @@ datetime after(datetime start, long long seconds) {
 
     long long start_timestamp = start.to_timestamp();
     datetime dt(0, 0, 0, 1, 1, 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
-    period increment(start_timestamp + seconds - dt.to_timestamp());
+    period from_dt(start_timestamp + seconds - dt.to_timestamp());
 
-    dt.sec += increment.sec;
+    dt.sec += from_dt.sec;
     if (dt.sec < 0) {
         dt.year--;
         dt.month = 12;
@@ -483,7 +483,7 @@ datetime after(datetime start, long long seconds) {
         dt.sec += 60;
     }
 
-    dt.min += increment.min;
+    dt.min += from_dt.min;
     if (dt.min < 0) { // here min and sec can be anything
         dt.hrs--;
         if (dt.hrs == -1) { //here hrs can be either -1 or 22
@@ -501,7 +501,7 @@ datetime after(datetime start, long long seconds) {
         dt.min += 60;
     }
 
-    dt.hrs += increment.hrs;
+    dt.hrs += from_dt.hrs;
     if (dt.hrs < 0) {
         dt.day--;
         if (dt.day == 0) {
@@ -515,7 +515,7 @@ datetime after(datetime start, long long seconds) {
         dt.hrs += 24;
     }
 
-    dt.day += increment.days;
+    dt.day += from_dt.days;
     while (dt.day > dt.days_of_this_month()) {
         dt.day -= dt.days_of_this_month();
         dt.month++;
