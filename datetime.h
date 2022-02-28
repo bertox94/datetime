@@ -13,9 +13,8 @@
 using namespace std;
 
 //Is it true that is is always in canonic form?
-//For example:
-// period(sec = 13, min = 3, hrs = -4, days = 4)  ===> the only negative should be always only the days
-// period(sec = 23, min = 400, hrs = 3, days = 3) ===> each value is wthin its bounds
+// period(sec = 13, min = 3, hrs = -4, days = 4)  ===> it is canonic
+// period(sec = 23, min = 400, hrs = 3, days = 3) ===> it is not canonic
 
 class period {
 public:
@@ -28,7 +27,7 @@ public:
     period() = default;
 
     explicit period(long long seconds) {
-        days = seconds / (86400);
+        days = seconds / 86400;
         long long ss = days * 86400;
         hrs = (seconds - ss) / 3600;
         ss += hrs * 3600;
@@ -37,8 +36,19 @@ public:
         sec = seconds - ss;
     }
 
-    period(long long sec, long long min, long long hrs, long long days) :
-            sec(sec), min(min), hrs(hrs), days(days) {}
+    period(long long _sec, long long _min, long long _hrs, long long _days) :
+            sec(_sec), min(_min), hrs(_hrs), days(_days) {
+        if (abs(_sec) >= 60)
+            throw runtime_error("");
+        if (abs(_min) >= 60)
+            throw runtime_error("");
+        if (abs(_hrs) >= 24)
+            throw runtime_error("");
+
+        if ((!(_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0)) ||
+            (!(_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)))
+            throw runtime_error("");
+    }
 
     bool operator==(period &pd) const { return !(*this > pd || *this < pd); }
 
@@ -152,10 +162,6 @@ public:
 
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
-    period extract_time() const { return {sec, min, hrs, 0}; }
-
-    period strip_time() const { return {0, 0, 0, days}; }
-
 };
 
 class datetime;
@@ -188,6 +194,12 @@ public:
 
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year, bool autofix)
             : sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
+        if (sec < 0 || sec >= 60)
+            throw runtime_error("");
+        if (min < 0 || min >= 60)
+            throw runtime_error("");
+        if (hrs < 0 || hrs >= 24)
+            throw runtime_error("");
         if (day > days_of_this_month())
             this->day = days_of_this_month();
     }
@@ -196,16 +208,22 @@ public:
             day(day), month(month), year(year) {}
 
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
-            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
+            sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {
+        if (sec < 0 || sec >= 60)
+            throw runtime_error("");
+        if (min < 0 || min >= 60)
+            throw runtime_error("");
+        if (hrs < 0 || hrs >= 24)
+            throw runtime_error("");
+        if (day > days_of_this_month())
+            throw runtime_error("");
+    }
 
     /**
     * Construct a new date which is @param seconds after epoch time.
     * To get the current date pass std::time(nullptr) as parameter.
     */
-    explicit datetime(long long timestamp) {
-        datetime dt = ::after(datetime(), timestamp);
-        *this = dt;
-    }
+    explicit datetime(long long timestamp) { *this = ::after(datetime(), timestamp); }
 
     bool operator==(datetime &dt) const { return !(*this < dt || *this > dt); }
 
@@ -402,9 +420,9 @@ public:
         return dt;
     }
 
-    long long to_timestamp() const { return seconds_from(datetime()); }
-
     datetime after(long long seconds) const { return ::after(*this, seconds); }
+
+    long long to_timestamp() const { return seconds_from(datetime()); }
 
     long long seconds_from(datetime d2) const { return d2.seconds_to(*this); }
 
