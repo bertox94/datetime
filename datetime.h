@@ -12,6 +12,11 @@
 
 using namespace std;
 
+//Is it true that is is always in canonic form?
+//For example:
+// period(sec = 13, min = 3, hrs = -4, days = 4)  ===> the only negative should be always only the days
+// period(sec = 23, min = 400, hrs = 3, days = 3) ===> each value is wthin its bounds
+
 class period {
 public:
 
@@ -22,10 +27,6 @@ public:
 
     period() = default;
 
-/**
- * Construct a new date which is @param seconds after epoch time.
- * To get the current date pass std::time(nullptr) as parameter.
- */
     explicit period(long long seconds) {
         days = seconds / (86400);
         long long ss = days * 86400;
@@ -197,10 +198,10 @@ public:
     datetime(long long sec, long long min, long long hrs, long long day, long long month, long long year) :
             sec(sec), min(min), hrs(hrs), day(day), month(month), year(year) {}
 
-/**
- * Constructor based on
- * @param timestamp: seconds from epoch time.
- */
+    /**
+    * Construct a new date which is @param seconds after epoch time.
+    * To get the current date pass std::time(nullptr) as parameter.
+    */
     explicit datetime(long long timestamp) {
         datetime dt = ::after(datetime(), timestamp);
         *this = dt;
