@@ -45,16 +45,17 @@ void test3(long long size) {
     for (long long i = 0; i < size; i++) {
         datetime d1(rand() % 60, rand() % 60, rand() % 24, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2,
                     true);
-        long long tt = distribution(generator);
-        datetime d2 = after(after(d1, tt), -tt);
+        period pt(distribution(generator));
+        datetime d2 = d1 + pt - pt;
 
         if (d1 != d2) {
-            cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << tt << endl;
+            cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds()
+                 << endl;
             return;
         }
 
         if (i % 10000000 == 0) {
-            cout << "OK: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << tt << endl;
+            cout << "OK: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds() << endl;
         }
     }
 }
