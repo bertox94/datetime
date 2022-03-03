@@ -48,13 +48,13 @@ public:
             throw runtime_error("");
     }
 
-    long long int getSec() const { return sec; }
+    long long int get_sec() const { return sec; }
 
-    long long int getMin() const { return min; }
+    long long int get_min() const { return min; }
 
-    long long int getHrs() const { return hrs; }
+    long long int get_hrs() const { return hrs; }
 
-    long long int getDays() const { return days; }
+    long long int get_days() const { return days; }
 
     bool operator==(period &pd) const { return !(*this > pd || *this < pd); }
 
@@ -202,7 +202,7 @@ private:
         datetime dt(0, 0, 0, 1, 1, 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
         period from_dt(start_timestamp + seconds - dt.to_timestamp());
 
-        dt.sec += from_dt.getSec();
+        dt.sec += from_dt.get_sec();
         if (dt.sec < 0) {
             dt.year--;
             dt.month = 12;
@@ -212,7 +212,7 @@ private:
             dt.sec += 60;
         }
 
-        dt.min += from_dt.getMin();
+        dt.min += from_dt.get_min();
         if (dt.min < 0) { // here min and sec can be anything
             dt.hrs--;
             if (dt.hrs == -1) { //here hrs can be either -1 or 22
@@ -230,7 +230,7 @@ private:
             dt.min += 60;
         }
 
-        dt.hrs += from_dt.getHrs();
+        dt.hrs += from_dt.get_hrs();
         if (dt.hrs < 0) {
             dt.day--;
             if (dt.day == 0) {
@@ -244,7 +244,7 @@ private:
             dt.hrs += 24;
         }
 
-        dt.day += from_dt.getDays();
+        dt.day += from_dt.get_days();
         while (dt.day > dt.days_of_this_month()) {
             dt.day -= dt.days_of_this_month();
             dt.month++;
@@ -369,17 +369,17 @@ public:
             throw runtime_error("");
     }
 
-    long long int getSec() const { return sec; }
+    long long int get_sec() const { return sec; }
 
-    long long int getMin() const { return min; }
+    long long int get_min() const { return min; }
 
-    long long int getHrs() const { return hrs; }
+    long long int get_hrs() const { return hrs; }
 
-    long long int getDay() const { return day; }
+    long long int get_day() const { return day; }
 
-    long long int getMonth() const { return month; }
+    long long int get_month() const { return month; }
 
-    long long int getYear() const { return year; }
+    long long int get_year() const { return year; }
 
     /**
     * Construct a new date which is @param seconds after epoch time.
@@ -595,16 +595,16 @@ period operator-(period &p) { return period(-p.to_seconds()); }
 period operator-(period &&p) { return -p; }
 
 std::ostream &operator<<(std::ostream &os, datetime const &d) {
-    return os << std::setfill('0') << std::setw(2) << d.getDay() << "." << std::setfill('0') << std::setw(2)
-              << d.getMonth() << "." << std::setfill('0') << std::setw(4) << d.getYear() << ", " << std::setfill('0')
-              << std::setw(2) << d.getHrs() << ":" << std::setfill('0') << std::setw(2) << d.getMin() << ":"
-              << std::setfill('0') << std::setw(2) << d.getSec();
+    return os << std::setfill('0') << std::setw(2) << d.get_day() << "." << std::setfill('0') << std::setw(2)
+              << d.get_month() << "." << std::setfill('0') << std::setw(4) << d.get_year() << ", " << std::setfill('0')
+              << std::setw(2) << d.get_hrs() << ":" << std::setfill('0') << std::setw(2) << d.get_min() << ":"
+              << std::setfill('0') << std::setw(2) << d.get_sec();
 }
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
-    return os << "Days: " << std::setfill('0') << std::setw(2) << d.getDays() << ", hrs: " << std::setfill('0')
-              << std::setw(2) << d.getHrs() << ", min: " << std::setfill('0') << std::setw(2) << d.getMin() << ", sec: "
-              << std::setfill('0') << std::setw(2) << d.getSec();
+    return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hrs: " << std::setfill('0')
+              << std::setw(2) << d.get_hrs() << ", min: " << std::setfill('0') << std::setw(2) << d.get_min() << ", sec: "
+              << std::setfill('0') << std::setw(2) << d.get_sec();
 }
 
 #endif //DATETIME_CLASSES_H
