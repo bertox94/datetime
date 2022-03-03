@@ -43,8 +43,10 @@ public:
             throw runtime_error("");
 
         //beware, for example period(0,-1,0,-2) is allowed.
-        if ((!(_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0)) ||
-            (!(_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)))
+        if (!(
+                (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
+                (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
+        ))
             throw runtime_error("");
     }
 
@@ -603,7 +605,8 @@ std::ostream &operator<<(std::ostream &os, datetime const &d) {
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
     return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hrs: " << std::setfill('0')
-              << std::setw(2) << d.get_hrs() << ", min: " << std::setfill('0') << std::setw(2) << d.get_min() << ", sec: "
+              << std::setw(2) << d.get_hrs() << ", min: " << std::setfill('0') << std::setw(2) << d.get_min()
+              << ", sec: "
               << std::setfill('0') << std::setw(2) << d.get_sec();
 }
 
