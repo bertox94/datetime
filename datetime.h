@@ -48,21 +48,13 @@ public:
             throw runtime_error("");
     }
 
-    long long int getSec() const {
-        return sec;
-    }
+    long long int getSec() const { return sec; }
 
-    long long int getMin() const {
-        return min;
-    }
+    long long int getMin() const { return min; }
 
-    long long int getHrs() const {
-        return hrs;
-    }
+    long long int getHrs() const { return hrs; }
 
-    long long int getDays() const {
-        return days;
-    }
+    long long int getDays() const { return days; }
 
     bool operator==(period &pd) const { return !(*this > pd || *this < pd); }
 
@@ -377,29 +369,17 @@ public:
             throw runtime_error("");
     }
 
-    long long int getSec() const {
-        return sec;
-    }
+    long long int getSec() const { return sec; }
 
-    long long int getMin() const {
-        return min;
-    }
+    long long int getMin() const { return min; }
 
-    long long int getHrs() const {
-        return hrs;
-    }
+    long long int getHrs() const { return hrs; }
 
-    long long int getDay() const {
-        return day;
-    }
+    long long int getDay() const { return day; }
 
-    long long int getMonth() const {
-        return month;
-    }
+    long long int getMonth() const { return month; }
 
-    long long int getYear() const {
-        return year;
-    }
+    long long int getYear() const { return year; }
 
     /**
     * Construct a new date which is @param seconds after epoch time.
