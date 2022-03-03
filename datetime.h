@@ -12,10 +12,6 @@
 
 using namespace std;
 
-//Is it true that is is always in canonic form?
-// period(sec = 13, min = 3, hrs = -4, days = 4)  ===> it is canonic
-// period(sec = 23, min = 400, hrs = 3, days = 3) ===> it is not canonic
-
 class period {
 private:
     long long sec{};
