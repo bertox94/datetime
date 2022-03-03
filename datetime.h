@@ -323,8 +323,15 @@ private:
 
 public:
 
+    /**
+     * Construct a datetime which is the epoch time
+     */
     datetime() = default;
 
+    /**
+     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
+     * and then fixes (@fix_date) the date accordingly.
+     */
     datetime(long long _day, long long _month, long long _year, bool autofix) :
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
@@ -333,6 +340,10 @@ public:
             this->day = days_of_this_month();
     }
 
+    /**
+     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <=
+     * and then fixes (@fix_date) the date accordingly.
+     */
     datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
              bool autofix)
             : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
@@ -369,18 +380,6 @@ public:
         if (_day > days_of_this_month())
             throw runtime_error("");
     }
-
-    long long int get_sec() const { return sec; }
-
-    long long int get_min() const { return min; }
-
-    long long int get_hrs() const { return hrs; }
-
-    long long int get_day() const { return day; }
-
-    long long int get_month() const { return month; }
-
-    long long int get_year() const { return year; }
 
     /**
     * Construct a new date which is @param seconds after epoch time.
@@ -508,6 +507,18 @@ public:
  */
     period operator-(datetime &&dt) const { return operator-(dt); }
 
+    long long int get_sec() const { return sec; }
+
+    long long int get_min() const { return min; }
+
+    long long int get_hrs() const { return hrs; }
+
+    long long int get_day() const { return day; }
+
+    long long int get_month() const { return month; }
+
+    long long int get_year() const { return year; }
+
 /**
  * @return is the number of months from @this and @param dt regardless of the days,
  * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
@@ -551,6 +562,11 @@ public:
         return dt;
     }
 
+/**
+ * The date is fixed in the following way: given a month, if the day is greater than the days of the specified month,
+ * the day is set to the last day of that month. Leap years are taken into account (February has 29 days).
+ * @return: the fixed date.
+ */
     datetime fix_date() const {
         datetime dt = *this;
         if (dt.day > dt.days_of_this_month())
@@ -575,7 +591,9 @@ public:
     int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
 
     int days_of_this_month() const {
-        return (((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 2 ? 1 : 0) +
+        return ( //if leap year add 1 day to the normal number of days of February.
+                       ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 2 ? 1 : 0
+               ) +
                days_of_months[month - 1];
     }
 
