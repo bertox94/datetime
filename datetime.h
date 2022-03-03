@@ -14,10 +14,10 @@ using namespace std;
 
 class period {
 private:
-    long long sec{};
-    long long min{};
-    long long hrs{};
     long long days{};
+    long long hrs{};
+    long long min{};
+    long long sec{};
 
 public:
 
@@ -172,6 +172,7 @@ public:
 
 };
 
+int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
 private:
@@ -310,17 +311,15 @@ private:
         return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
     }
 
-    int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-
 /**
  * By default date is epoch time.
  */
-    long long sec = 0;
-    long long min = 0;
-    long long hrs = 0;
     long long day = 1;
     long long month = 1;
     long long year = 1970;
+    long long hrs = 0;
+    long long min = 0;
+    long long sec = 0;
 
 public:
 
