@@ -714,15 +714,14 @@ public:
      * @return the first working day (today is included in the computation).
      */
     datetime first_working_day() const {
-        datetime dt = *this;
-        int wd = dt.get_week_day();
+        int wd = this->get_week_day();
 
-        period pd;
         if (wd == 6)
-            pd = period(2, 0, 0, 0);
+            return *this + days(2);
         else if (wd == 0)
-            pd = period(1, 0, 0, 0);
-        return dt + pd;
+            return *this + days(1);
+        else
+            return *this;
     }
 
     /**
