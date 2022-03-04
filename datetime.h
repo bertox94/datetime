@@ -12,6 +12,45 @@
 
 using namespace std;
 
+class days {
+private:
+    long long param;
+public:
+    days(long long _param) : param(_param) {}
+
+    long long operator*(long long factor) const { return param * factor; }
+};
+
+class hrs {
+private:
+    long long param;
+public:
+    hrs(long long _param) : param(_param) {}
+
+    long long operator*(long long factor) const { return param * factor; }
+};
+
+class min {
+private:
+    long long param;
+public:
+    min(long long _param) : param(_param) {}
+
+    long long operator*(long long factor) { return param * factor; }
+};
+
+class sec {
+private:
+    long long param;
+public:
+    sec(long long _param) : param(_param) {}
+
+    long long operator+(long long addendum) const { return param + addendum; }
+
+    long long operator*(long long factor) const { return param * factor; }
+};
+
+
 class period {
 private:
     long long days{};
@@ -21,14 +60,13 @@ private:
 
 public:
 
-    period() = default;
-
     /**
      * Creates a period in canonical form from @param _seconds.
      * is_canonical_form = (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
      *                      (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
+     * NB: this is a non-explicit constructor.
      */
-    explicit period(long long seconds) {
+    period(long long seconds) {
         days = seconds / 86400;
         long long ss = days * 86400;
         hrs = (seconds - ss) / 3600;
@@ -41,7 +79,8 @@ public:
     /**
      * Creates a period in canonical form from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
      */
-    period(long long _days, long long _hrs, long long _min, long long _sec) {
+
+    period(::days _days = 0, ::hrs _hrs = 0, ::min _min = 0, ::sec _sec = 0) {
         *this = period(_sec + _min * 60 + _hrs * 3600 + _days * 86400);
     }
 
@@ -130,7 +169,7 @@ public:
     /**
     * @return = @this + @pd
     */
-    period operator+(period &pd) const { return period(this->to_seconds() + pd.to_seconds()); }
+    period operator+(period &pd) const { return this->to_seconds() + pd.to_seconds(); }
 
     period operator+(period &&pd) const { return this->operator+(pd); }
 
@@ -149,7 +188,7 @@ public:
     /**
     * @return = @this - @pd
     */
-    period operator-(period &pd) const { return period(this->to_seconds() - pd.to_seconds()); }
+    period operator-(period &pd) const { return this->to_seconds() - pd.to_seconds(); }
 
     period operator-(period &&pd) const { return this->operator-(pd); }
 
@@ -166,7 +205,7 @@ public:
     /**
     * @return = @this * @pd
     */
-    period operator*(period &pd) const { return period(this->to_seconds() * pd.to_seconds()); }
+    period operator*(period &pd) const { return this->to_seconds() * pd.to_seconds(); }
 
     period operator*(period &&pd) const { return this->operator*(pd); }
 
@@ -183,7 +222,7 @@ public:
     /**
     * @return = @this / @pd
     */
-    period operator/(period &pd) const { return period(this->to_seconds() / pd.to_seconds()); }
+    period operator/(period &pd) const { return this->to_seconds() / pd.to_seconds(); }
 
     period operator/(period &&pd) const { return this->operator/(pd); }
 
@@ -200,7 +239,7 @@ public:
     /**
      * @return = @this % @pd
      */
-    period operator%(period &pd) const { return period(this->to_seconds() % pd.to_seconds()); }
+    period operator%(period &pd) const { return this->to_seconds() % pd.to_seconds(); }
 
     period operator%(period &&pd) const { return this->operator%(pd); }
 
@@ -591,7 +630,7 @@ public:
     /**
      * @return = @this - @dt
      */
-    period operator-(datetime &dt) const { return period(seconds_from(dt)); }
+    period operator-(datetime &dt) const { return seconds_from(dt); }
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
@@ -724,7 +763,7 @@ public:
 /**
  * @return = -@p
  */
-period operator-(period &p) { return period(-p.to_seconds()); }
+period operator-(period &p) { return -p.to_seconds(); }
 
 period operator-(period &&p) { return -p; }
 
