@@ -23,6 +23,11 @@ public:
 
     period() = default;
 
+    /**
+     * Creates a period in canonical form from @param _seconds.
+     * is_canonical_form = (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
+     *                      (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
+     */
     explicit period(long long seconds) {
         days = seconds / 86400;
         long long ss = days * 86400;
