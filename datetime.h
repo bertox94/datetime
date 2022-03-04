@@ -198,6 +198,23 @@ public:
     period operator/=(period &&pd) { return this->operator/=(pd); }
 
     /**
+     * @return = @this % @pd
+     */
+    period operator%(period &pd) const { return period(this->to_seconds() % pd.to_seconds()); }
+
+    period operator%(period &&pd) const { return this->operator%(pd); }
+
+    /**
+    * @this = @return = @this % @pd
+    */
+    period operator%=(period &pd) {
+        *this = this->operator%(pd);
+        return *this;
+    }
+
+    period operator%=(period &&pd) { return this->operator%=(pd); }
+
+    /**
      * Getter functions.
      */
     long long int get_sec() const { return sec; }
