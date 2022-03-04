@@ -662,9 +662,9 @@ public:
 
         period pd;
         if (wd == 6)
-            pd = period(0, 0, 0, 2);
+            pd = period(2, 0, 0, 0);
         else if (wd == 0)
-            pd = period(0, 0, 0, 1);
+            pd = period(1, 0, 0, 0);
         return dt + pd;
     }
 
