@@ -33,21 +33,11 @@ public:
         sec = seconds - ss;
     }
 
-    period(long long _sec, long long _min, long long _hrs, long long _days) :
-            sec(_sec), min(_min), hrs(_hrs), days(_days) {
-        if (abs(_sec) > 59)
-            throw runtime_error("");
-        if (abs(_min) > 59)
-            throw runtime_error("");
-        if (abs(_hrs) > 23)
-            throw runtime_error("");
-
-        //beware, for example period(0,-1,0,-2) is allowed.
-        if (!(
-                (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
-                (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
-        ))
-            throw runtime_error("");
+    /**
+     * Creates a period in canonical form from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
+     */
+    period(long long _days, long long _hrs, long long _min, long long _sec) {
+        *this = period(_sec + _min * 60 + _hrs * 3600 + _days * 86400);
     }
 
     long long int get_sec() const { return sec; }
