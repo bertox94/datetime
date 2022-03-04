@@ -78,6 +78,7 @@ public:
 
     /**
      * Creates a period in canonical form from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
+     * NB: this is a non explicit constructor.
      */
 
     period(::days _days = 0, ::hrs _hrs = 0, ::min _min = 0, ::sec _sec = 0) {
