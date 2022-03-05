@@ -46,8 +46,7 @@ void test3(long long size) {
         datetime d1(1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2, rand() % 24, rand() % 60, rand() % 60,
                     true);
         period pt(distribution(generator));
-        datetime d2 = d1 + pt;
-        d2 = d2 - pt;
+        datetime d2 = d1 + pt - pt;
 
         if (d1 != d2) {
             cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds()
@@ -67,7 +66,6 @@ int main() {
 
     performance_test(10000);
     long long epoch = 15000000000;
-    test2(epoch);
     test3(epoch);
 
     cout << "\nFaster!" << endl;
