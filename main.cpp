@@ -65,8 +65,9 @@ int main() {
 
     srand(time(nullptr));
 
-    long long epoch = 15000000000;
     performance_test(10000);
+    long long epoch = 15000000000;
+    test3(epoch);
 
     cout << "\nFaster!" << endl;
 

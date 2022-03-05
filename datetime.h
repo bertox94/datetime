@@ -396,7 +396,7 @@ private:
      */
     static long long f(long long x, long long y) { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
 
-    static unsigned int days_of_this_month(unsigned int _month, long long _year) {
+    static int days_of_month(unsigned int _month, long long _year) {
         return ( //if leap _year add 1 day to the normal number of days of February.
                        ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0)) && _month == 2 ? 1 : 0
                ) +
@@ -439,7 +439,7 @@ private:
                         _year--;
                         _month = 12;
                     }
-                    _day = days_of_this_month(_month, _year);
+                    _day = days_of_month(_month, _year);
                 }
                 _hrs = 23;
             }
@@ -455,19 +455,21 @@ private:
                     _year--;
                     _month = 12;
                 }
-                _day = days_of_this_month(_month, _year);
+                _day = days_of_month(_month, _year);
             }
             _hrs += 24;
         }
 
         _day += from_dt.get_days();
-        while (_day > days_of_this_month(_month, _year)) {
-            _day -= days_of_this_month(_month, _year);
+        int _dom = days_of_month(_month, _year);
+        while (_day > _dom) {
+            _day -= _dom;
             _month++;
             if (_month == 13) {
                 _year++;
                 _month = 1;
             }
+            _dom = days_of_month(_month, _year);
         }
         while (_day <= 0) {
             _month--;
@@ -475,7 +477,7 @@ private:
                 _year--;
                 _month = 12;
             }
-            _day += days_of_this_month(_month, _year);
+            _day += days_of_month(_month, _year);
         }
 
         return {_sec, _min, _hrs, _day, _month, _year};
