@@ -272,6 +272,15 @@ public:
 
 };
 
+class datetime_formatter {
+public:
+    string format = "www, dd.MMMM.yyyy, hh:mm:ss";
+    bool month_str = true;
+    bool h24 = true;
+    bool keep_original_length = false;
+};
+
+
 int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
@@ -284,10 +293,7 @@ private:
     long long sec = 0;
 
 public:
-    string format = "www, dd.MMMM.yyyy, hh:mm:ss";
-    bool month_str = true;
-    bool h24 = true;
-    bool avoid_fixed_length = false;
+    datetime_formatter format;
 
     /**
      * Construct a datetime which is the epoch time
@@ -848,11 +854,11 @@ string to_month(int mm) {
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &dd) {
-    string format = dd.format;
-    string output = dd.format;
-    bool month_str = dd.month_str;
-    bool h24 = dd.h24;
-    bool avoid_fixed_length = dd.avoid_fixed_length;
+    string format = dd.format.format;
+    string output = format;
+    bool month_str = dd.format.month_str;
+    bool h24 = dd.format.h24;
+    bool keep_original_length = dd.format.keep_original_length;
 
     unsigned int num = format.find_last_of('w') - format.find('w') + 1;
     std::string W = to_week_day(dd.get_week_day());
