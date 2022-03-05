@@ -57,9 +57,9 @@ public:
 class period {
 private:
     long long days{};
-    long long hrs{};
-    long long min{};
-    long long sec{};
+    int hrs{};
+    int min{};
+    int sec{};
 
 public:
 
@@ -260,11 +260,11 @@ public:
     /**
      * Getter functions.
      */
-    long long int get_sec() const { return sec; }
+    int get_sec() const { return sec; }
 
-    long long int get_min() const { return min; }
+    int get_min() const { return min; }
 
-    long long int get_hrs() const { return hrs; }
+    int get_hrs() const { return hrs; }
 
     long long int get_days() const { return days; }
 
@@ -404,70 +404,76 @@ private:
 
         datetime start = *this;
         long long start_timestamp = start.to_timestamp();
-        datetime dt(0, 0, 0, 1, 1,
-                    1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
-        period from_dt(start_timestamp + seconds - dt.to_timestamp());
+        long long yyear = 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400));
+        period from_dt(start_timestamp + seconds - datetime(1, 1, yyear).to_timestamp());
 
-        dt.sec += from_dt.get_sec();
-        if (dt.sec < 0) {
-            dt.year--;
-            dt.month = 12;
-            dt.day = 31;
-            dt.hrs = 23;
-            dt.min = 59;
-            dt.sec += 60;
+        int _sec = from_dt.get_sec();
+        int _min = 0;
+        int _hrs = 0;
+        long long _day = 1;
+        int _month = 1;
+        long long _year = dt.year;
+
+        if (_sec < 0) {
+            _year--;
+            _month = 12;
+            _day = 31;
+            _hrs = 23;
+            _min = 59;
+            _sec += 60;
         }
 
-        dt.min += from_dt.get_min();
-        if (dt.min < 0) { // here min and sec can be anything
-            dt.hrs--;
-            if (dt.hrs == -1) { //here hrs can be either -1 or 22
-                dt.day--;
-                if (dt.day == 0) { //here day can be either 0 or 30
-                    dt.month--;
-                    if (dt.month == 0) { // here month can be either 0 or 11
-                        dt.year--;
-                        dt.month = 12;
+        _min += from_dt.get_min();
+        if (_min < 0) { // here min and sec can be anything
+            _hrs--;
+            if (_hrs == -1) { //here hrs can be either -1 or 22
+                _day--;
+                if (_day == 0) { //here day can be either 0 or 30
+                    _month--;
+                    if (_month == 0) { // here month can be either 0 or 11
+                        _year--;
+                        _month = 12;
                     }
-                    dt.day = dt.days_of_this_month();
+                    _day = dt.days_of_this_month(); //todo find the days of this month without having a date
                 }
-                dt.hrs = 23;
+                _hrs = 23;
             }
-            dt.min += 60;
+            _min += 60;
         }
 
-        dt.hrs += from_dt.get_hrs();
-        if (dt.hrs < 0) {
-            dt.day--;
-            if (dt.day == 0) {
-                dt.month--;
-                if (dt.month == 0) {
-                    dt.year--;
-                    dt.month = 12;
+        _hrs += from_dt.get_hrs();
+        if (_hrs < 0) {
+            _day--;
+            if (_day == 0) {
+                _month--;
+                if (_month == 0) {
+                    _year--;
+                    _month = 12;
                 }
-                dt.day = dt.days_of_this_month();
+                _day = dt.days_of_this_month();
             }
-            dt.hrs += 24;
+            _hrs += 24;
         }
 
-        dt.day += from_dt.get_days();
-        while (dt.day > dt.days_of_this_month()) {
-            dt.day -= dt.days_of_this_month();
-            dt.month++;
-            if (dt.month == 13) {
-                dt.year++;
-                dt.month = 1;
+        _day += from_dt.get_days();
+        while (_day > dt.days_of_this_month()) {
+            _day -= dt.days_of_this_month();
+            _month++;
+            if (_month == 13) {
+                _year++;
+                _month = 1;
             }
         }
-        while (dt.day <= 0) {
-            dt.month--;
-            if (dt.month == 0) {
-                dt.year--;
-                dt.month = 12;
+        while (_day <= 0) {
+            _month--;
+            if (_month == 0) {
+                _year--;
+                _month = 12;
             }
-            dt.day += dt.days_of_this_month();
+            _day += dt.days_of_this_month();
         }
 
+        datetime dt(_sec, _min, _hrs, _day, _month, _year);
         return dt;
     }
 
