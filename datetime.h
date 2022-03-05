@@ -409,7 +409,7 @@ private:
     datetime after(long long seconds) const {
 
         long long start_timestamp = this->to_timestamp();
-        long long yyear = 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400));
+        long long yyear = 1970 + ((start_timestamp + seconds) / (365.2425 * 86400));
         period from_dt(start_timestamp + seconds - datetime(1, 1, yyear).to_timestamp());
 
         int _sec = from_dt.get_sec();
