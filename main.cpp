@@ -43,7 +43,7 @@ void test3(long long size) {
     std::uniform_int_distribution<long> distribution(LONG_MIN, LONG_MAX);
 
     for (long long i = 0; i < size; i++) {
-        datetime d1(rand() % 60, rand() % 60, rand() % 24, 1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2,
+        datetime d1(1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2, rand() % 24, rand() % 60, rand() % 60,
                     true);
         period pt(distribution(generator));
         datetime d2 = d1 + pt;
@@ -67,6 +67,7 @@ int main() {
 
     performance_test(10000);
     long long epoch = 15000000000;
+    test2(epoch);
     test3(epoch);
 
     cout << "\nFaster!" << endl;

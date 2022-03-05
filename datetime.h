@@ -310,7 +310,7 @@ public:
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
      * and then fixes (@fix_date) the date accordingly.
      */
-    datetime(long long _day, long long _month, long long _year, bool autofix) :
+    datetime(int _day, int _month, long long _year, bool autofix) :
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
@@ -322,7 +322,7 @@ public:
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      * and then fixes (@fix_date) the date accordingly.
      */
-    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
+    datetime(int _day, int _month, long long _year, int _hrs, int _min, int _sec,
              bool autofix)
             : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
         if (_sec < 0 || _sec > 59)
@@ -340,7 +340,7 @@ public:
     /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
-    datetime(long long _day, long long _month, long long _year) :
+    datetime(int _day, int _month, long long _year) :
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
@@ -351,7 +351,7 @@ public:
     /**
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      */
-    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year) :
+    datetime(int _day, int _month, long long _year, int _hrs, int _min, int _sec) :
             sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
         if (_sec < 0 || _sec > 59)
             throw runtime_error("");
@@ -476,7 +476,7 @@ private:
             _day += days_of_month(_month, _year);
         }
 
-        return {_sec, _min, _hrs, _day, _month, _year};
+        return {static_cast<int>(_day), _month, _year, _hrs, _min, _sec};
     }
 
     /**
