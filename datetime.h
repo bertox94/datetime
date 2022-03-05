@@ -72,11 +72,14 @@ public:
     period(long long seconds) {
         days = seconds / 86400;
         long long ss = days * 86400;
-        hrs = (seconds - ss) / 3600;
+        long long _hrs = (seconds - ss) / 3600;
+        hrs = _hrs; // NOLINT(cppcoreguidelines-narrowing-conversions)
         ss += hrs * 3600;
-        min = (seconds - ss) / 60;
+        long long _min = (seconds - ss) / 60;
+        min = _min; // NOLINT(cppcoreguidelines-narrowing-conversions)
         ss += min * 60;
-        sec = seconds - ss;
+        long long _ss = seconds - ss;
+        sec = _ss; // NOLINT(cppcoreguidelines-narrowing-conversions)
     }
 
     /**
@@ -280,7 +283,7 @@ public:
     string format = "www, dd.MMM.yy, hh:mm:ss";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = false;
+    bool keep_original_length = true;
 };
 
 
@@ -288,12 +291,12 @@ int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
 private:
-    unsigned int day = 1;
-    unsigned int month = 1;
+    int day = 1;
+    int month = 1;
     long long year = 1970;
-    unsigned int hrs = 0;
-    unsigned int min = 0;
-    unsigned int sec = 0;
+    int hrs = 0;
+    int min = 0;
+    int sec = 0;
 
 public:
     datetime_formatter format;
@@ -307,11 +310,7 @@ public:
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
      * and then fixes (@fix_date) the date accordingly.
      */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedParameter"
-
     datetime(long long _day, long long _month, long long _year, bool autofix) :
-#pragma clang diagnostic pop
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
@@ -397,13 +396,19 @@ private:
      */
     static long long f(long long x, long long y) { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
 
+    static unsigned int days_of_this_month(unsigned int _month, long long _year) {
+        return ( //if leap _year add 1 day to the normal number of days of February.
+                       ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0)) && _month == 2 ? 1 : 0
+               ) +
+               days_of_months[_month - 1];
+    }
+
     /**
      * @return = @param start + @param seconds
      */
     datetime after(long long seconds) const {
 
-        datetime start = *this;
-        long long start_timestamp = start.to_timestamp();
+        long long start_timestamp = this->to_timestamp();
         long long yyear = 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400));
         period from_dt(start_timestamp + seconds - datetime(1, 1, yyear).to_timestamp());
 
@@ -412,7 +417,7 @@ private:
         int _hrs = 0;
         long long _day = 1;
         int _month = 1;
-        long long _year = dt.year;
+        long long _year = yyear;
 
         if (_sec < 0) {
             _year--;
@@ -434,7 +439,7 @@ private:
                         _year--;
                         _month = 12;
                     }
-                    _day = dt.days_of_this_month(); //todo find the days of this month without having a date
+                    _day = days_of_this_month(_month, _year);
                 }
                 _hrs = 23;
             }
@@ -450,14 +455,14 @@ private:
                     _year--;
                     _month = 12;
                 }
-                _day = dt.days_of_this_month();
+                _day = days_of_this_month(_month, _year);
             }
             _hrs += 24;
         }
 
         _day += from_dt.get_days();
-        while (_day > dt.days_of_this_month()) {
-            _day -= dt.days_of_this_month();
+        while (_day > days_of_this_month(_month, _year)) {
+            _day -= days_of_this_month(_month, _year);
             _month++;
             if (_month == 13) {
                 _year++;
@@ -470,11 +475,10 @@ private:
                 _year--;
                 _month = 12;
             }
-            _day += dt.days_of_this_month();
+            _day += days_of_this_month(_month, _year);
         }
 
-        datetime dt(_sec, _min, _hrs, _day, _month, _year);
-        return dt;
+        return {_sec, _min, _hrs, _day, _month, _year};
     }
 
     /**
