@@ -322,12 +322,8 @@ public:
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      * and then fixes (@fix_date) the date accordingly.
      */
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "UnusedParameter"
-
     datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
              bool autofix)
-#pragma clang diagnostic pop
             : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
         if (_sec < 0 || _sec > 59)
             throw runtime_error("");
@@ -342,13 +338,13 @@ public:
     }
 
     /**
-     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
+     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
     datetime(long long _day, long long _month, long long _year) :
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
-        if (_day > days_of_this_month())
+        if (_day < 1 || _day > days_of_this_month())
             throw runtime_error("");
     }
 
