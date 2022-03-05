@@ -893,13 +893,21 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     num = format.find_last_of('y') - format.find('y') + 1;
     std::string Y = to_string(abs(dd.get_year()));
     if (!keep_original_length) {
-        if (dd.get_year() < 0) {
-            Y = Y.substr((Y.length() > num + 1 ? Y.length() - num - 1 : Y.length() - 1), num);
-            Y.insert(0, (num > Y.length() + 1 ? num - Y.length() - 1 : 0), '0');
-            Y = "-" + Y;
+        if (dd.get_year() >= 0) {
+            if (Y.length() > num) {
+                Y = Y.substr(Y.length() - num, num);
+            } else {
+                Y.insert(0, num - Y.length(), '0');
+            }
         } else {
-            Y = Y.substr((Y.length() > num ? Y.length() - num : 0), num);
-            Y.insert(0, num - Y.length(), '0');
+            if (Y.length() > num) {
+                Y = Y.substr(Y.length() - num + 1, num);
+            } else if (Y.length() == num) {
+                Y = Y.substr(1, num);
+            } else {
+                Y.insert(0, num - Y.length() - 1, '0');
+            }
+            Y = "-" + Y;
         }
     }
     replace(output, std::string(num, 'y'), Y);
