@@ -72,14 +72,11 @@ public:
     period(long long seconds) {
         days = seconds / 86400;
         long long ss = days * 86400;
-        long long _hrs = (seconds - ss) / 3600;
-        hrs = _hrs; // NOLINT(cppcoreguidelines-narrowing-conversions)
+        hrs = (seconds - ss) / 3600;
         ss += hrs * 3600;
-        long long _min = (seconds - ss) / 60;
-        min = _min; // NOLINT(cppcoreguidelines-narrowing-conversions)
+        min = (seconds - ss) / 60;
         ss += min * 60;
-        long long _ss = seconds - ss;
-        sec = _ss; // NOLINT(cppcoreguidelines-narrowing-conversions)
+        sec = seconds - ss;
     }
 
     /**
