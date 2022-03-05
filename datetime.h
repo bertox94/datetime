@@ -275,13 +275,16 @@ public:
 
 };
 
+/**
+ * www, dd.MMM.yy, hh:mm:ss
+ * ~~~, !!.@@@.##, $$:%%:&&
+ */
 class datetime_formatter {
 public:
-    //string format = "www, dd.MMM.yy, hh:mm:ss";
     string format = "~~~, !!.@@@.##, $$:%%:&&";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = true;
+    bool keep_original_length = false;
 };
 
 
