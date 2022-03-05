@@ -276,6 +276,89 @@ int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
 private:
+    long long day = 1;
+    long long month = 1;
+    long long year = 1970;
+    long long hrs = 0;
+    long long min = 0;
+    long long sec = 0;
+
+public:
+    string format = "www, dd.MMMM.yyyy, hh:mm:ss";
+    bool month_str = true;
+    bool h24 = true;
+    bool avoid_fixed_length = false;
+
+    /**
+     * Construct a datetime which is the epoch time
+     */
+    datetime() = default;
+
+    /**
+     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
+     * and then fixes (@fix_date) the date accordingly.
+     */
+    datetime(long long _day, long long _month, long long _year, bool autofix) :
+            day(_day), month(_month), year(_year) {
+        if (_month < 1 || _month > 12)
+            throw runtime_error("");
+        if (_day > days_of_this_month())
+            this->day = days_of_this_month();
+    }
+
+    /**
+     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
+     * and then fixes (@fix_date) the date accordingly.
+     */
+    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
+             bool autofix)
+            : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
+        if (_sec < 0 || _sec > 59)
+            throw runtime_error("");
+        if (_min < 0 || _min > 59)
+            throw runtime_error("");
+        if (_hrs < 0 || _hrs > 23)
+            throw runtime_error("");
+        if (_month < 1 || _month > 12)
+            throw runtime_error("");
+        if (_day > days_of_this_month())
+            this->day = days_of_this_month();
+    }
+
+    /**
+     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
+     */
+    datetime(long long _day, long long _month, long long _year) :
+            day(_day), month(_month), year(_year) {
+        if (_month < 1 || _month > 12)
+            throw runtime_error("");
+        if (_day > days_of_this_month())
+            throw runtime_error("");
+    }
+
+    /**
+     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
+     */
+    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year) :
+            sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
+        if (_sec < 0 || _sec > 59)
+            throw runtime_error("");
+        if (_min < 0 || _min > 59)
+            throw runtime_error("");
+        if (_hrs < 0 || _hrs > 23)
+            throw runtime_error("");
+        if (_month < 1 || _month > 12)
+            throw runtime_error("");
+        if (_day > days_of_this_month())
+            throw runtime_error("");
+    }
+
+    /**
+    * Construct a new date which is @param seconds after epoch time.
+    */
+    explicit datetime(long long timestamp) { *this = after(timestamp); }
+
+private:
     /**
      * Auxiliary function for @f.
      */
@@ -413,85 +496,7 @@ private:
         return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
     }
 
-
-    long long day = 1;
-    long long month = 1;
-    long long year = 1970;
-    long long hrs = 0;
-    long long min = 0;
-    long long sec = 0;
-
 public:
-
-    /**
-     * Construct a datetime which is the epoch time
-     */
-    datetime() = default;
-
-    /**
-     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
-     * and then fixes (@fix_date) the date accordingly.
-     */
-    datetime(long long _day, long long _month, long long _year, bool autofix) :
-            day(_day), month(_month), year(_year) {
-        if (_month < 1 || _month > 12)
-            throw runtime_error("");
-        if (_day > days_of_this_month())
-            this->day = days_of_this_month();
-    }
-
-    /**
-     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
-     * and then fixes (@fix_date) the date accordingly.
-     */
-    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
-             bool autofix)
-            : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
-        if (_sec < 0 || _sec > 59)
-            throw runtime_error("");
-        if (_min < 0 || _min > 59)
-            throw runtime_error("");
-        if (_hrs < 0 || _hrs > 23)
-            throw runtime_error("");
-        if (_month < 1 || _month > 12)
-            throw runtime_error("");
-        if (_day > days_of_this_month())
-            this->day = days_of_this_month();
-    }
-
-    /**
-     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
-     */
-    datetime(long long _day, long long _month, long long _year) :
-            day(_day), month(_month), year(_year) {
-        if (_month < 1 || _month > 12)
-            throw runtime_error("");
-        if (_day > days_of_this_month())
-            throw runtime_error("");
-    }
-
-    /**
-     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
-     */
-    datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year) :
-            sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
-        if (_sec < 0 || _sec > 59)
-            throw runtime_error("");
-        if (_min < 0 || _min > 59)
-            throw runtime_error("");
-        if (_hrs < 0 || _hrs > 23)
-            throw runtime_error("");
-        if (_month < 1 || _month > 12)
-            throw runtime_error("");
-        if (_day > days_of_this_month())
-            throw runtime_error("");
-    }
-
-    /**
-    * Construct a new date which is @param seconds after epoch time.
-    */
-    explicit datetime(long long timestamp) { *this = after(timestamp); }
-
     /**
      * @return = @this == @dt
      */
@@ -708,7 +713,16 @@ public:
     /**
      * @return the week_day of @this.
      */
-    int get_week_day() const { return 4 + ((this->to_timestamp() / 86400) % 7); }
+    int get_week_day() const {
+        long long tt = this->to_timestamp();
+        long long res;
+        if (tt >= 0) {
+            res = (4 + (tt / 86400)) % 7;
+        } else {
+            res = (4 + 7 + ((tt - 86399) / 86400)) % 7;
+        }
+        return res;
+    }
 
     /**
      * @return the first working day (today is included in the computation).
@@ -767,11 +781,132 @@ period operator-(period &p) { return -p.to_seconds(); }
 
 period operator-(period &&p) { return -p; }
 
-std::ostream &operator<<(std::ostream &os, datetime const &d) {
-    return os << std::setfill('0') << std::setw(2) << d.get_day() << "." << std::setfill('0') << std::setw(2)
-              << d.get_month() << "." << std::setfill('0') << std::setw(4) << d.get_year() << ", " << std::setfill('0')
-              << std::setw(2) << d.get_hrs() << ":" << std::setfill('0') << std::setw(2) << d.get_min() << ":"
-              << std::setfill('0') << std::setw(2) << d.get_sec();
+void replace(string &input, const string &from, const string &to) {
+    auto pos = 0;
+    while (true) {
+        size_t startPosition = input.find(from, pos);
+        if (startPosition == string::npos)
+            return;
+        input.replace(startPosition, from.length(), to);
+        pos += to.length();
+    }
+}
+
+void replace_first(string &input, const string &from, const string &to) {
+    size_t startPosition = input.find(from, 0);
+    input.replace(startPosition, from.length(), to);
+}
+
+string to_week_day(int wk) {
+    switch (wk) {
+        case 0:
+            return "Sunday";
+        case 1:
+            return "Monday";
+        case 2:
+            return "Tuesday";
+        case 3:
+            return "Wednesday";
+        case 4:
+            return "Thursday";
+        case 5:
+            return "Friday";
+        case 6:
+            return "Saturday";
+    }
+    throw runtime_error("");
+}
+
+string to_month(int mm) {
+    switch (mm) {
+        case 1:
+            return "January";
+        case 2:
+            return "February";
+        case 3:
+            return "March";
+        case 4:
+            return "April";
+        case 5:
+            return "May";
+        case 6:
+            return "June";
+        case 7:
+            return "July";
+        case 8:
+            return "August";
+        case 9:
+            return "September";
+        case 10:
+            return "October";
+        case 11:
+            return "November";
+        case 12:
+            return "December";
+    }
+    throw runtime_error("");
+}
+
+std::ostream &operator<<(std::ostream &os, datetime const &dd) {
+    string format = dd.format;
+    string output = dd.format;
+    bool month_str = dd.month_str;
+    bool h24 = dd.h24;
+    bool avoid_fixed_length = dd.avoid_fixed_length;
+
+    unsigned int num = format.find_last_of('w') - format.find('w') + 1;
+    std::string W = to_week_day(dd.get_week_day());
+    W = W.substr(0, num);
+    replace(output, std::string(num, 'w'), W);
+
+    num = format.find_last_of('d') - format.find('d') + 1;
+    std::string D = to_string(dd.get_day());
+    D.insert(0, num - D.length(), '0');
+    replace(output, std::string(num, 'd'), D);
+
+    num = format.find_last_of('M') - format.find('M') + 1;
+    std::string M;
+    if (month_str) {
+        M = to_month(dd.get_month());
+        M = M.substr(0, num); //consider the option if num>M.length()
+    } else {
+        M = to_string(dd.get_month());
+        M.insert(0, num - M.length(), '0');
+    }
+    replace_first(output, std::string(num, 'M'), M);
+
+    num = format.find_last_of('y') - format.find('y') + 1;
+    std::string Y = to_string(dd.get_year());
+    Y.insert(0, num - Y.length(), '0');
+    replace(output, std::string(num, 'y'), Y);
+
+    num = format.find_last_of('h') - format.find('h') + 1;
+    std::string h;
+    if (!h24) {
+        if (dd.get_hrs() > 12) {
+            h = to_string(dd.get_hrs() - 12);
+            format += " PM";
+        } else {
+            h = to_string(dd.get_hrs());
+            format += " AM";
+        }
+    } else {
+        h = to_string(dd.get_hrs());
+    }
+    h.insert(0, num - h.length(), '0');
+    replace(output, std::string(num, 'h'), h);
+
+    num = format.find_last_of('m') - format.find('m') + 1;
+    std::string m = to_string(dd.get_min());
+    m.insert(0, num - m.length(), '0');
+    replace(output, std::string(num, 'm'), m);
+
+    num = format.find_last_of('s') - format.find('s') + 1;
+    std::string s = to_string(dd.get_sec());
+    s.insert(0, num - s.length(), '0');
+    replace(output, std::string(num, 's'), s);
+
+    return os << output;
 }
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
