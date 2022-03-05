@@ -64,8 +64,9 @@ int main() {
 
     srand(time(nullptr));
 
-    int nn = -1 - 86400 *2;
-    cout << datetime(770162400);
+    int nn = -1 - 86400 * 2;
+    cout << datetime(1, 1, 1, 1, 1, -93) << endl;
+    cout << datetime(1, 1, 1, 1, 1, 93) << endl;
     return 0;
     cout << datetime(1, 1, 1, 2, 5, 233);
 

@@ -274,7 +274,7 @@ public:
 
 class datetime_formatter {
 public:
-    string format = "www, dd.MMMM.yyyy, hh:mm:ss";
+    string format = "www, dd.MMM.yy, hh:mm:ss";
     bool month_str = true;
     bool h24 = true;
     bool keep_original_length = false;
@@ -725,7 +725,7 @@ public:
         if (tt >= 0) {
             res = (4 + (tt / 86400)) % 7;
         } else {
-            res = (4 + 7 + ((tt - 86399) / 86400)) % 7;
+            res = (4 + 7 + (((tt - 86399) / 86400) % 7)) % 7;
         }
         return res;
     }
@@ -891,9 +891,17 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     replace_first(output, std::string(num, 'M'), M);
 
     num = format.find_last_of('y') - format.find('y') + 1;
-    std::string Y = to_string(dd.get_year());
-    if (!keep_original_length)
-        Y.insert(0, num - Y.length(), '0');
+    std::string Y = to_string(abs(dd.get_year()));
+    if (!keep_original_length) {
+        if (dd.get_year() < 0) {
+            Y = Y.substr((Y.length() > num + 1 ? Y.length() - num - 1 : Y.length() - 1), num);
+            Y.insert(0, (num > Y.length() + 1 ? num - Y.length() - 1 : 0), '0');
+            Y = "-" + Y;
+        } else {
+            Y = Y.substr((Y.length() > num ? Y.length() - num : 0), num);
+            Y.insert(0, num - Y.length(), '0');
+        }
+    }
     replace(output, std::string(num, 'y'), Y);
 
     num = format.find_last_of('h') - format.find('h') + 1;
