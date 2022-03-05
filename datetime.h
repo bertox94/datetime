@@ -288,12 +288,12 @@ int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
 private:
-    long long day = 1;
-    long long month = 1;
+    unsigned int day = 1;
+    unsigned int month = 1;
     long long year = 1970;
-    long long hrs = 0;
-    long long min = 0;
-    long long sec = 0;
+    unsigned int hrs = 0;
+    unsigned int min = 0;
+    unsigned int sec = 0;
 
 public:
     datetime_formatter format;
@@ -405,9 +405,7 @@ private:
         datetime start = *this;
         long long start_timestamp = start.to_timestamp();
         datetime dt(0, 0, 0, 1, 1,
-                    1970 + ((start_timestamp + seconds) / // NOLINT(cppcoreguidelines-narrowing-conversions)
-                            (((double) 146097 / 400) * // NOLINT(cppcoreguidelines-narrowing-conversions)
-                             86400)));
+                    1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
         period from_dt(start_timestamp + seconds - dt.to_timestamp());
 
         dt.sec += from_dt.get_sec();
