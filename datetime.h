@@ -1,4 +1,6 @@
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
+#pragma ide diagnostic ignored "google-explicit-constructor"
 #pragma ide diagnostic ignored "OCUnusedGlobalDeclarationInspection"
 #pragma ide diagnostic ignored "modernize-use-nodiscard"
 //
@@ -37,7 +39,7 @@ private:
 public:
     min(long long _param) : param(_param) {}
 
-    long long operator*(long long factor) { return param * factor; }
+    long long operator*(long long factor) const { return param * factor; }
 };
 
 class sec {
@@ -305,7 +307,11 @@ public:
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
      * and then fixes (@fix_date) the date accordingly.
      */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedParameter"
+
     datetime(long long _day, long long _month, long long _year, bool autofix) :
+#pragma clang diagnostic pop
             day(_day), month(_month), year(_year) {
         if (_month < 1 || _month > 12)
             throw runtime_error("");
@@ -317,8 +323,12 @@ public:
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      * and then fixes (@fix_date) the date accordingly.
      */
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "UnusedParameter"
+
     datetime(long long _sec, long long _min, long long _hrs, long long _day, long long _month, long long _year,
              bool autofix)
+#pragma clang diagnostic pop
             : sec(_sec), min(_min), hrs(_hrs), day(_day), month(_month), year(_year) {
         if (_sec < 0 || _sec > 59)
             throw runtime_error("");
@@ -369,7 +379,7 @@ private:
     /**
      * Auxiliary function for @f.
      */
-    long long fK(int PERIOD, long long x, long long y) const {
+    static long long fK(int PERIOD, long long x, long long y) {
         if (x >= 0)
             y -= PERIOD * ((PERIOD + x - 1) / PERIOD);
         else
@@ -385,7 +395,7 @@ private:
     /**
      * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
      */
-    long long f(long long x, long long y) const { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
+    static long long f(long long x, long long y) { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
 
     /**
      * @return = @param start + @param seconds
@@ -394,7 +404,10 @@ private:
 
         datetime start = *this;
         long long start_timestamp = start.to_timestamp();
-        datetime dt(0, 0, 0, 1, 1, 1970 + ((start_timestamp + seconds) / (((double) 146097 / 400) * 86400)));
+        datetime dt(0, 0, 0, 1, 1,
+                    1970 + ((start_timestamp + seconds) / // NOLINT(cppcoreguidelines-narrowing-conversions)
+                            (((double) 146097 / 400) * // NOLINT(cppcoreguidelines-narrowing-conversions)
+                             86400)));
         period from_dt(start_timestamp + seconds - dt.to_timestamp());
 
         dt.sec += from_dt.get_sec();
@@ -463,7 +476,7 @@ private:
     /**
      * @return = @param end - @param start
      */
-    long long seconds_to(datetime end) const {
+    long long seconds_to(const datetime &end) const {
 
         datetime start = *this;
         int flag = (end > start ? 1 : -1);
@@ -728,7 +741,7 @@ public:
         } else {
             res = (4 + 7 + (((tt - 86399) / 86400) % 7)) % 7;
         }
-        return res;
+        return res; // NOLINT(cppcoreguidelines-narrowing-conversions)
     }
 
     /**
@@ -777,7 +790,7 @@ public:
     /**
      * @return the seconds from @d2 to @this.
      */
-    long long seconds_from(datetime d2) const { return d2.seconds_to(*this); }
+    long long seconds_from(const datetime &d2) const { return d2.seconds_to(*this); }
 
 };
 
@@ -789,7 +802,7 @@ period operator-(period &p) { return -p.to_seconds(); }
 period operator-(period &&p) { return -p; }
 
 void replace(string &input, const string &from, const string &to) {
-    auto pos = 0;
+    unsigned int pos = 0;
     while (true) {
         size_t startPosition = input.find(from, pos);
         if (startPosition == string::npos)
@@ -797,11 +810,6 @@ void replace(string &input, const string &from, const string &to) {
         input.replace(startPosition, from.length(), to);
         pos += to.length();
     }
-}
-
-void replace_first(string &input, const string &from, const string &to) {
-    size_t startPosition = input.find(from, 0);
-    input.replace(startPosition, from.length(), to);
 }
 
 string to_week_day(int wk) {
@@ -820,8 +828,9 @@ string to_week_day(int wk) {
             return "Friday";
         case 6:
             return "Saturday";
+        default:
+            throw runtime_error("");
     }
-    throw runtime_error("");
 }
 
 string to_month(int mm) {
@@ -850,8 +859,9 @@ string to_month(int mm) {
             return "November";
         case 12:
             return "December";
+        default:
+            throw runtime_error("");
     }
-    throw runtime_error("");
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &dd) {
@@ -879,7 +889,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     num = format.find_last_of('M') - format.find('M') + 1;
     std::string M;
     if (month_str) {
-        M = to_month(dd.get_month());
+        M = to_month(dd.get_month()); // NOLINT(cppcoreguidelines-narrowing-conversions)
         if (!keep_original_length) {
             M = M.substr(0, num);
             M += std::string(num - M.length(), ' ');
@@ -889,7 +899,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
         if (!keep_original_length)
             M.insert(0, num - M.length(), '0');
     }
-    replace_first(output, std::string(num, 'M'), M);
+    replace(output, std::string(num, 'M'), M);
 
     num = format.find_last_of('y') - format.find('y') + 1;
     std::string Y = to_string(abs(dd.get_year()));

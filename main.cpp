@@ -64,12 +64,6 @@ int main() {
 
     srand(time(nullptr));
 
-    int nn = -1 - 86400 * 2;
-    cout << datetime(1, 1, 1, 1, 1, -9) << endl;
-    cout << datetime(1, 1, 1, 1, 1, 93) << endl;
-    return 0;
-    cout << datetime(1, 1, 1, 2, 5, 233);
-
     long long epoch = 15000000000;
     test3(epoch);
 
