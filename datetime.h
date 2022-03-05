@@ -277,7 +277,8 @@ public:
 
 class datetime_formatter {
 public:
-    string format = "www, dd.MMM.yy, hh:mm:ss";
+    //string format = "www, dd.MMM.yy, hh:mm:ss";
+    string format = "~~~, !!.@@@.##, $$:%%:&&";
     bool month_str = true;
     bool h24 = true;
     bool keep_original_length = true;
@@ -868,28 +869,27 @@ string to_month(int mm) {
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &dd) {
-    string format = dd.format.format;
-    string output = format;
+    string output = dd.format.format;
     bool month_str = dd.format.month_str;
     bool h24 = dd.format.h24;
     bool keep_original_length = dd.format.keep_original_length;
 
-    unsigned int num = format.find_last_of('w') - format.find('w') + 1;
+    unsigned int num = output.find_last_of('~') - output.find('~') + 1;
     std::string W = to_week_day(dd.get_week_day());
     if (!keep_original_length) {
         W = W.substr(0, num);
         W += std::string(num - W.length(), ' ');
     }
-    replace(output, std::string(num, 'w'), W);
+    replace(output, std::string(num, '~'), W);
 
-    num = format.find_last_of('d') - format.find('d') + 1;
+    num = output.find_last_of('!') - output.find('!') + 1;
     std::string D = to_string(dd.get_day());
     if (!keep_original_length) {
         D.insert(0, num - D.length(), '0');
     }
-    replace(output, std::string(num, 'd'), D);
+    replace(output, std::string(num, '!'), D);
 
-    num = format.find_last_of('M') - format.find('M') + 1;
+    num = output.find_last_of('@') - output.find('@') + 1;
     std::string M;
     if (month_str) {
         M = to_month(dd.get_month()); // NOLINT(cppcoreguidelines-narrowing-conversions)
@@ -902,9 +902,9 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
         if (!keep_original_length)
             M.insert(0, num - M.length(), '0');
     }
-    replace(output, std::string(num, 'M'), M);
+    replace(output, std::string(num, '@'), M);
 
-    num = format.find_last_of('y') - format.find('y') + 1;
+    num = output.find_last_of('#') - output.find('#') + 1;
     std::string Y = to_string(abs(dd.get_year()));
     if (!keep_original_length) {
         if (dd.get_year() >= 0) {
@@ -924,36 +924,36 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
             Y = "-" + Y;
         }
     }
-    replace(output, std::string(num, 'y'), Y);
+    replace(output, std::string(num, '#'), Y);
 
-    num = format.find_last_of('h') - format.find('h') + 1;
+    num = output.find_last_of('$') - output.find('$') + 1;
     std::string h;
     if (!h24) {
         if (dd.get_hrs() > 12) {
             h = to_string(dd.get_hrs() - 12);
-            format += " PM";
+            output += " PM";
         } else {
             h = to_string(dd.get_hrs());
-            format += " AM";
+            output += " AM";
         }
     } else {
         h = to_string(dd.get_hrs());
     }
     if (!keep_original_length)
         h.insert(0, num - h.length(), '0');
-    replace(output, std::string(num, 'h'), h);
+    replace(output, std::string(num, '$'), h);
 
-    num = format.find_last_of('m') - format.find('m') + 1;
+    num = output.find_last_of('%') - output.find('%') + 1;
     std::string m = to_string(dd.get_min());
     if (!keep_original_length)
         m.insert(0, num - m.length(), '0');
-    replace(output, std::string(num, 'm'), m);
+    replace(output, std::string(num, '%'), m);
 
-    num = format.find_last_of('s') - format.find('s') + 1;
+    num = output.find_last_of('&') - output.find('&') + 1;
     std::string s = to_string(dd.get_sec());
     if (!keep_original_length)
         s.insert(0, num - s.length(), '0');
-    replace(output, std::string(num, 's'), s);
+    replace(output, std::string(num, '&'), s);
 
     return os << output;
 }
