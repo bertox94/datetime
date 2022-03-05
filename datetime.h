@@ -862,28 +862,38 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
 
     unsigned int num = format.find_last_of('w') - format.find('w') + 1;
     std::string W = to_week_day(dd.get_week_day());
-    W = W.substr(0, num);
+    if (!keep_original_length) {
+        W = W.substr(0, num);
+        W += std::string(num - W.length(), ' ');
+    }
     replace(output, std::string(num, 'w'), W);
 
     num = format.find_last_of('d') - format.find('d') + 1;
     std::string D = to_string(dd.get_day());
-    D.insert(0, num - D.length(), '0');
+    if (!keep_original_length) {
+        D.insert(0, num - D.length(), '0');
+    }
     replace(output, std::string(num, 'd'), D);
 
     num = format.find_last_of('M') - format.find('M') + 1;
     std::string M;
     if (month_str) {
         M = to_month(dd.get_month());
-        M = M.substr(0, num); //consider the option if num>M.length()
+        if (!keep_original_length) {
+            M = M.substr(0, num);
+            M += std::string(num - M.length(), ' ');
+        }
     } else {
         M = to_string(dd.get_month());
-        M.insert(0, num - M.length(), '0');
+        if (!keep_original_length)
+            M.insert(0, num - M.length(), '0');
     }
     replace_first(output, std::string(num, 'M'), M);
 
     num = format.find_last_of('y') - format.find('y') + 1;
     std::string Y = to_string(dd.get_year());
-    Y.insert(0, num - Y.length(), '0');
+    if (!keep_original_length)
+        Y.insert(0, num - Y.length(), '0');
     replace(output, std::string(num, 'y'), Y);
 
     num = format.find_last_of('h') - format.find('h') + 1;
@@ -899,17 +909,20 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     } else {
         h = to_string(dd.get_hrs());
     }
-    h.insert(0, num - h.length(), '0');
+    if (!keep_original_length)
+        h.insert(0, num - h.length(), '0');
     replace(output, std::string(num, 'h'), h);
 
     num = format.find_last_of('m') - format.find('m') + 1;
     std::string m = to_string(dd.get_min());
-    m.insert(0, num - m.length(), '0');
+    if (!keep_original_length)
+        m.insert(0, num - m.length(), '0');
     replace(output, std::string(num, 'm'), m);
 
     num = format.find_last_of('s') - format.find('s') + 1;
     std::string s = to_string(dd.get_sec());
-    s.insert(0, num - s.length(), '0');
+    if (!keep_original_length)
+        s.insert(0, num - s.length(), '0');
     replace(output, std::string(num, 's'), s);
 
     return os << output;
