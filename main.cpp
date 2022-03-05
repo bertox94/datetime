@@ -30,7 +30,7 @@ void test2(long long size) {
             return;
         }
 
-        if (i % 10000000 == 0)
+        if (i % 1000000 == 0)
             cout << datetime(i) << "          " << setw(3) << (long) (i / (double) size * 100) << " %          "
                  << datetime(size) << endl;
     }
@@ -54,7 +54,7 @@ void test3(long long size) {
             return;
         }
 
-        if (i % 10000000 == 0) {
+        if (i % 1000000 == 0) {
             cout << "OK: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds() << endl;
         }
     }
