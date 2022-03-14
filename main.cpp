@@ -65,7 +65,15 @@ int main() {
     srand(time(nullptr));
 
     auto epoch = datetime();
-    auto el = epoch.seconds_to(datetime(1, 2, 1970));
+
+
+    auto t1 = chrono::high_resolution_clock::now();
+    for (long long i = 0; i < 1000000; i++)
+        auto el = epoch.seconds_to(datetime(1 + i % 28, 1 + i % 12, i));
+
+    auto t2 = chrono::high_resolution_clock::now();
+    chrono::duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << ms_double.count() << " ns/op\n";
 
 
     performance_test(10000);

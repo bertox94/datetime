@@ -287,10 +287,11 @@ public:
 };
 
 
-int days_of_months[12] = {30, 27, 30, 29, 30, 29, 30, 30, 29, 30, 29, 30};
+int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
 class datetime {
 private:
+    //do not use unsigned to avoid bad surprises on narrowing etc. casting!
     int day = 0;
     int month = 0;
     long long year = 1970;
@@ -354,7 +355,7 @@ public:
             datetime(_day, _month, _year) {
         sec = _sec;
         min = _min;
-        day = _day;
+        hrs = _hrs;
 
         if (sec < 0 || sec > 59)
             throw runtime_error("");
@@ -394,8 +395,7 @@ private:
     static int days_of_month(unsigned int _month, long long _year) {
         return ( //if leap _year add 1 day to the normal number of days of February.
                        ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0)) && _month == 1 ? 1 : 0
-               ) +
-               days_of_months[_month];
+               ) + days_of_months[_month];
     }
 
 public:
@@ -482,45 +482,21 @@ public:
 
     /**
      * @return = @param end - @param start
+     * avg. time: 3 us
      */
     long long seconds_to(const datetime &end) const {
 
-        datetime start = *this;
-        int flag = (end > start ? 1 : -1);
-        datetime dt1 = (end > start ? start : end);
-        datetime dt2 = (end > start ? end : start);
-        long long dd = 0;
+        int flag = (end > *this ? 1 : -1);
+        datetime dt1 = (end > *this ? *this : end);
+        datetime dt2 = (end > *this ? end : *this);
+        long long dd = f(dt1.year, dt2.year) + dt2.day - dt1.day;
 
-        if (dt1.year == dt2.year) {
-            if (dt1.month == dt2.month) {
-                dd += dt2.day - dt1.day;
-            } else {
-                dd += dt1.days_of_this_month() - dt1.day;
-                //because of the check on dt2 it is not a problem if ddd.month == 13
-                for (datetime ddd(1, dt1.month + 2, dt1.year); ddd.month < dt2.month; ddd.month++)
-                    dd += ddd.days_of_this_month();
-                dd += dt2.day;
-            }
-        } else {
+        for (int _month = 0; _month < dt1.month; _month++)
+            dd -= days_of_month(_month, dt1.year);
+        for (int _month = 0; _month < dt2.month; _month++)
+            dd += days_of_month(_month, dt2.year);
 
-            dd += f(dt1.year, dt2.year);
-
-            datetime ddd(1, 1, dt1.year);
-            for (ddd.month = 1; ddd.month < dt1.month; ddd.month++)
-                dd -= ddd.days_of_this_month();
-            ddd = datetime(1, 1, dt2.year);
-            for (ddd.month = 1; ddd.month < dt2.month; ddd.month++)
-                dd += ddd.days_of_this_month();
-
-            dd -= dt1.day;
-            dd += dt2.day;
-        }
-
-        long long ss = dt2.sec - dt1.sec;
-        long long mm = dt2.min - dt1.min;
-        long long hh = dt2.hrs - dt1.hrs;
-
-        return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
+        return (dt2.sec - dt1.sec + (dt2.min - dt1.min) * 60 + (dt2.hrs - dt1.hrs) * 3600 + dd * 86400) * flag;
     }
 
 
@@ -578,7 +554,7 @@ public:
     /**
      * @return = @this > @dt
      */
-    bool operator>(datetime &dt) const {
+    bool operator>(const datetime &dt) const {
         if (year > dt.year) {
             return true;
         } else if (year == dt.year) {
@@ -776,8 +752,7 @@ public:
     int days_of_this_month() const {
         return ( //if leap year add 1 day to the normal number of days of February.
                        ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 1 ? 1 : 0
-               ) +
-               days_of_months[month] + 1;
+               ) + days_of_months[month];
     }
 
     /**
