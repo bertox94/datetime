@@ -766,7 +766,7 @@ public:
     /**
      * @return the number of days of @this year.
      */
-    int days_of_this_year() const { return 364 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
+    int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
 
     /**
      * @return the number of days of @this month.
