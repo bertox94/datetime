@@ -314,8 +314,8 @@ public:
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
-        if (day > _days_of_this_month())
-            this->day = _days_of_this_month();
+        if (day > days_of_this_month())
+            this->day = days_of_this_month();
     }
 
     /**
@@ -343,7 +343,7 @@ public:
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
-        if (day < 0 || day > _days_of_this_month())
+        if (day < 0 || day > days_of_this_month())
             throw runtime_error("");
     }
 
@@ -398,9 +398,11 @@ private:
                days_of_months[_month];
     }
 
+public:
+
     /**
-     * @return = @param start + @param seconds
-     */
+ * @return = @param start + @param seconds
+ */
     datetime after(long long seconds) const {
 
         long long start_timestamp = this->to_timestamp();
@@ -493,10 +495,10 @@ private:
             if (dt1.month == dt2.month) {
                 dd += dt2.day - dt1.day;
             } else {
-                dd += dt1._days_of_this_month() - dt1.day;
-                //because of the check on dt2 it is not a problem if ddd.month==13
-                for (datetime ddd(1, dt1.month + 1, dt1.year); ddd.month < dt2.month; ddd.month++)
-                    dd += ddd._days_of_this_month();
+                dd += dt1.days_of_this_month() - dt1.day;
+                //because of the check on dt2 it is not a problem if ddd.month == 13
+                for (datetime ddd(1, dt1.month + 2, dt1.year); ddd.month < dt2.month; ddd.month++)
+                    dd += ddd.days_of_this_month();
                 dd += dt2.day;
             }
         } else {
@@ -505,10 +507,10 @@ private:
 
             datetime ddd(1, 1, dt1.year);
             for (ddd.month = 1; ddd.month < dt1.month; ddd.month++)
-                dd -= ddd._days_of_this_month();
+                dd -= ddd.days_of_this_month();
             ddd = datetime(1, 1, dt2.year);
             for (ddd.month = 1; ddd.month < dt2.month; ddd.month++)
-                dd += ddd._days_of_this_month();
+                dd += ddd.days_of_this_month();
 
             dd -= dt1.day;
             dd += dt2.day;
@@ -521,7 +523,7 @@ private:
         return (ss + mm * 60 + hh * 3600 + dd * 86400) * flag;
     }
 
-public:
+
     /**
      * @return = @this == @dt
      */
@@ -730,8 +732,8 @@ public:
      */
     datetime fix_date() const {
         datetime dt = *this;
-        if (dt.day > dt._days_of_this_month())
-            dt.day = dt._days_of_this_month();
+        if (dt.day > dt.days_of_this_month())
+            dt.day = dt.days_of_this_month();
         return dt;
     }
 
@@ -771,11 +773,11 @@ public:
     /**
      * @return the number of days of @this month.
      */
-    int _days_of_this_month() const {
+    int days_of_this_month() const {
         return ( //if leap year add 1 day to the normal number of days of February.
-                       ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 2 ? 1 : 0
+                       ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 1 ? 1 : 0
                ) +
-               days_of_months[month];
+               days_of_months[month] + 1;
     }
 
     /**
@@ -783,7 +785,7 @@ public:
      */
     datetime end_of_month() const {
         datetime dt = *this;
-        dt.day = dt._days_of_this_month();
+        dt.day = dt.days_of_this_month();
         return dt;
     }
 

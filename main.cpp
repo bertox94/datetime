@@ -64,9 +64,13 @@ int main() {
 
     srand(time(nullptr));
 
+    auto epoch = datetime();
+    auto el = epoch.seconds_to(datetime(1, 2, 1970));
+
+
     performance_test(10000);
-    long long epoch = 15000000000;
-    test3(epoch);
+    long long epochs = 15000000000;
+    test3(epochs);
 
     cout << "\nFaster!" << endl;
 
