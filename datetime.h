@@ -283,7 +283,7 @@ public:
     string format = "~~~, !!.@@@.##, $$:%%:&&";
     bool month_str = true;
     bool h24 = true;
-    bool keep_original_length = false;
+    bool keep_original_length = true;
 };
 
 
@@ -315,8 +315,8 @@ public:
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
-        if (day > days_of_this_month())
-            this->day = days_of_this_month();
+        if (day >= days_of_this_month())
+            this->day = days_of_this_month() - 1;
     }
 
     /**
@@ -344,7 +344,7 @@ public:
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
-        if (day < 0 || day > days_of_this_month())
+        if (day < 0 || day >= days_of_this_month())
             throw runtime_error("");
     }
 
@@ -412,14 +412,14 @@ public:
         int _sec = from_dt.get_sec();
         int _min = 0;
         int _hrs = 0;
-        long long _day = 1;
-        int _month = 1;
+        long long _day = 0;
+        int _month = 0;
         long long _year = yyear;
 
         if (_sec < 0) {
             _year--;
-            _month = 12;
-            _day = 31;
+            _month = 11;
+            _day = 30;
             _hrs = 23;
             _min = 59;
             _sec += 60;
@@ -430,13 +430,13 @@ public:
             _hrs--;
             if (_hrs == -1) { //here hrs can be either -1 or 22
                 _day--;
-                if (_day == 0) { //here day can be either 0 or 30
+                if (_day == -1) { //here day can be either 0 or 29
                     _month--;
-                    if (_month == 0) { // here month can be either 0 or 11
+                    if (_month == -1) { // here month can be either 0 or 10
                         _year--;
-                        _month = 12;
+                        _month = 11;
                     }
-                    _day = days_of_month(_month, _year);
+                    _day = days_of_month(_month, _year) - 1;
                 }
                 _hrs = 23;
             }
@@ -446,43 +446,43 @@ public:
         _hrs += from_dt.get_hrs();
         if (_hrs < 0) {
             _day--;
-            if (_day == 0) {
+            if (_day == -1) {
                 _month--;
-                if (_month == 0) {
+                if (_month == -1) {
                     _year--;
-                    _month = 12;
+                    _month = 11;
                 }
-                _day = days_of_month(_month, _year);
+                _day = days_of_month(_month, _year) - 1;
             }
             _hrs += 24;
         }
 
         _day += from_dt.get_days();
         int _dom = days_of_month(_month, _year);
-        while (_day > _dom) {
+        while (_day >= _dom) {
             _day -= _dom;
             _month++;
-            if (_month == 13) {
+            if (_month == 12) {
                 _year++;
-                _month = 1;
+                _month = 0;
             }
             _dom = days_of_month(_month, _year);
         }
-        while (_day <= 0) {
+        while (_day < 0) {
             _month--;
-            if (_month == 0) {
+            if (_month == -1) {
                 _year--;
-                _month = 12;
+                _month = 11;
             }
             _day += days_of_month(_month, _year);
         }
 
-        return {static_cast<int>(_day), _month, _year, _hrs, _min, _sec};
+        return {static_cast<int>(_day + 1), _month + 1, _year, _hrs, _min, _sec};
     }
 
     /**
      * @return = @param end - @param start
-     * avg. time: 3 us
+     * avg. time: 2.2 us
      */
     long long seconds_to(const datetime &end) const {
 
@@ -673,12 +673,12 @@ public:
         dt.year += n / 12;
         dt.month += n - ((n / 12) * 12);
 
-        if (dt.month > 12) {
+        if (dt.month > 11) {
             dt.year++;
             dt.month -= 12;
         }
 
-        if (dt.month <= 0) {
+        if (dt.month < 0) {
             dt.year--;
             dt.month += 12;
         }
@@ -708,8 +708,8 @@ public:
      */
     datetime fix_date() const {
         datetime dt = *this;
-        if (dt.day > dt.days_of_this_month())
-            dt.day = dt.days_of_this_month();
+        if (dt.day >= dt.days_of_this_month())
+            dt.day = dt.days_of_this_month() - 1;
         return dt;
     }
 
@@ -760,7 +760,7 @@ public:
      */
     datetime end_of_month() const {
         datetime dt = *this;
-        dt.day = dt.days_of_this_month();
+        dt.day = dt.days_of_this_month() - 1;
         return dt;
     }
 

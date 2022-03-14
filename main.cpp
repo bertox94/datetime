@@ -66,19 +66,21 @@ int main() {
 
     auto epoch = datetime();
 
-
-    auto t1 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < 1000000; i++)
-        auto el = epoch.seconds_to(datetime(1 + i % 28, 1 + i % 12, i));
-
-    auto t2 = chrono::high_resolution_clock::now();
-    chrono::duration<double, std::milli> ms_double = t2 - t1;
-    std::cout << ms_double.count() << " ns/op\n";
-
-
     performance_test(10000);
     long long epochs = 15000000000;
     test3(epochs);
+
+    //l1= Fri, 29.Feb.18, 13:51:03, l2= Fri, 01.Mar.18, 13:51:03, tt= 2013771743
+    auto pt = 0;
+    datetime d1(29, 2, 8545, 8, 55, 53, true);
+    datetime d2 = d1 + pt;
+    d2 = d2 - pt;
+
+    if (d1 != d2) {
+        cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt
+             << endl;
+        return 1;
+    }
 
     cout << "\nFaster!" << endl;
 
