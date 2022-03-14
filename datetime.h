@@ -402,7 +402,7 @@ public:
 
     /**
  * @return = @param start + @param seconds
-     * avg. 1 us
+     * avg. time: 1 us
  */
     datetime after(long long seconds) const {
 
@@ -482,7 +482,7 @@ public:
 
     /**
      * @return = @param end - @param start
-     * avg. time: 2.2 us
+     * avg. time: 0.4 us
      */
     long long seconds_to(const datetime &end) const {
 

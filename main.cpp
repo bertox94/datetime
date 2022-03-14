@@ -67,7 +67,7 @@ int main() {
 
     auto epoch = datetime();
 
-    performance_test(100000);
+    performance_test(1000000);
     long long epochs = 15000000000;
     test3(epochs);
 
