@@ -14,7 +14,7 @@ void performance_test(long long size) {
     auto t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {
         av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-        dtp.seconds_to(av_compiler_opt);
+        //dtp.seconds_to(av_compiler_opt);
         if (rand() % 345)
             av_compiler_opt = datetime(rand() - RAND_MAX / 2);
     }
@@ -36,7 +36,7 @@ void performance_test(long long size) {
     t1 = chrono::high_resolution_clock::now();
     for (long long i = 0; i < size; i++) {
         avoid_compiler_optimization = rand() - RAND_MAX / 2;
-        dtp.after(avoid_compiler_optimization);
+        //dtp.after(avoid_compiler_optimization);
         if (rand() % 345)
             avoid_compiler_optimization = rand();
     }

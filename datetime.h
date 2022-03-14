@@ -398,11 +398,9 @@ private:
                ) + days_of_months[_month];
     }
 
-public:
-
     /**
-     * @return = @param start + @param seconds
-     */
+    * @return = @param start + @param seconds
+    */
     datetime after(long long seconds) const {
 
         long long sts = this->to_timestamp() + seconds;
@@ -497,6 +495,8 @@ public:
         return (dt2.sec - dt1.sec + (dt2.min - dt1.min) * 60 + (dt2.hrs - dt1.hrs) * 3600 + dd * 86400) * flag;
     }
 
+public:
+
     /**
      * @return = @this == @dt
      */
@@ -515,35 +515,46 @@ public:
      * @return = @this < @dt
      */
     bool operator<(datetime &dt) const {
-        if (year < dt.year) {
-            return true;
-        } else if (year == dt.year) {
-            if (month < dt.month) {
-                return true;
-            } else if (month == dt.month) {
-                if (day < dt.day) {
-                    return true;
-                } else if (day == dt.day) {
-                    if (hrs < dt.hrs) {
-                        return true;
-                    } else if (hrs == dt.hrs) {
-                        if (min < dt.min) {
-                            return true;
-                        } else if (min == dt.min) {
-                            if (sec < dt.sec) {
-                                return true;
-                            } else
-                                return false;
-                        } else
-                            return false;
-                    } else
-                        return false;
-                } else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
+        if (year < dt.year) return true;
+        else if (year == dt.year)
+            if (month < dt.month) return true;
+            else if (month == dt.month)
+                if (day < dt.day) return true;
+                else if (day == dt.day)
+                    if (hrs < dt.hrs) return true;
+                    else if (hrs == dt.hrs)
+                        if (min < dt.min) return true;
+                        else if (min == dt.min)
+                            if (sec < dt.sec) return true;
+                            else return false;
+                        else return false;
+                    else return false;
+                else return false;
+            else return false;
+        else return false;
+        return (year < dt.year ?                true :
+                (year == dt.year ?
+                 (month < dt.month ?
+                  true :
+                  (month == dt.month ?
+                   (day < dt.day ?
+                    true :
+                    (day == dt.day ?
+                     (hrs < dt.hrs ?
+                      true :
+                      (hrs == dt.hrs ?
+                       (min < dt.min ?
+                        true :
+                        (min == dt.min ?
+                         (sec < dt.sec ?
+                          true :
+                          false) :
+                         false)
+                       ) : false)
+                     ) : false)
+                   ) : false)
+                 ) : false
+                )
     }
 
     bool operator<(datetime &&dt) const { return this->operator<(dt); }
