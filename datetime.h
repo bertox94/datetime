@@ -32,20 +32,20 @@ public:
     long long operator*(long long factor) const { return param * factor; }
 };
 
-class min {
+class mins {
 private:
     long long param;
 public:
-    min(long long _param) : param(_param) {}
+    mins(long long _param) : param(_param) {}
 
     long long operator*(long long factor) const { return param * factor; }
 };
 
-class sec {
+class secs {
 private:
     long long param;
 public:
-    sec(long long _param) : param(_param) {}
+    secs(long long _param) : param(_param) {}
 
     long long operator+(long long addendum) const { return param + addendum; }
 
@@ -83,7 +83,7 @@ public:
      * NB: this is a non explicit constructor.
      */
 
-    period(::days _days = 0, ::hrs _hrs = 0, ::min _min = 0, ::sec _sec = 0) {
+    period(::days _days = 0, ::hrs _hrs = 0, ::mins _min = 0, ::secs _sec = 0) {
         *this = period(_sec + _min * 60 + _hrs * 3600 + _days * 86400);
     }
 
@@ -425,7 +425,7 @@ private:
         }
 
         _min += from_dt.get_min();
-        if (_min < 0) { // here min and sec can be anything
+        if (_min < 0) { // here mins and secs can be anything
             _hrs--;
             if (_hrs == -1) { //here hrs can be either -1 or 22
                 _day--;
@@ -962,8 +962,8 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
     return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hrs: " << std::setfill('0')
-              << std::setw(2) << d.get_hrs() << ", min: " << std::setfill('0') << std::setw(2) << d.get_min()
-              << ", sec: "
+              << std::setw(2) << d.get_hrs() << ", mins: " << std::setfill('0') << std::setw(2) << d.get_min()
+              << ", secs: "
               << std::setfill('0') << std::setw(2) << d.get_sec();
 }
 
