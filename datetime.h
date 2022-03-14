@@ -402,19 +402,19 @@ public:
 
     /**
  * @return = @param start + @param seconds
+     * avg. 1 us
  */
     datetime after(long long seconds) const {
 
-        long long start_timestamp = this->to_timestamp();
-        long long yyear = 1970 + ((start_timestamp + seconds) / (365.2425 * 86400));
-        period from_dt(start_timestamp + seconds - datetime(1, 1, yyear).to_timestamp());
+        long long sts = this->to_timestamp() + seconds;
+        long long _year = 1970 + ((sts) / (365.2425 * 86400));
+        period from_dt(sts - datetime(1, 1, _year).to_timestamp());
 
         int _sec = from_dt.get_sec();
         int _min = 0;
         int _hrs = 0;
         long long _day = 0;
         int _month = 0;
-        long long _year = yyear;
 
         if (_sec < 0) {
             _year--;
