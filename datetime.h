@@ -401,9 +401,9 @@ private:
 public:
 
     /**
- * @return = @param start + @param seconds
+     * @return = @param start + @param seconds
      * avg. time: 1 us
- */
+     */
     datetime after(long long seconds) const {
 
         long long sts = this->to_timestamp() + seconds;
@@ -498,7 +498,6 @@ public:
 
         return (dt2.sec - dt1.sec + (dt2.min - dt1.min) * 60 + (dt2.hrs - dt1.hrs) * 3600 + dd * 86400) * flag;
     }
-
 
     /**
      * @return = @this == @dt
