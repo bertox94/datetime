@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <chrono>
 #include "datetime.h"
 #include <random>
 #include <climits>
@@ -54,12 +53,12 @@ int main() {
 
     srand(time(nullptr));
 
-    datetime::performance_test(10000000);
+    datetime::performance_test();
 
     auto epoch = datetime();
 
-    long long epochs = 15000000000;
-    test3(epochs);
+    long long size = 15000000000;
+    test3(size);
 
     cout << "\nFaster!" << endl;
 

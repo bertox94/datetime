@@ -11,6 +11,7 @@
 #define DATETIME_CLASSES_H
 
 #include <iomanip>
+#include <chrono>
 
 using namespace std;
 
@@ -62,6 +63,8 @@ private:
 
 public:
 
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
     /**
      * Creates a period in canonical form from @param _seconds.
      * is_canonical_form = (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
@@ -77,6 +80,7 @@ public:
         ss += min * 60;
         sec = seconds - ss;
     }
+#pragma clang diagnostic pop
 
     /**
      * Creates a period in canonical form from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
@@ -409,7 +413,7 @@ private:
     datetime after(long long seconds) const {
 
         long long sts = this->to_timestamp() + seconds;
-        long long _year = 1970 + (sts / (365.2425 * 86400));
+        long long _year = 1970 + (sts / (365.2425 * 86400)); // NOLINT(cppcoreguidelines-narrowing-conversions)
         auto secs = sts - datetime(1, 1, _year).to_timestamp();
 
         long long _day = secs / 86400;
@@ -466,7 +470,10 @@ private:
 
 public:
 
-    static void performance_test(long long size) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-msc50-cpp"
+    static void performance_test() {
+        int size = 1000000;
         datetime av_compiler_opt;
         long long res = 0;
         datetime dtp;
@@ -488,7 +495,7 @@ public:
         auto t4 = chrono::high_resolution_clock::now();
 
         chrono::duration<double, std::milli> ms_double = t2 - t1 - (t4 - t3);
-        std::cout << "seconds_to(datetime): " << ms_double.count() * 1000000 / size << " ns/op .."
+        std::cout << "seconds_to(datetime): " << ms_double.count() << " ns/op .."
                   << av_compiler_opt.year + res << endl;
 
         int avoid_compiler_optimization = 0;
@@ -510,9 +517,10 @@ public:
         t4 = chrono::high_resolution_clock::now();
 
         ms_double = t2 - t1 - (t4 - t3);
-        std::cout << "after(long long): " << ms_double.count() * 1000000 / size << " ns/op .."
+        std::cout << "after(long long): " << ms_double.count() << " ns/op .."
                   << avoid_compiler_optimization << endl;
     }
+#pragma clang diagnostic pop
 
     /**
      * @return = @this == @dt
@@ -647,7 +655,7 @@ public:
     datetime after_months(long long n) const {
         datetime dt = *this;
         dt.year += n / 12;
-        dt.month += n - ((n / 12) * 12);
+        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
 
         if (dt.month > 11) {
             dt.year++;
