@@ -19,7 +19,7 @@ class days {
 private:
     long long param;
 public:
-    days(long long _param) : param(_param) {}
+    explicit days(long long _param) : param(_param) {}
 
     long long operator*(long long factor) const { return param * factor; }
 };
@@ -28,7 +28,7 @@ class hrs {
 private:
     long long param;
 public:
-    hrs(long long _param) : param(_param) {}
+    explicit hrs(long long _param) : param(_param) {}
 
     long long operator*(long long factor) const { return param * factor; }
 };
@@ -37,7 +37,7 @@ class mins {
 private:
     long long param;
 public:
-    mins(long long _param) : param(_param) {}
+    explicit mins(long long _param) : param(_param) {}
 
     long long operator*(long long factor) const { return param * factor; }
 };
@@ -46,7 +46,7 @@ class secs {
 private:
     long long param;
 public:
-    secs(long long _param) : param(_param) {}
+    explicit secs(long long _param) : param(_param) {}
 
     long long operator+(long long addendum) const { return param + addendum; }
 
@@ -89,7 +89,7 @@ public:
      * NB: this is a non explicit constructor.
      */
 
-    period(::days _days = 0, ::hrs _hrs = 0, ::mins _min = 0, ::secs _sec = 0) {
+    period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0), ::secs _sec = ::secs(0)) {
         *this = _sec + _min * 60 + _hrs * 3600 + _days * 86400;
     }
 
