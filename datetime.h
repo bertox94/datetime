@@ -11,7 +11,7 @@
 #define DATETIME_CLASSES_H
 
 #include <iomanip>
-#include <chrono>
+#include <string>
 
 using namespace std;
 
@@ -65,6 +65,7 @@ public:
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
+
     /**
      * Creates a period in canonical form from @param _seconds.
      * is_canonical_form = (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
@@ -80,6 +81,7 @@ public:
         ss += min * 60;
         sec = seconds - ss;
     }
+
 #pragma clang diagnostic pop
 
     /**
@@ -276,7 +278,7 @@ public:
      */
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
-    period strip_days() {
+    period strip_days() const {
         auto el = *this;
         el.days = 0;
         return el;
@@ -389,9 +391,10 @@ private:
         long long y2 = y - 100 * (((x >= 0) * 99 + x) / 100);
         long long y3 = y - 400 * (((x >= 0) * 399 + x) / 400);
 
-        long long res = (y1 > 0) + (y1 - (y1 > 0)) / 4;
-        res -= (y2 > 0) + (y2 - (y2 > 0)) / 100;
-        res += (y3 > 0) + (y3 - (y3 > 0)) / 400;
+        long long res =
+                (y1 > 0) + (y1 - (y1 > 0)) / 4
+                - ((y2 > 0) + (y2 - (y2 > 0)) / 100)
+                + (y3 > 0) + (y3 - (y3 > 0)) / 400;
 
         return res;
     }
@@ -417,15 +420,13 @@ private:
         auto secs = sts - datetime(1, 1, _year).to_timestamp();
 
         long long _day = secs / 86400;
-        period time = secs - _day * 86400;
-        if (time < 0) {
-            time += 86400;
+        long long time_sec = secs - _day * 86400;
+        if (time_sec < 0) {
+            time_sec += 86400;
             _day--;
         }
+        period time(time_sec);
 
-        int _sec = time.get_sec();
-        int _min = time.get_min();
-        int _hrs = time.get_hrs();
         int _month = 0;
 
         int _dom = days_of_month(_month, _year);
@@ -447,7 +448,7 @@ private:
             _day += days_of_month(_month, _year);
         }
 
-        return {static_cast<int>(_day + 1), _month + 1, _year, _hrs, _min, _sec};
+        return {static_cast<int>(_day + 1), _month + 1, _year, time.get_hrs(), time.get_min(), time.get_sec()};
     }
 
     /**
@@ -469,58 +470,6 @@ private:
     }
 
 public:
-
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-msc50-cpp"
-    static void performance_test() {
-        int size = 1000000;
-        datetime av_compiler_opt;
-        long long res = 0;
-        datetime dtp;
-        auto t1 = chrono::high_resolution_clock::now();
-        for (long long i = 0; i < size; i++) {
-            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-            res = dtp.seconds_to(av_compiler_opt);
-            if (rand() % 345)
-                av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-        }
-        auto t2 = chrono::high_resolution_clock::now();
-
-        auto t3 = chrono::high_resolution_clock::now();
-        for (long long i = 0; i < size; i++) {
-            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-            if (rand() % 345)
-                av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-        }
-        auto t4 = chrono::high_resolution_clock::now();
-
-        chrono::duration<double, std::milli> ms_double = t2 - t1 - (t4 - t3);
-        std::cout << "seconds_to(datetime): " << ms_double.count() << " ns/op .."
-                  << av_compiler_opt.year + res << endl;
-
-        int avoid_compiler_optimization = 0;
-        t1 = chrono::high_resolution_clock::now();
-        for (long long i = 0; i < size; i++) {
-            avoid_compiler_optimization = rand() - RAND_MAX / 2;
-            dtp.after(avoid_compiler_optimization);
-            if (rand() % 345)
-                avoid_compiler_optimization = rand();
-        }
-        t2 = chrono::high_resolution_clock::now();
-
-        t3 = chrono::high_resolution_clock::now();
-        for (long long i = 0; i < size; i++) {
-            avoid_compiler_optimization = rand() - RAND_MAX / 2;
-            if (rand() % 345)
-                avoid_compiler_optimization = rand();
-        }
-        t4 = chrono::high_resolution_clock::now();
-
-        ms_double = t2 - t1 - (t4 - t3);
-        std::cout << "after(long long): " << ms_double.count() << " ns/op .."
-                  << avoid_compiler_optimization << endl;
-    }
-#pragma clang diagnostic pop
 
     /**
      * @return = @this == @dt
