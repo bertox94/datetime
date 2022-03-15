@@ -90,17 +90,17 @@ void test3(long long size) {
     for (long long i = 0; i < size; i++) {
         datetime d1(1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2, rand() % 24, rand() % 60, rand() % 60,
                     true);
-        period pt(distribution(generator));
+        long pt = distribution(generator);
         datetime d2 = d1 + pt - pt;
 
         if (d1 != d2) {
-            cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds()
+            cout << "Error: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt
                  << endl;
             return;
         }
 
         if (i % 1000000 == 0) {
-            cout << "OK: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt.to_seconds() << endl;
+            cout << "OK: l1= " << setw(12) << d1 << ", l2= " << setw(12) << d2 << ", tt= " << pt << endl;
         }
     }
 }

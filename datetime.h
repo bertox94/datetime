@@ -90,7 +90,7 @@ public:
      */
 
     period(::days _days = 0, ::hrs _hrs = 0, ::mins _min = 0, ::secs _sec = 0) {
-        *this = period(_sec + _min * 60 + _hrs * 3600 + _days * 86400);
+        *this = _sec + _min * 60 + _hrs * 3600 + _days * 86400;
     }
 
     /**
@@ -158,7 +158,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator+=(period &pd) {
-        *this = period(this->to_seconds() + pd.to_seconds());
+        *this = this->to_seconds() + pd.to_seconds();
         return *this;
     }
 
@@ -177,7 +177,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator-=(period &pd) {
-        *this = period(this->to_seconds() - pd.to_seconds());
+        *this = this->to_seconds() - pd.to_seconds();
         return *this;
     }
 
@@ -375,7 +375,7 @@ private:
 
     static int days_of_month(unsigned int _month, long long _year) {
         return ( //if leap _year add 1 day to the normal number of days of February.
-                       ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0)) && _month == 1 ? 1 : 0
+                       _month == 1 && ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0))
                ) + days_of_months[_month];
     }
 
@@ -651,7 +651,7 @@ public:
      */
     int days_of_this_month() const {
         return ( //if leap year add 1 day to the normal number of days of February.
-                       ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)) && month == 1 ? 1 : 0
+                       month == 1 && ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
                ) + days_of_months[month];
     }
 
