@@ -111,25 +111,11 @@ public:
     * @return = @this < @pd
     */
     bool operator<(period &pd) const {
-        if (days < pd.days) {
-            return true;
-        } else if (days == pd.days) {
-            if (hrs < pd.hrs) {
-                return true;
-            } else if (hrs == pd.hrs) {
-                if (min < pd.min) {
-                    return true;
-                } else if (min == pd.min) {
-                    if (sec < pd.sec) {
-                        return true;
-                    } else
-                        return false;
-                } else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
+        return days < pd.days || days == pd.days && (
+                hrs < pd.hrs || hrs == pd.hrs && (
+                        min < pd.min || min == pd.min && sec < pd.sec
+                )
+        );
     }
 
     bool operator<(period &&pd) const { return this->operator<(pd); }
@@ -138,25 +124,11 @@ public:
     * @return = @this > @pd
     */
     bool operator>(period &pd) const {
-        if (days > pd.days) {
-            return true;
-        } else if (days == pd.days) {
-            if (hrs > pd.hrs) {
-                return true;
-            } else if (hrs == pd.hrs) {
-                if (min > pd.min) {
-                    return true;
-                } else if (min == pd.min) {
-                    if (sec > pd.sec) {
-                        return true;
-                    } else
-                        return false;
-                } else
-                    return false;
-            } else
-                return false;
-        } else
-            return false;
+        return days > pd.days || days == pd.days && (
+                hrs > pd.hrs || hrs == pd.hrs && (
+                        min > pd.min || min == pd.min && sec > pd.sec
+                )
+        );
     }
 
     bool operator>(period &&pd) const { return this->operator>(pd); }
@@ -492,8 +464,7 @@ public:
                 month < dt.month || month == dt.month && (
                         day < dt.day || day == dt.day && (
                                 hrs < dt.hrs || hrs == dt.hrs && (
-                                        min < dt.min || min == dt.min &&
-                                                        sec < dt.sec
+                                        min < dt.min || min == dt.min && sec < dt.sec
                                 )
                         )
                 )
@@ -510,8 +481,7 @@ public:
                 month > dt.month || month == dt.month && (
                         day > dt.day || day == dt.day && (
                                 hrs > dt.hrs || hrs == dt.hrs && (
-                                        min > dt.min || min == dt.min &&
-                                                        sec > dt.sec
+                                        min > dt.min || min == dt.min && sec > dt.sec
                                 )
                         )
                 )
