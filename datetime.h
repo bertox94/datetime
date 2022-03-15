@@ -292,6 +292,11 @@ public:
     datetime() = default;
 
     /**
+     * Construct a new date which is @param seconds after epoch time.
+     */
+    explicit datetime(long long timestamp) { *this = after(timestamp); }
+
+    /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
      * and then fixes (@fix_date) the date accordingly.
      */
@@ -349,11 +354,6 @@ public:
             throw runtime_error("");
     }
 
-    /**
-    * Construct a new date which is @param seconds after epoch time.
-    */
-    explicit datetime(long long timestamp) { *this = after(timestamp); }
-
 private:
     /**
      * Auxiliary function for @f.
@@ -363,11 +363,9 @@ private:
         long long y2 = y - 100 * (((x >= 0) * 99 + x) / 100);
         long long y3 = y - 400 * (((x >= 0) * 399 + x) / 400);
 
-        long long res = (y1 > 0) + (y1 - (y1 > 0)) / 4
-                        - ((y2 > 0) + (y2 - (y2 > 0)) / 100)
-                        + (y3 > 0) + (y3 - (y3 > 0)) / 400;
-
-        return res;
+        return (y1 > 0) + (y1 - (y1 > 0)) / 4
+               - ((y2 > 0) + (y2 - (y2 > 0)) / 100)
+               + (y3 > 0) + (y3 - (y3 > 0)) / 400;
     }
 
     /**
