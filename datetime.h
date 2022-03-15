@@ -68,7 +68,7 @@ public:
 
     /**
      * Creates a period in canonical form from @param _seconds.
-     * Canonical form is defined as: (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
+     * A period is in canonical form iff (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
      *                              (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
      * NB: this is a non-explicit constructor.
      */
