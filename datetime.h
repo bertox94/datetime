@@ -381,35 +381,13 @@ private:
      * Auxiliary function for @f.
      */
     static long long fK(long long x, long long y) {
-        long long y1 = y;
-        long long y2 = y;
-        long long y3 = y;
-        long long res = 0;
+        long long y1 = y - 4 * (((x >= 0) * 3 + x) / 4);
+        long long y2 = y - 100 * (((x >= 0) * 99 + x) / 100);
+        long long y3 = y - 400 * (((x >= 0) * 399 + x) / 400);
 
-        if (x >= 0) {
-            y1 -= 4 * ((4 + x - 1) / 4);
-            y2 -= 100 * ((100 + x - 1) / 100);
-            y3 -= 400 * ((400 + x - 1) / 400);
-        } else {
-            y1 -= 4 * (x / 4);
-            y2 -= 100 * (x / 100);
-            y3 -= 400 * (x / 400);
-        }
-
-        if (y1 <= 0)
-            res = y1 / 4;
-        else
-            res = 1 + (y1 - 1) / 4;
-
-        if (y2 <= 0)
-            res -= y2 / 100;
-        else
-            res -= 1 + (y2 - 1) / 100;
-
-        if (y3 <= 0)
-            res += y3 / 400;
-        else
-            res += 1 + (y3 - 1) / 400;
+        long long res = (y1 > 0) + (y1 - (y1 > 0)) / 4;
+        res -= (y2 > 0) + (y2 - (y2 > 0)) / 100;
+        res += (y3 > 0) + (y3 - (y3 > 0)) / 400;
 
         return res;
     }
@@ -487,6 +465,55 @@ private:
     }
 
 public:
+
+    static void performance_test(long long size) {
+        datetime av_compiler_opt;
+        long long res = 0;
+        datetime dtp;
+        auto t1 = chrono::high_resolution_clock::now();
+        for (long long i = 0; i < size; i++) {
+            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
+            res = dtp.seconds_to(av_compiler_opt);
+            if (rand() % 345)
+                av_compiler_opt = datetime(rand() - RAND_MAX / 2);
+        }
+        auto t2 = chrono::high_resolution_clock::now();
+
+        auto t3 = chrono::high_resolution_clock::now();
+        for (long long i = 0; i < size; i++) {
+            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
+            if (rand() % 345)
+                av_compiler_opt = datetime(rand() - RAND_MAX / 2);
+        }
+        auto t4 = chrono::high_resolution_clock::now();
+
+        chrono::duration<double, std::milli> ms_double = t2 - t1 - (t4 - t3);
+        std::cout << "seconds_to(datetime): " << ms_double.count() * 1000000 / size << " ns/op .."
+                  << av_compiler_opt.year + res << endl;
+
+        int avoid_compiler_optimization = 0;
+        t1 = chrono::high_resolution_clock::now();
+        for (long long i = 0; i < size; i++) {
+            avoid_compiler_optimization = rand() - RAND_MAX / 2;
+            dtp.after(avoid_compiler_optimization);
+            if (rand() % 345)
+                avoid_compiler_optimization = rand();
+        }
+        t2 = chrono::high_resolution_clock::now();
+
+        t3 = chrono::high_resolution_clock::now();
+        for (long long i = 0; i < size; i++) {
+            avoid_compiler_optimization = rand() - RAND_MAX / 2;
+            if (rand() % 345)
+                avoid_compiler_optimization = rand();
+        }
+        t4 = chrono::high_resolution_clock::now();
+
+        ms_double = t2 - t1 - (t4 - t3);
+        std::cout << "after(long long): " << ms_double.count() * 1000000 / size << " ns/op .."
+                  << avoid_compiler_optimization << endl;
+    }
+
     /**
      * @return = @this == @dt
      */

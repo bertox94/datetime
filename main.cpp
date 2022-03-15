@@ -7,54 +7,6 @@
 
 using namespace std;
 
-void performance_test(long long size) {
-    datetime dtp;
-    datetime av_compiler_opt;
-
-    auto t1 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < size; i++) {
-        av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-        //dtp.seconds_to(av_compiler_opt);
-        if (rand() % 345)
-            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-    }
-    auto t2 = chrono::high_resolution_clock::now();
-
-    auto t3 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < size; i++) {
-        av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-        if (rand() % 345)
-            av_compiler_opt = datetime(rand() - RAND_MAX / 2);
-    }
-    auto t4 = chrono::high_resolution_clock::now();
-
-    chrono::duration<double, std::milli> ms_double = t2 - t1 - (t4 - t3);
-    std::cout << "seconds_to(datetime): " << ms_double.count() * 1000000 / size << " ns/op .."
-              << av_compiler_opt << endl;
-
-    int avoid_compiler_optimization = 0;
-    t1 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < size; i++) {
-        avoid_compiler_optimization = rand() - RAND_MAX / 2;
-        //dtp.after(avoid_compiler_optimization);
-        if (rand() % 345)
-            avoid_compiler_optimization = rand();
-    }
-    t2 = chrono::high_resolution_clock::now();
-
-    t3 = chrono::high_resolution_clock::now();
-    for (long long i = 0; i < size; i++) {
-        avoid_compiler_optimization = rand() - RAND_MAX / 2;
-        if (rand() % 345)
-            avoid_compiler_optimization = rand();
-    }
-    t4 = chrono::high_resolution_clock::now();
-
-    ms_double = t2 - t1 - (t4 - t3);
-    std::cout << "after(long long): " << ms_double.count() * 1000000 / size << " ns/op .."
-              << avoid_compiler_optimization << endl;
-}
-
 void test2(long long size) {
     for (long long i = 0; i < size; i++) {
         datetime dtp(i);
@@ -102,9 +54,10 @@ int main() {
 
     srand(time(nullptr));
 
+    datetime::performance_test(10000000);
+
     auto epoch = datetime();
 
-    //performance_test(1000000);
     long long epochs = 15000000000;
     test3(epochs);
 
