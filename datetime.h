@@ -404,12 +404,9 @@ private:
                ) + days_of_months[_month];
     }
 
-
-public:
-
     /**
-* @return = @param start + @param seconds
-*/
+     * @return = @param start + @param seconds
+     */
     datetime after(long long seconds) const {
 
         long long sts = this->to_timestamp() + seconds;
@@ -468,6 +465,7 @@ public:
         return (dt2.sec - dt1.sec + (dt2.min - dt1.min) * 60 + (dt2.hrs - dt1.hrs) * 3600 + dd * 86400) * flag;
     }
 
+public:
     /**
      * @return = @this == @dt
      */
