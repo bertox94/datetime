@@ -390,7 +390,6 @@ private:
             return y / PERIOD;
         else
             return 1 + (y - 1) / PERIOD;
-
     }
 
     /**
