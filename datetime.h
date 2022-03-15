@@ -272,6 +272,12 @@ public:
      */
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
+    period strip_days() {
+        auto el = *this;
+        el.days = 0;
+        return el;
+    }
+
 };
 
 /**
@@ -404,57 +410,21 @@ private:
     datetime after(long long seconds) const {
 
         long long sts = this->to_timestamp() + seconds;
-        long long _year = 1970 + ((sts) / (365.2425 * 86400));
-        period from_dt(sts - datetime(1, 1, _year).to_timestamp());
+        long long _year = 1970 + (sts / (365.2425 * 86400));
+        auto secs = sts - datetime(1, 1, _year).to_timestamp();
 
-        int _sec = from_dt.get_sec();
-        int _min = 0;
-        int _hrs = 0;
-        long long _day = 0;
+        long long _day = secs / 86400;
+        period time = secs - _day * 86400;
+        if (time < 0) {
+            time += 86400;
+            _day--;
+        }
+
+        int _sec = time.get_sec();
+        int _min = time.get_min();
+        int _hrs = time.get_hrs();
         int _month = 0;
 
-        if (_sec < 0) {
-            _year--;
-            _month = 11;
-            _day = 30;
-            _hrs = 23;
-            _min = 59;
-            _sec += 60;
-        }
-
-        _min += from_dt.get_min();
-        if (_min < 0) { // here mins and secs can be anything
-            _hrs--;
-            if (_hrs == -1) { //here hrs can be either -1 or 22
-                _day--;
-                if (_day == -1) { //here day can be either 0 or 29
-                    _month--;
-                    if (_month == -1) { // here month can be either 0 or 10
-                        _year--;
-                        _month = 11;
-                    }
-                    _day = days_of_month(_month, _year) - 1;
-                }
-                _hrs = 23;
-            }
-            _min += 60;
-        }
-
-        _hrs += from_dt.get_hrs();
-        if (_hrs < 0) {
-            _day--;
-            if (_day == -1) {
-                _month--;
-                if (_month == -1) {
-                    _year--;
-                    _month = 11;
-                }
-                _day = days_of_month(_month, _year) - 1;
-            }
-            _hrs += 24;
-        }
-
-        _day += from_dt.get_days();
         int _dom = days_of_month(_month, _year);
         while (_day >= _dom) {
             _day -= _dom;
