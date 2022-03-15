@@ -382,44 +382,35 @@ private:
      */
     static long long fK(long long xx, long long yy) {
         long long x = xx;
-        long long y = yy;
+        long long y1 = yy;
+        long long y2 = yy;
+        long long y3 = yy;
         long long res = 0;
 
-        if (x >= 0)
-            y -= 4 * ((4 + x - 1) / 4);
+        if (x >= 0) {
+            y1 -= 4 * ((4 + x - 1) / 4);
+            y2 -= 100 * ((100 + x - 1) / 100);
+            y3 -= 400 * ((400 + x - 1) / 400);
+        } else {
+            y1 -= 4 * (x / 4);
+            y2 -= 100 * (x / 100);
+            y3 -= 400 * (x / 400);
+        }
+
+        if (y1 <= 0)
+            res = y1 / 4;
         else
-            y -= 4 * (x / 4);
+            res = 1 + (y1 - 1) / 4;
 
-        if (y <= 0)
-            res = y / 4;
+        if (y2 <= 0)
+            res -= y2 / 100;
         else
-            res = 1 + (y - 1) / 4;
+            res -= 1 + (y2 - 1) / 100;
 
-        x = xx;
-        y = yy;
-
-        if (x >= 0)
-            y -= 100 * ((100 + x - 1) / 100);
+        if (y3 <= 0)
+            res += y3 / 400;
         else
-            y -= 100 * (x / 100);
-
-        if (y <= 0)
-            res -= y / 100;
-        else
-            res -= 1 + (y - 1) / 100;
-
-        x = xx;
-        y = yy;
-
-        if (x >= 0)
-            y -= 400 * ((400 + x - 1) / 400);
-        else
-            y -= 400 * (x / 400);
-
-        if (y <= 0)
-            res += y / 400;
-        else
-            res += 1 + (y - 1) / 400;
+            res += 1 + (y3 - 1) / 400;
 
         return res;
     }
