@@ -380,22 +380,54 @@ private:
     /**
      * Auxiliary function for @f.
      */
-    static long long fK(int PERIOD, long long x, long long y) {
+    static long long fK(long long xx, long long yy) {
+        long long x = xx;
+        long long y = yy;
+        long long res = 0;
+
         if (x >= 0)
-            y -= PERIOD * ((PERIOD + x - 1) / PERIOD);
+            y -= 4 * ((4 + x - 1) / 4);
         else
-            y -= PERIOD * (x / PERIOD);
+            y -= 4 * (x / 4);
 
         if (y <= 0)
-            return y / PERIOD;
+            res = y / 4;
         else
-            return 1 + (y - 1) / PERIOD;
+            res = 1 + (y - 1) / 4;
+
+        x = xx;
+        y = yy;
+
+        if (x >= 0)
+            y -= 100 * ((100 + x - 1) / 100);
+        else
+            y -= 100 * (x / 100);
+
+        if (y <= 0)
+            res -= y / 100;
+        else
+            res -= 1 + (y - 1) / 100;
+
+        x = xx;
+        y = yy;
+
+        if (x >= 0)
+            y -= 400 * ((400 + x - 1) / 400);
+        else
+            y -= 400 * (x / 400);
+
+        if (y <= 0)
+            res += y / 400;
+        else
+            res += 1 + (y - 1) / 400;
+
+        return res;
     }
 
     /**
      * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
      */
-    static long long f(long long x, long long y) { return (y - x) * 365 + fK(4, x, y) - fK(100, x, y) + fK(400, x, y); }
+    static long long f(long long x, long long y) { return (y - x) * 365 + fK(x, y); }
 
     static int days_of_month(unsigned int _month, long long _year) {
         return ( //if leap _year add 1 day to the normal number of days of February.
