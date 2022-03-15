@@ -380,11 +380,10 @@ private:
     /**
      * Auxiliary function for @f.
      */
-    static long long fK(long long xx, long long yy) {
-        long long x = xx;
-        long long y1 = yy;
-        long long y2 = yy;
-        long long y3 = yy;
+    static long long fK(long long x, long long y) {
+        long long y1 = y;
+        long long y2 = y;
+        long long y3 = y;
         long long res = 0;
 
         if (x >= 0) {
