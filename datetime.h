@@ -302,34 +302,21 @@ public:
     explicit datetime(long long timestamp) { *this = after(timestamp); }
 
     /**
-     * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
-     * and then fixes (@fix_date) the date accordingly.
+     * Constructor of datetime. Always adjust the date.
      */
-    datetime(long long _day, long long _month, long long _year, bool autofix) :
-            day(_day - 1), month(_month - 1), year(_year) {
-        if (month < 0 || month > 11)
-            throw runtime_error("");
-        if (day >= days_of_this_month())
-            this->day = days_of_this_month() - 1;
+    datetime(long long _day, long long _month, long long _year, bool autofix) {
+        year = _year;
+        this->after_months(_month - 1);
+        (*this) += period(days(_day - 1));
     }
 
     /**
-     * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
-     * and then fixes (@fix_date) the date accordingly.
+     * Constructor of datetime. Always adjust the date.
      */
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
              bool autofix) :
             datetime(_day, _month, _year, autofix) {
-        sec = _sec;
-        min = _min;
-        hrs = _hrs;
-
-        if (sec < 0 || sec > 59)
-            throw runtime_error("");
-        if (min < 0 || min > 59)
-            throw runtime_error("");
-        if (hrs < 0 || hrs > 23)
-            throw runtime_error("");
+        (*this) += period(days(0), ::hrs(_hrs), mins(_min), secs(_sec));
     }
 
     /**
