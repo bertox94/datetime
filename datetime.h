@@ -57,9 +57,9 @@ public:
 class period {
 private:
     long long days{};
-    int hrs{};
-    int min{};
-    int sec{};
+    long long hrs{};
+    long long min{};
+    long long sec{};
 
 public:
 
@@ -90,7 +90,7 @@ public:
      */
 
     period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0),
-           ::secs _sec = ::secs(0)) { *this = _sec + _min * 60 + _hrs * 3600 + _days * 86400; }
+           ::secs _sec = ::secs(0)) : days(_days), hrs(_hrs), mins(_min), sec(_sec) {}
 
     /**
      * @return = @this == @pd
@@ -241,6 +241,10 @@ public:
     int get_hrs() const { return hrs; }
 
     long long int get_days() const { return days; }
+
+    period to_canonical_form() const {
+        return sec + min * 60 + hrs * 3600 + days * 86400;
+    }
 
     /**
      * Convert @this to seconds.
