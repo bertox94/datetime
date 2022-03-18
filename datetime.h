@@ -329,7 +329,7 @@ public:
      */
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
              bool _default) : datetime(_day, _month, _year, _default) {
-        *this += {dd(0), ::hh(_hrs), mm(_min), ss(_sec)};
+        *this += {::hh(_hrs), mm(_min), ss(_sec)};
     }
 
     /**
