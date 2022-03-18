@@ -50,7 +50,7 @@ class ss {
 private:
     long long param;
 public:
-    ss(long long _param) : param(_param) {}
+    explicit ss(long long _param) : param(_param) {}
 
     long long int get() const { return param; }
 };
@@ -111,11 +111,7 @@ public:
     * @return = @this < @pd
     */
     bool operator<(period &pd) const {
-        return days < pd.days || days == pd.days && (
-                hrs < pd.hrs || hrs == pd.hrs && (
-                        min < pd.min || min == pd.min && sec < pd.sec
-                )
-        );
+        return to_seconds() < pd.to_seconds();
     }
 
     bool operator<(period &&pd) const { return this->operator<(pd); }
@@ -124,11 +120,7 @@ public:
     * @return = @this > @pd
     */
     bool operator>(period &pd) const {
-        return days > pd.days || days == pd.days && (
-                hrs > pd.hrs || hrs == pd.hrs && (
-                        min > pd.min || min == pd.min && sec > pd.sec
-                )
-        );
+        return to_seconds() > pd.to_seconds();
     }
 
     bool operator>(period &&pd) const { return this->operator>(pd); }
@@ -150,7 +142,7 @@ public:
     /**
     * @return = @this + @pd
     */
-    period operator+(period &pd) const { return {this->to_seconds() + pd.to_seconds()}; }
+    period operator+(period &pd) const { return ss(this->to_seconds() + pd.to_seconds()); }
 
     period operator+(period &&pd) const { return this->operator+(pd); }
 
@@ -158,7 +150,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator+=(period &pd) {
-        *this = {this->to_seconds() + pd.to_seconds()};
+        *this = ss(this->to_seconds() + pd.to_seconds());
         return *this;
     }
 
@@ -167,7 +159,7 @@ public:
     /**
     * @return = @this - @pd
     */
-    period operator-(period &pd) const { return {this->to_seconds() - pd.to_seconds()}; }
+    period operator-(period &pd) const { return ss(this->to_seconds() - pd.to_seconds()); }
 
     period operator-(period &&pd) const { return this->operator-(pd); }
 
@@ -175,7 +167,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator-=(period &pd) {
-        *this = {this->to_seconds() - pd.to_seconds()};
+        *this = ss(this->to_seconds() - pd.to_seconds());
         return *this;
     }
 
@@ -184,7 +176,7 @@ public:
     /**
     * @return = @this * @pd
     */
-    period operator*(period &pd) const { return {this->to_seconds() * pd.to_seconds()}; }
+    period operator*(period &pd) const { return ss(this->to_seconds() * pd.to_seconds()); }
 
     period operator*(period &&pd) const { return this->operator*(pd); }
 
@@ -201,7 +193,7 @@ public:
     /**
     * @return = @this / @pd
     */
-    period operator/(period &pd) const { return {this->to_seconds() / pd.to_seconds()}; }
+    period operator/(period &pd) const { return ss(this->to_seconds() / pd.to_seconds()); }
 
     period operator/(period &&pd) const { return this->operator/(pd); }
 
@@ -218,7 +210,7 @@ public:
     /**
      * @return = @this % @pd
      */
-    period operator%(period &pd) const { return {this->to_seconds() % pd.to_seconds()}; }
+    period operator%(period &pd) const { return ss(this->to_seconds() % pd.to_seconds()); }
 
     period operator%(period &&pd) const { return this->operator%(pd); }
 
@@ -330,7 +322,7 @@ public:
             day = _day;
             this->after_months(_month - 1, _mode);
         } else if (_mode == autofix::II)
-            *this += {dd(_day - 1)};
+            *this += dd(_day - 1);
 
         else
             throw runtime_error("");
@@ -430,7 +422,7 @@ private:
             time_sec += 86400;
             _day--;
         }
-        period time(time_sec);
+        period time = ss(time_sec);
         time = time.to_canonical_form();
 
         int _month = 0;
