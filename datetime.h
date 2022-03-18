@@ -240,9 +240,15 @@ public:
 
     long long int get_days() const { return days; }
 
-    period to_canonical_form() const {
-        return this->to_seconds();
-    }
+    void setDays(long long int _days) { period::days = _days; }
+
+    void setHrs(long long int _hrs) { period::hrs = _hrs; }
+
+    void setMin(long long int _min) { period::min = _min; }
+
+    void setSec(long long int _sec) { period::sec = _sec; }
+
+    period to_canonical_form() const { return this->to_seconds(); }
 
     /**
      * Convert @this to seconds.
