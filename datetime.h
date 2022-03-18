@@ -89,9 +89,7 @@ public:
      * NB: this is a non explicit constructor.
      */
 
-    period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0), ::secs _sec = ::secs(0)) {
-        *this = _sec + _min * 60 + _hrs * 3600 + _days * 86400;
-    }
+    period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0), ::secs _sec = ::secs(0)) { *this = _sec + _min * 60 + _hrs * 3600 + _days * 86400; }
 
     /**
      * @return = @this == @pd
@@ -157,14 +155,9 @@ public:
     /**
     * @this = @return = @this < @pd
     */
-    period operator+=(period &pd) {
-        *this = this->to_seconds() + pd.to_seconds();
-        return *this;
-    }
+    period operator+=(period &pd) { *this = this->to_seconds() + pd.to_seconds(); return *this; }
 
-    period operator+=(period &&pd) {
-        return this->operator+=(pd);
-    }
+    period operator+=(period &&pd) { return this->operator+=(pd); }
 
     /**
     * @return = @this - @pd
@@ -176,10 +169,7 @@ public:
     /**
     * @this = @return = @this < @pd
     */
-    period operator-=(period &pd) {
-        *this = this->to_seconds() - pd.to_seconds();
-        return *this;
-    }
+    period operator-=(period &pd) { *this = this->to_seconds() - pd.to_seconds(); return *this; }
 
     period operator-=(period &&pd) { return this->operator-=(pd); }
 
@@ -193,10 +183,7 @@ public:
     /**
     * @this = @return = @this * @pd
     */
-    period operator*=(period &pd) {
-        *this = this->operator*(pd);
-        return *this;
-    }
+    period operator*=(period &pd) { *this = this->operator*(pd); return *this; }
 
     period operator*=(period &&pd) { return this->operator*=(pd); }
 
@@ -210,10 +197,7 @@ public:
     /**
     * @this = @return = @this / @pd
     */
-    period operator/=(period &pd) {
-        *this = this->operator/(pd);
-        return *this;
-    }
+    period operator/=(period &pd) { *this = this->operator/(pd); return *this; }
 
     period operator/=(period &&pd) { return this->operator/=(pd); }
 
@@ -227,10 +211,7 @@ public:
     /**
     * @this = @return = @this % @pd
     */
-    period operator%=(period &pd) {
-        *this = this->operator%(pd);
-        return *this;
-    }
+    period operator%=(period &pd) { *this = this->operator%(pd); return *this; }
 
     period operator%=(period &&pd) { return this->operator%=(pd); }
 
@@ -250,11 +231,7 @@ public:
      */
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
-    period strip_days() const {
-        auto el = *this;
-        el.days = 0;
-        return el;
-    }
+    period strip_days() const { auto el = *this; el.days = 0; return el; }
 
 };
 
@@ -512,10 +489,7 @@ public:
     /**
      * @this = @return = @this + @p
      */
-    datetime operator+=(period &p) {
-        *this = operator+(p);
-        return *this;
-    }
+    datetime operator+=(period &p) { *this = operator+(p); return *this; }
 
     datetime operator+=(period &&p) { return operator+=(p); }
 
@@ -529,10 +503,7 @@ public:
     /**
      * @this = @return = @this - @p
      */
-    datetime operator-=(period &p) {
-        *this = this->operator-(p);
-        return *this;
-    }
+    datetime operator-=(period &p) { *this = this->operator-(p); return *this; }
 
     datetime operator-=(period &&p) { return this->operator-=(p); }
 
@@ -595,11 +566,7 @@ public:
     /**
      * @return =  @this after @param n years.
      */
-    datetime after_years(long long n) const {
-        datetime dt = *this;
-        dt.year += n;
-        return dt;
-    }
+    datetime after_years(long long n) const { datetime dt = *this; dt.year += n; return dt; }
 
     /**
      * The date is fixed in the following way: given a month, if the day is greater than the days of the specified month,
@@ -658,11 +625,7 @@ public:
     /**
      * @return @this whose day is the last of the month.
      */
-    datetime end_of_month() const {
-        datetime dt = *this;
-        dt.day = dt.days_of_this_month() - 1;
-        return dt;
-    }
+    datetime end_of_month() const { datetime dt = *this; dt.day = dt.days_of_this_month() - 1; return dt; }
 
     /**
      * @return the seconds from @epoch to @this.
