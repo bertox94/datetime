@@ -21,7 +21,7 @@ private:
 public:
     explicit days(long long _param) : param(_param) {}
 
-    long long operator*(long long factor) const { return param * factor; }
+    operator long long() const { return param; }
 };
 
 class hrs {
@@ -30,7 +30,7 @@ private:
 public:
     explicit hrs(long long _param) : param(_param) {}
 
-    long long operator*(long long factor) const { return param * factor; }
+    operator long long() const { return param; }
 };
 
 class mins {
@@ -39,7 +39,7 @@ private:
 public:
     explicit mins(long long _param) : param(_param) {}
 
-    long long operator*(long long factor) const { return param * factor; }
+    operator long long() const { return param; }
 };
 
 class secs {
@@ -48,9 +48,7 @@ private:
 public:
     explicit secs(long long _param) : param(_param) {}
 
-    long long operator+(long long addendum) const { return param + addendum; }
-
-    long long operator*(long long factor) const { return param * factor; }
+    operator long long() const { return param; }
 };
 
 
@@ -85,12 +83,12 @@ public:
 #pragma clang diagnostic pop
 
     /**
-     * Creates a period in canonical form from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
+     * Creates a period from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
      * NB: this is a non explicit constructor.
      */
 
     period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0),
-           ::secs _sec = ::secs(0)) : days(_days), hrs(_hrs), mins(_min), sec(_sec) {}
+           ::secs _sec = ::secs(0)) : days(_days), hrs(_hrs), min(_min), sec(_sec) {}
 
     /**
      * @return = @this == @pd
@@ -234,16 +232,16 @@ public:
     /**
      * Getter functions.
      */
-    int get_sec() const { return sec; }
+    long long get_sec() const { return sec; }
 
-    int get_min() const { return min; }
+    long long get_min() const { return min; }
 
-    int get_hrs() const { return hrs; }
+    long long get_hrs() const { return hrs; }
 
     long long int get_days() const { return days; }
 
     period to_canonical_form() const {
-        return sec + min * 60 + hrs * 3600 + days * 86400;
+        return this->to_seconds();
     }
 
     /**
@@ -277,12 +275,12 @@ int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 class datetime {
 private:
     //do not use unsigned to avoid bad surprises on narrowing etc. casting!
-    int day = 0;
-    int month = 0;
+    long long day = 0;
+    long long month = 0;
     long long year = 1970;
-    int hrs = 0;
-    int min = 0;
-    int sec = 0;
+    long long hrs = 0;
+    long long min = 0;
+    long long sec = 0;
 
 public:
     datetime_formatter format;
@@ -301,7 +299,7 @@ public:
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12)
      * and then fixes (@fix_date) the date accordingly.
      */
-    datetime(int _day, int _month, long long _year, bool autofix) :
+    datetime(long long _day, long long _month, long long _year, bool autofix) :
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
@@ -313,7 +311,8 @@ public:
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      * and then fixes (@fix_date) the date accordingly.
      */
-    datetime(int _day, int _month, long long _year, int _hrs, int _min, int _sec, bool autofix) :
+    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
+             bool autofix) :
             datetime(_day, _month, _year, autofix) {
         sec = _sec;
         min = _min;
@@ -330,7 +329,7 @@ public:
     /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
-    datetime(int _day, int _month, long long _year) :
+    datetime(long long _day, long long _month, long long _year) :
             day(_day - 1), month(_month - 1), year(_year) {
         if (month < 0 || month > 11)
             throw runtime_error("");
@@ -341,7 +340,7 @@ public:
     /**
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
      */
-    datetime(int _day, int _month, long long _year, int _hrs, int _min, int _sec) :
+    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
             datetime(_day, _month, _year) {
         sec = _sec;
         min = _min;
