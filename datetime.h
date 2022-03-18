@@ -72,13 +72,19 @@ public:
      * NB: this is a non explicit constructor.
      */
 
-    period(::dd _days) : days(_days.get()) {};
-
-    period(::hh _hrs) : hrs(_hrs.get()) {};
+    period(::ss _sec) : sec(_sec.get()) {};
 
     period(::mm _mins) : min(_mins.get()) {};
 
-    period(::ss _sec) : sec(_sec.get()) {};
+    period(::mm _mins, ::ss _sec) : min(_mins.get()), sec(_sec.get()) {};
+
+    period(::hh _hrs) : hrs(_hrs.get()) {};
+
+    period(::hh _hrs, ::mm _min) : hrs(_hrs.get()), min(_min.get()) {};
+
+    period(::hh _hrs, ::mm _min, ::ss _sec) : hrs(_hrs.get()), min(_min.get()), sec(_sec.get()) {};
+
+    period(::dd _days) : days(_days.get()) {};
 
     period(::dd _days, ::hh _hrs) : days(_days.get()), hrs(_hrs.get()) {};
 
