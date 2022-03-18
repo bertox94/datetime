@@ -307,7 +307,7 @@ public:
     datetime(long long _day, long long _month, long long _year, bool autofix) {
         year = _year;
         this->after_months(_month - 1);
-        (*this) += period(days(_day - 1));
+        *this += {days(_day - 1)};
     }
 
     /**
@@ -316,7 +316,7 @@ public:
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
              bool autofix) :
             datetime(_day, _month, _year, autofix) {
-        (*this) += period(days(0), ::hrs(_hrs), mins(_min), secs(_sec));
+        *this += {days(0), ::hrs(_hrs), mins(_min), secs(_sec)};
     }
 
     /**
@@ -558,7 +558,7 @@ public:
     long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
 
     /**
-     * @return =  @this after @param n years. The obtained date is adjusted to return the last of the when it overflows,
+     * @return =  @this after @param n years. The obtained date is adjusted to return the last of the month when it overflows,
      * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
      */
     datetime after_months(long long n) const {
