@@ -15,40 +15,44 @@
 
 using namespace std;
 
-class days {
-private:
-    long long param;
-public:
-    explicit days(long long _param) : param(_param) {}
-
-    operator long long() const { return param; }
+enum autofix {
+    I, II
 };
 
-class hrs {
+class dd {
 private:
     long long param;
 public:
-    explicit hrs(long long _param) : param(_param) {}
+    explicit dd(long long _param) : param(_param) {}
 
-    operator long long() const { return param; }
+    long long int get() const { return param; }
 };
 
-class mins {
+class hh {
 private:
     long long param;
 public:
-    explicit mins(long long _param) : param(_param) {}
+    explicit hh(long long _param) : param(_param) {}
 
-    operator long long() const { return param; }
+    long long int get() const { return param; }
 };
 
-class secs {
+class mm {
 private:
     long long param;
 public:
-    explicit secs(long long _param) : param(_param) {}
+    explicit mm(long long _param) : param(_param) {}
 
-    operator long long() const { return param; }
+    long long int get() const { return param; }
+};
+
+class ss {
+private:
+    long long param;
+public:
+    ss(long long _param) : param(_param) {}
+
+    long long int get() const { return param; }
 };
 
 
@@ -61,34 +65,33 @@ private:
 
 public:
 
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cppcoreguidelines-narrowing-conversions"
-
-    /**
-     * Creates a period in canonical form from @param _seconds.
-     * A period is in canonical form iff (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
-     *                              (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
-     * NB: this is a non-explicit constructor.
-     */
-    period(long long seconds) {
-        days = seconds / 86400;
-        long long ss = days * 86400;
-        hrs = (seconds - ss) / 3600;
-        ss += hrs * 3600;
-        min = (seconds - ss) / 60;
-        ss += min * 60;
-        sec = seconds - ss;
-    }
-
-#pragma clang diagnostic pop
+    period() = default;
 
     /**
      * Creates a period from @param _sec, @param _min, @param _hrs, @param _days in whatever form.
      * NB: this is a non explicit constructor.
      */
 
-    period(::days _days = ::days(0), ::hrs _hrs = ::hrs(0), ::mins _min = ::mins(0),
-           ::secs _sec = ::secs(0)) : days(_days), hrs(_hrs), min(_min), sec(_sec) {}
+    period(::dd _days) : days(_days.get()) {};
+
+    period(::hh _hrs) : hrs(_hrs.get()) {};
+
+    period(::mm _mins) : min(_mins.get()) {};
+
+    period(::ss _sec) : sec(_sec.get()) {};
+
+    period(::dd _days, ::hh _hrs) : days(_days.get()), hrs(_hrs.get()) {};
+
+    period(::dd _days, ::mm _min) : days(_days.get()), min(_min.get()) {};
+
+    period(::dd _days, ::ss _sec) : days(_days.get()), sec(_sec.get()) {};
+
+    period(::dd _days, ::hh _hrs, ::mm _min) : days(_days.get()), hrs(_hrs.get()), min(_min.get()) {};
+
+    period(::dd _days, ::hh _hrs, ::ss _sec) : days(_days.get()), hrs(_hrs.get()), sec(_sec.get()) {};
+
+    period(::dd _days, ::hh _hrs, ::mm _min, ::ss _sec) : days(_days.get()), hrs(_hrs.get()), min(_min.get()),
+                                                          sec(_sec.get()) {}
 
     /**
      * @return = @this == @pd
@@ -147,7 +150,7 @@ public:
     /**
     * @return = @this + @pd
     */
-    period operator+(period &pd) const { return this->to_seconds() + pd.to_seconds(); }
+    period operator+(period &pd) const { return {this->to_seconds() + pd.to_seconds()}; }
 
     period operator+(period &&pd) const { return this->operator+(pd); }
 
@@ -155,7 +158,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator+=(period &pd) {
-        *this = this->to_seconds() + pd.to_seconds();
+        *this = {this->to_seconds() + pd.to_seconds()};
         return *this;
     }
 
@@ -164,7 +167,7 @@ public:
     /**
     * @return = @this - @pd
     */
-    period operator-(period &pd) const { return this->to_seconds() - pd.to_seconds(); }
+    period operator-(period &pd) const { return {this->to_seconds() - pd.to_seconds()}; }
 
     period operator-(period &&pd) const { return this->operator-(pd); }
 
@@ -172,7 +175,7 @@ public:
     * @this = @return = @this < @pd
     */
     period operator-=(period &pd) {
-        *this = this->to_seconds() - pd.to_seconds();
+        *this = {this->to_seconds() - pd.to_seconds()};
         return *this;
     }
 
@@ -181,7 +184,7 @@ public:
     /**
     * @return = @this * @pd
     */
-    period operator*(period &pd) const { return this->to_seconds() * pd.to_seconds(); }
+    period operator*(period &pd) const { return {this->to_seconds() * pd.to_seconds()}; }
 
     period operator*(period &&pd) const { return this->operator*(pd); }
 
@@ -198,7 +201,7 @@ public:
     /**
     * @return = @this / @pd
     */
-    period operator/(period &pd) const { return this->to_seconds() / pd.to_seconds(); }
+    period operator/(period &pd) const { return {this->to_seconds() / pd.to_seconds()}; }
 
     period operator/(period &&pd) const { return this->operator/(pd); }
 
@@ -215,7 +218,7 @@ public:
     /**
      * @return = @this % @pd
      */
-    period operator%(period &pd) const { return this->to_seconds() % pd.to_seconds(); }
+    period operator%(period &pd) const { return {this->to_seconds() % pd.to_seconds()}; }
 
     period operator%(period &&pd) const { return this->operator%(pd); }
 
@@ -248,10 +251,27 @@ public:
 
     void setSec(long long int _sec) { period::sec = _sec; }
 
-    period to_canonical_form() const { return this->to_seconds(); }
+    /**
+     * Creates a period in canonical form from @param _seconds.
+     * A period is in canonical form iff (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
+     *                              (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
+     * NB: this is a non-explicit constructor.
+     */
+    period to_canonical_form() const {
+        period pd;
+        long long seconds = this->to_seconds();
+        pd.days = seconds / 86400;
+        long long ss = pd.days * 86400;
+        pd.hrs = (seconds - ss) / 3600;
+        ss += pd.hrs * 3600;
+        pd.min = (seconds - ss) / 60;
+        ss += pd.min * 60;
+        pd.sec = seconds - ss;
+        return pd;
+    }
 
     /**
-     * Convert @this to seconds.
+     * Convert @this to ss.
      */
     long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
 
@@ -302,21 +322,27 @@ public:
     explicit datetime(long long timestamp) { *this = after(timestamp); }
 
     /**
-     * Constructor of datetime. Always adjust the date.
+     * Constructor of datetime. Always autofix the date.
      */
-    datetime(long long _day, long long _month, long long _year, bool autofix) {
+    datetime(long long _day, long long _month, long long _year, autofix _mode) {
         year = _year;
-        this->after_months(_month - 1);
-        *this += {days(_day - 1)};
+        if (_mode == autofix::I) {
+            day = _day;
+            this->after_months(_month - 1, _mode);
+        } else if (_mode == autofix::II)
+            *this += {dd(_day - 1)};
+
+        else
+            throw runtime_error("");
     }
 
     /**
-     * Constructor of datetime. Always adjust the date.
+     * Constructor of datetime. Always autofix the date.
      */
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
-             bool autofix) :
-            datetime(_day, _month, _year, autofix) {
-        *this += {days(0), ::hrs(_hrs), mins(_min), secs(_sec)};
+             autofix _mode) :
+            datetime(_day, _month, _year, _mode) {
+        *this += {dd(0), ::hh(_hrs), mm(_min), ss(_sec)};
     }
 
     /**
@@ -362,14 +388,31 @@ private:
     }
 
     /**
-     * @return the number of days from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
+     * @return the number of dd from 01.01.@param x 00:00:00 to 01.01.@param y 00:00:00
      */
     static long long f(long long x, long long y) { return (y - x) * 365 + fK(x, y); }
 
     static int days_of_month(unsigned int _month, long long _year) {
-        return ( //if leap _year add 1 day to the normal number of days of February.
+        return ( //if leap _year add 1 day to the normal number of dd of February.
                        _month == 1 && ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0))
                ) + days_of_months[_month];
+    }
+
+    datetime after_months(long long n) const {
+        datetime dt = *this;
+        dt.year += n / 12;
+        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
+
+        if (dt.month > 11) {
+            dt.year++;
+            dt.month -= 12;
+        }
+
+        if (dt.month < 0) {
+            dt.year--;
+            dt.month += 12;
+        }
+        return dt;
     }
 
     /**
@@ -388,6 +431,7 @@ private:
             _day--;
         }
         period time(time_sec);
+        time = time.to_canonical_form();
 
         int _month = 0;
 
@@ -532,7 +576,7 @@ public:
     /**
      * @return = @this - @dt
      */
-    period operator-(datetime &dt) const { return seconds_from(dt); }
+    period operator-(datetime &dt) const { return ss(seconds_from(dt)); }
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
@@ -552,7 +596,7 @@ public:
     long long int get_year() const { return year; }
 
     /**
-     * @return is the number of months from @this and @param dt regardless of the days,
+     * @return is the number of months from @this and @param dt regardless of the dd,
      * e.g. (5.1.2020).months_between(3.2.2020) =====> 1.
      */
     long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
@@ -561,26 +605,26 @@ public:
      * @return =  @this after @param n years. The obtained date is adjusted to return the last of the month when it overflows,
      * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
      */
-    datetime after_months(long long n) const {
+    datetime after_months(long long n, autofix _mode) const {
         datetime dt = *this;
-        dt.year += n / 12;
-        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
+        long long dday = dt.day;
+        dt = after_months(n);
 
-        if (dt.month > 11) {
-            dt.year++;
-            dt.month -= 12;
+        if (dt.day >= dt.days_of_this_month()) {
+            if (_mode == autofix::I) {
+                dt.day = dt.days_of_this_month() - 1;
+            } else if (_mode == autofix::II) {
+                dt += dd(dday + 1 - dt.days_of_this_month());
+            } else {
+                throw runtime_error("");
+            }
         }
 
-        if (dt.month < 0) {
-            dt.year--;
-            dt.month += 12;
-        }
-
-        return dt.fix_date();
+        return dt;
     }
 
     /**
-     * @return is the number of years from @this and @param dt regardless of the days,
+     * @return is the number of years from @this and @param dt regardless of the dd,
      * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
      */
     long long years_between(datetime &dt) const { return dt.year - year; }
@@ -591,18 +635,6 @@ public:
     datetime after_years(long long n) const {
         datetime dt = *this;
         dt.year += n;
-        return dt;
-    }
-
-    /**
-     * The date is fixed in the following way: given a month, if the day is greater than the days of the specified month,
-     * the day is set to the last day of that month. Leap years are taken into account (February has 29 days).
-     * @return: the fixed date.
-     */
-    datetime fix_date() const {
-        datetime dt = *this;
-        if (dt.day >= dt.days_of_this_month())
-            dt.day = dt.days_of_this_month() - 1;
         return dt;
     }
 
@@ -627,23 +659,23 @@ public:
         int wd = this->get_week_day();
 
         if (wd == 6)
-            return *this + days(2);
+            return *this + dd(2);
         else if (wd == 0)
-            return *this + days(1);
+            return *this + dd(1);
         else
             return *this;
     }
 
     /**
-     * @return the number of days of @this year.
+     * @return the number of dd of @this year.
      */
     int days_of_this_year() const { return 365 + ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0)); }
 
     /**
-     * @return the number of days of @this month.
+     * @return the number of dd of @this month.
      */
     int days_of_this_month() const {
-        return ( //if leap year add 1 day to the normal number of days of February.
+        return ( //if leap year add 1 day to the normal number of dd of February.
                        month == 1 && ((year % 400 == 0) || (year % 4 == 0 && year % 100 != 0))
                ) + days_of_months[month];
     }
@@ -658,12 +690,12 @@ public:
     }
 
     /**
-     * @return the seconds from @epoch to @this.
+     * @return the ss from @epoch to @this.
      */
     long long to_timestamp() const { return seconds_from(datetime()); }
 
     /**
-     * @return the seconds from @d2 to @this.
+     * @return the ss from @d2 to @this.
      */
     long long seconds_from(const datetime &d2) const { return d2.seconds_to(*this); }
 
@@ -672,7 +704,7 @@ public:
 /**
  * @return = -@p
  */
-period operator-(period &p) { return -p.to_seconds(); }
+period operator-(period &p) { return ss(-p.to_seconds()); }
 
 period operator-(period &&p) { return -p; }
 
@@ -830,9 +862,9 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
 }
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
-    return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hrs: " << std::setfill('0')
-              << std::setw(2) << d.get_hrs() << ", mins: " << std::setfill('0') << std::setw(2) << d.get_min()
-              << ", secs: "
+    return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hh: " << std::setfill('0')
+              << std::setw(2) << d.get_hrs() << ", mm: " << std::setfill('0') << std::setw(2) << d.get_min()
+              << ", ss: "
               << std::setfill('0') << std::setw(2) << d.get_sec();
 }
 
