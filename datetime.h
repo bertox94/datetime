@@ -417,7 +417,7 @@ private:
             _day += days_of_month(_month, _year);
         }
 
-        return {static_cast<int>(_day + 1), _month + 1, _year, time.get_hrs(), time.get_min(), time.get_sec()};
+        return {_day + 1, _month + 1, _year, time.get_hrs(), time.get_min(), time.get_sec()};
     }
 
     /**
