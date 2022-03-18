@@ -15,10 +15,6 @@
 
 using namespace std;
 
-enum autofix {
-    I, II
-};
-
 class dd {
 private:
     long long param;
@@ -322,24 +318,17 @@ public:
     /**
      * Constructor of datetime. Always autofix the date.
      */
-    datetime(long long _day, long long _month, long long _year, autofix _mode) {
+    datetime(long long _day, long long _month, long long _year, bool _default) {
         year = _year;
-        if (_mode == autofix::I) {
-            day = _day;
-            this->after_months(_month - 1, _mode);
-        } else if (_mode == autofix::II)
-            *this += dd(_day - 1);
-
-        else
-            throw runtime_error("");
+        day = _day - 1;
+        *this = this->after_months(_month - 1, _default);
     }
 
     /**
      * Constructor of datetime. Always autofix the date.
      */
     datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
-             autofix _mode) :
-            datetime(_day, _month, _year, _mode) {
+             bool _default) : datetime(_day, _month, _year, _default) {
         *this += {dd(0), ::hh(_hrs), mm(_min), ss(_sec)};
     }
 
@@ -603,19 +592,19 @@ public:
      * @return =  @this after @param n years. The obtained date is adjusted to return the last of the month when it overflows,
      * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
      */
-    datetime after_months(long long n, autofix _mode) const {
+    datetime after_months(long long n, bool _default) const {
         datetime dt = *this;
-        long long dday = dt.day;
         dt = after_months(n);
+        long long _day = dt.day;
 
         if (dt.day >= dt.days_of_this_month()) {
-            if (_mode == autofix::I) {
-                dt.day = dt.days_of_this_month() - 1;
-            } else if (_mode == autofix::II) {
-                dt += dd(dday + 1 - dt.days_of_this_month());
-            } else {
-                throw runtime_error("");
-            }
+            dt.day = dt.days_of_this_month() - 1;
+            if (!_default)
+                dt += dd(_day - dt.days_of_this_month() + 1);
+        } else if (dt.day < 0) {
+            dt.day = 0;
+            if (!_default)
+                dt += dd(_day);
         }
 
         return dt;
