@@ -34,7 +34,7 @@ static void performance_test() {
 
     //chrono::duration<double, std::milli> ms_double = t2 - t1 - (t4 - t3);
     //std::cout << "seconds_to(datetime): " << ms_double.count() << " ns/op .."
-    //          << av_compiler_opt.get_year() + res << endl;
+    //          << av_compiler_opt.getYear() + res << endl;
 
     int avoid_compiler_optimization = 0;
     //t1 = chrono::high_resolution_clock::now();
@@ -87,7 +87,7 @@ void test3(long long size) {
     std::uniform_int_distribution<long> distribution(LONG_MIN, LONG_MAX);
 
     for (long long i = 0; i < size; i++) {
-        datetime d1(1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2, rand() % 24, rand() % 60, rand() % 60);
+        datetime d1(rand(), rand(), rand() - RAND_MAX / 2, rand(), rand(), rand());
         d1 = d1.fix();
         long pt = distribution(generator);
         datetime d2 = d1 + ss(pt) - ss(pt);
@@ -112,8 +112,8 @@ int main() {
 
     auto epoch = datetime();
 
-    cout << datetime(29, 2, 2022).fix() << endl;
-    cout << datetime(29, 2, 2022).fix() << endl;
+    cout << datetime(-1, 1, 2022).fix() << endl;
+    cout << datetime(-1, 1, 2022).fix(false) << endl;
 
     long long size = 15000000000;
     test3(size);
