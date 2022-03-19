@@ -253,14 +253,14 @@ public:
      */
     period to_canonical_form() const {
         period pd;
-        long long seconds = this->to_seconds();
-        pd.days = seconds / 86400;
+        long long _seconds = this->to_seconds();
+        pd.days = _seconds / 86400;
         long long ss = pd.days * 86400;
-        pd.hours = (seconds - ss) / 3600;
+        pd.hours = (_seconds - ss) / 3600;
         ss += pd.hours * 3600;
-        pd.minutes = (seconds - ss) / 60;
+        pd.minutes = (_seconds - ss) / 60;
         ss += pd.minutes * 60;
-        pd.seconds = seconds - ss;
+        pd.seconds = _seconds - ss;
         return pd;
     }
 
