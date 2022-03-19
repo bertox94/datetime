@@ -237,13 +237,13 @@ public:
 
     long long int getDays() const { return days; }
 
-    void setDays(long long int _days) { period::days = _days; }
+    void setDays(long long _days) { period::days = _days; }
 
-    void setHrs(long long int _hrs) { period::hrs = _hrs; }
+    void setHrs(long long _hrs) { period::hrs = _hrs; }
 
-    void setMin(long long int _min) { period::min = _min; }
+    void setMin(long long _min) { period::min = _min; }
 
-    void setSec(long long int _sec) { period::sec = _sec; }
+    void setSec(long long _sec) { period::sec = _sec; }
 
     /**
      * Creates a period in canonical form from @param _seconds.
