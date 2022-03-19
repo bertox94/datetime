@@ -550,6 +550,18 @@ public:
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
+    bool isOK() {
+        return !(month < 0 || month >= 12) &&
+               !(day < 0 || day >= days_of_this_month()) &&
+               !(hrs < 0 || hrs >= 60) &&
+               !(min < 0 || min >= 60) &&
+               !(sec < 0 || sec >= 60);
+    }
+
+    datetime fix(bool _default) {
+
+    }
+
     /**
      * Getter functions.
      */
