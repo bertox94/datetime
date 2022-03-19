@@ -385,23 +385,6 @@ private:
                ) + days_of_months[_month];
     }
 
-    datetime after_months(long long n) const {
-        datetime dt = *this;
-        dt.year += n / 12;
-        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
-
-        if (dt.month > 11) {
-            dt.year++;
-            dt.month -= 12;
-        }
-
-        if (dt.month < 0) {
-            dt.year--;
-            dt.month += 12;
-        }
-        return dt;
-    }
-
     /**
      * @return = @param start + @param seconds
      */
@@ -588,6 +571,23 @@ public:
      */
     long long months_between(datetime &dt) const { return 12 * (dt.year - year) + dt.month - month; }
 
+    datetime after_months(long long n) const {
+        datetime dt = *this;
+        dt.year += n / 12;
+        dt.month += n - ((n / 12) * 12); // NOLINT(cppcoreguidelines-narrowing-conversions)
+
+        if (dt.month > 11) {
+            dt.year++;
+            dt.month -= 12;
+        }
+
+        if (dt.month < 0) {
+            dt.year--;
+            dt.month += 12;
+        }
+        return dt;
+    }
+
     /**
      * @return =  @this after @param n years. The obtained date is adjusted to return the last of the month when it overflows,
      * e.g. (31.1.2020).after_months(1) =====> 28.1.2020
@@ -616,6 +616,12 @@ public:
      * e.g. (5.1.2020).months_between(3.8.2021) =====> 1.
      */
     long long years_between(datetime &dt) const { return dt.year - year; }
+
+    datetime after_years(long long n) const {
+        datetime dt = *this;
+        dt.year += n;
+        return dt;
+    }
 
     /**
      * @return =  @this after @param n years.
