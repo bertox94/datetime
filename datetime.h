@@ -620,9 +620,23 @@ public:
     /**
      * @return =  @this after @param n years.
      */
-    datetime after_years(long long n) const {
+    datetime after_years(long long n, bool _default) const {
         datetime dt = *this;
         dt.year += n;
+
+        if (dt.day >= dt.days_of_this_month()) {
+            long long _day = dt.day;
+            dt.day = dt.days_of_this_month() - 1;
+            if (!_default)
+                dt += dd(_day - dt.days_of_this_month() + 1);
+        } else if (dt.day < 0) {
+            long long _day = dt.day;
+            dt.day = 0;
+            if (!_default)
+                dt += dd(_day);
+        }
+
+
         return dt;
     }
 
