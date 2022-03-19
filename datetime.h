@@ -529,7 +529,7 @@ public:
                !(sec < 0 || sec >= 60);
     }
 
-    datetime fix(bool _default) const {
+    datetime fix(bool _default = true) const {
         datetime dt = *this;
         dt.hrs = 0;
         dt.min = 0;
