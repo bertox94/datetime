@@ -88,7 +88,7 @@ void test3(long long size) {
 
     for (long long i = 0; i < size; i++) {
         datetime d1(1 + rand() % 31, 1 + rand() % 12, rand() - RAND_MAX / 2, rand() % 24, rand() % 60, rand() % 60);
-        d1 = d1.fix(true);
+        d1 = d1.fix();
         long pt = distribution(generator);
         datetime d2 = d1 + ss(pt) - ss(pt);
 
@@ -112,8 +112,8 @@ int main() {
 
     auto epoch = datetime();
 
-    cout << datetime(29, 2, 2022).fix(true) << endl;
-    cout << datetime(29, 2, 2022).fix(false) << endl;
+    cout << datetime(29, 2, 2022).fix() << endl;
+    cout << datetime(29, 2, 2022).fix() << endl;
 
     long long size = 15000000000;
     test3(size);
