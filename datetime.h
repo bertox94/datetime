@@ -55,9 +55,9 @@ public:
 class period {
 private:
     long long days{};
-    long long hrs{};
-    long long min{};
-    long long sec{};
+    long long hours{};
+    long long minutes{};
+    long long seconds{};
 
 public:
 
@@ -68,32 +68,32 @@ public:
      * NB: this is a non explicit constructor.
      */
 
-    period(::ss _sec) : sec(_sec.get()) {};
+    period(::ss _sec) : seconds(_sec.get()) {};
 
-    period(::mm _mins) : min(_mins.get()) {};
+    period(::mm _mins) : minutes(_mins.get()) {};
 
-    period(::mm _mins, ::ss _sec) : min(_mins.get()), sec(_sec.get()) {};
+    period(::mm _mins, ::ss _sec) : minutes(_mins.get()), seconds(_sec.get()) {};
 
-    period(::hh _hrs) : hrs(_hrs.get()) {};
+    period(::hh _hrs) : hours(_hrs.get()) {};
 
-    period(::hh _hrs, ::mm _min) : hrs(_hrs.get()), min(_min.get()) {};
+    period(::hh _hrs, ::mm _min) : hours(_hrs.get()), minutes(_min.get()) {};
 
-    period(::hh _hrs, ::mm _min, ::ss _sec) : hrs(_hrs.get()), min(_min.get()), sec(_sec.get()) {};
+    period(::hh _hrs, ::mm _min, ::ss _sec) : hours(_hrs.get()), minutes(_min.get()), seconds(_sec.get()) {};
 
     period(::dd _days) : days(_days.get()) {};
 
-    period(::dd _days, ::hh _hrs) : days(_days.get()), hrs(_hrs.get()) {};
+    period(::dd _days, ::hh _hrs) : days(_days.get()), hours(_hrs.get()) {};
 
-    period(::dd _days, ::mm _min) : days(_days.get()), min(_min.get()) {};
+    period(::dd _days, ::mm _min) : days(_days.get()), minutes(_min.get()) {};
 
-    period(::dd _days, ::ss _sec) : days(_days.get()), sec(_sec.get()) {};
+    period(::dd _days, ::ss _sec) : days(_days.get()), seconds(_sec.get()) {};
 
-    period(::dd _days, ::hh _hrs, ::mm _min) : days(_days.get()), hrs(_hrs.get()), min(_min.get()) {};
+    period(::dd _days, ::hh _hrs, ::mm _min) : days(_days.get()), hours(_hrs.get()), minutes(_min.get()) {};
 
-    period(::dd _days, ::hh _hrs, ::ss _sec) : days(_days.get()), hrs(_hrs.get()), sec(_sec.get()) {};
+    period(::dd _days, ::hh _hrs, ::ss _sec) : days(_days.get()), hours(_hrs.get()), seconds(_sec.get()) {};
 
-    period(::dd _days, ::hh _hrs, ::mm _min, ::ss _sec) : days(_days.get()), hrs(_hrs.get()), min(_min.get()),
-                                                          sec(_sec.get()) {}
+    period(::dd _days, ::hh _hrs, ::mm _min, ::ss _sec) : days(_days.get()), hours(_hrs.get()), minutes(_min.get()),
+                                                          seconds(_sec.get()) {}
 
     /**
      * @return = @this == @pd
@@ -229,21 +229,21 @@ public:
     /**
      * Getter functions.
      */
-    long long getSec() const { return sec; }
+    long long getSec() const { return seconds; }
 
-    long long getMin() const { return min; }
+    long long getMin() const { return minutes; }
 
-    long long getHrs() const { return hrs; }
+    long long getHrs() const { return hours; }
 
     long long int getDays() const { return days; }
 
     void setDays(long long _days) { period::days = _days; }
 
-    void setHrs(long long _hrs) { period::hrs = _hrs; }
+    void setHrs(long long _hrs) { period::hours = _hrs; }
 
-    void setMin(long long _min) { period::min = _min; }
+    void setMin(long long _min) { period::minutes = _min; }
 
-    void setSec(long long _sec) { period::sec = _sec; }
+    void setSec(long long _sec) { period::seconds = _sec; }
 
     /**
      * Creates a period in canonical form from @param _seconds.
@@ -256,18 +256,18 @@ public:
         long long seconds = this->to_seconds();
         pd.days = seconds / 86400;
         long long ss = pd.days * 86400;
-        pd.hrs = (seconds - ss) / 3600;
-        ss += pd.hrs * 3600;
-        pd.min = (seconds - ss) / 60;
-        ss += pd.min * 60;
-        pd.sec = seconds - ss;
+        pd.hours = (seconds - ss) / 3600;
+        ss += pd.hours * 3600;
+        pd.minutes = (seconds - ss) / 60;
+        ss += pd.minutes * 60;
+        pd.seconds = seconds - ss;
         return pd;
     }
 
     /**
      * Convert @this to ss.
      */
-    long long to_seconds() const { return days * 86400 + hrs * 3600 + min * 60 + sec; }
+    long long to_seconds() const { return days * 86400 + hours * 3600 + minutes * 60 + seconds; }
 
     period strip_days() const {
         auto el = *this;
