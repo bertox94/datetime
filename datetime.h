@@ -316,32 +316,10 @@ public:
     explicit datetime(long long timestamp) { *this = after(timestamp); }
 
     /**
-     * Constructor of datetime. Always autofix the date.
-     */
-    datetime(long long _day, long long _month, long long _year, bool _default) {
-        year = _year;
-        day = _day - 1;
-        *this = this->after_months(_month - 1, _default);
-    }
-
-    /**
-     * Constructor of datetime. Always autofix the date.
-     */
-    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec,
-             bool _default) : datetime(_day, _month, _year, _default) {
-        *this += {::hh(_hrs), mm(_min), ss(_sec)};
-    }
-
-    /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
     datetime(long long _day, long long _month, long long _year) :
-            day(_day - 1), month(_month - 1), year(_year) {
-        if (month < 0 || month > 11)
-            throw runtime_error("");
-        if (day < 0 || day >= days_of_this_month())
-            throw runtime_error("");
-    }
+            day(_day - 1), month(_month - 1), year(_year) {}
 
     /**
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
@@ -351,13 +329,6 @@ public:
         sec = _sec;
         min = _min;
         hrs = _hrs;
-
-        if (sec < 0 || sec > 59)
-            throw runtime_error("");
-        if (min < 0 || min > 59)
-            throw runtime_error("");
-        if (hrs < 0 || hrs > 23)
-            throw runtime_error("");
     }
 
 private:
