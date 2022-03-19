@@ -229,13 +229,13 @@ public:
     /**
      * Getter functions.
      */
-    long long get_sec() const { return sec; }
+    long long getSec() const { return sec; }
 
-    long long get_min() const { return min; }
+    long long getMin() const { return min; }
 
-    long long get_hrs() const { return hrs; }
+    long long getHrs() const { return hrs; }
 
-    long long int get_days() const { return days; }
+    long long int getDays() const { return days; }
 
     void setDays(long long int _days) { period::days = _days; }
 
@@ -441,7 +441,7 @@ private:
             _day += days_of_month(_month, _year);
         }
 
-        return {_day + 1, _month + 1, _year, time.get_hrs(), time.get_min(), time.get_sec()};
+        return {_day + 1, _month + 1, _year, time.getHrs(), time.getMin(), time.getSec()};
     }
 
     /**
@@ -850,10 +850,10 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
 }
 
 std::ostream &operator<<(std::ostream &os, period const &d) {
-    return os << "Days: " << std::setfill('0') << std::setw(2) << d.get_days() << ", hh: " << std::setfill('0')
-              << std::setw(2) << d.get_hrs() << ", mm: " << std::setfill('0') << std::setw(2) << d.get_min()
+    return os << "Days: " << std::setfill('0') << std::setw(2) << d.getDays() << ", hh: " << std::setfill('0')
+              << std::setw(2) << d.getHrs() << ", mm: " << std::setfill('0') << std::setw(2) << d.getMin()
               << ", ss: "
-              << std::setfill('0') << std::setw(2) << d.get_sec();
+              << std::setfill('0') << std::setw(2) << d.getSec();
 }
 
 #endif //DATETIME_CLASSES_H
