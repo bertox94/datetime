@@ -68,6 +68,8 @@ public:
      * NB: this is a non explicit constructor.
      */
 
+    period(long long _sec) : seconds(_sec) {};
+
     period(::ss _sec) : seconds(_sec.get()) {};
 
     period(::mm _mins) : minutes(_mins.get()) {};
