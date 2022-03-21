@@ -467,9 +467,6 @@ public:
         return *this;
     }
 
-
-public:
-
     /**
      * @return = @this == @dt
      */
@@ -478,11 +475,21 @@ public:
     bool operator==(datetime &&dt) const { return *this == dt; }
 
     /**
+ * @return = @this.curr == @ptr
+ */
+    bool operator==(_datetime *ptr) const { return curr == ptr; }
+
+    /**
      * @return = @this != @dt
      */
     bool operator!=(datetime &dt) const { return !(*this == dt); }
 
     bool operator!=(datetime &&dt) const { return *this != dt; }
+
+    /**
+* @return = @this.curr == @ptr
+*/
+    bool operator!=(_datetime *ptr) const { return curr != ptr; }
 
     /**
      * @return = @this < @dt
