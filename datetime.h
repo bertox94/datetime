@@ -800,7 +800,7 @@ public:
 /**
  * @return = -@p
  */
-period operator-(period &p) { return -p.to_seconds(); }
+period operator-(period &p) { return {dd(-p.getDays()), hh(-p.getHrs()), mm(-p.getMin()), ss(-p.getSec())}; }
 
 period operator-(period &&p) { return -p; }
 
