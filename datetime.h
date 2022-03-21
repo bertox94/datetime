@@ -793,8 +793,6 @@ public:
     period extract_time_of_day() const {
         return {hh(curr->hrs), mm(curr->min), ss(curr->sec)};
     }
-
-
 };
 
 /**
