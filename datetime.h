@@ -143,6 +143,16 @@ public:
 
     bool operator>=(period &&pd) const { return this->operator>=(pd); }
 
+    period operator++(int) {
+        *this += dd(1);
+        return *this;
+    };
+
+    period operator--(int) {
+        *this -= dd(1);
+        return *this;
+    };
+
     /**
     * @return = @this + @pd
     */
@@ -540,6 +550,16 @@ public:
     bool operator>=(datetime &d2) const { return !(*this < d2); }
 
     bool operator>=(datetime &&d2) const { return this->operator>=(d2); }
+
+    datetime operator++(int) {
+        *this += dd(1);
+        return *this;
+    };
+
+    datetime operator--(int) {
+        *this -= dd(1);
+        return *this;
+    };
 
     /**
      * @return = @this + @p
