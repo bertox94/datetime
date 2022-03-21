@@ -488,11 +488,12 @@ public:
      * @return = @this < @dt
      */
     bool operator<(datetime &dt) const {
-        return getYear() < dt.getYear() || getYear() == dt.getYear() && (
-                getMonth() < dt.getMonth() || getMonth() == dt.getMonth() && (
-                        getDay() < dt.getDay() || getDay() == dt.getDay() && (
-                                getHrs() < dt.getHrs() || getHrs() == dt.getHrs() && (
-                                        getMin() < dt.getMin() || getMin() == dt.getMin() && getSec() < dt.getSec()
+        return curr->year < dt.curr->year || curr->year == dt.curr->year && (
+                curr->month < dt.curr->month || curr->month == dt.curr->month && (
+                        curr->day < dt.curr->day || curr->day == dt.curr->day && (
+                                curr->hrs < dt.curr->hrs || curr->hrs == dt.curr->hrs && (
+                                        curr->min < dt.curr->min || curr->min == dt.curr->min &&
+                                                                    curr->sec < dt.curr->sec
                                 )
                         )
                 )
@@ -505,11 +506,12 @@ public:
      * @return = @this > @dt
      */
     bool operator>(const datetime &dt) const {
-        return curr->year > dt.getYear() || getYear() == dt.getYear() && (
-                getMonth() > dt.getMonth() || getMonth() == dt.getMonth() && (
-                        getDay() > dt.getDay() || getDay() == dt.getDay() && (
-                                getHrs() > dt.getHrs() || getHrs() == dt.getHrs() && (
-                                        getMin() > dt.getMin() || getMin() == dt.getMin() && getSec() > dt.getSec()
+        return curr->year > dt.curr->year || curr->year == dt.curr->year && (
+                curr->month > dt.curr->month || curr->month == dt.curr->month && (
+                        curr->day > dt.curr->day || curr->day == dt.curr->day && (
+                                curr->hrs > dt.curr->hrs || curr->hrs == dt.curr->hrs && (
+                                        curr->min > dt.curr->min || curr->min == dt.curr->min &&
+                                                                    curr->sec > dt.curr->sec
                                 )
                         )
                 )
