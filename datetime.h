@@ -461,9 +461,8 @@ public:
     ~datetime() { delete curr; }
 
     datetime &operator=(const datetime &dt) {
-        if (&dt == this) {
+        if (&dt == this)
             return *this;
-        }
         _copyvalues(dt);
         return *this;
     }
