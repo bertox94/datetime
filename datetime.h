@@ -303,6 +303,7 @@ private:
     long long hrs = 0;
     long long min = 0;
     long long sec = 0;
+    bool INVALID = true;
 
 public:
     datetime_formatter format;
@@ -315,13 +316,13 @@ public:
     /**
      * Construct a new date which is @param seconds after epoch time.
      */
-    explicit datetime(long long timestamp) { *this = after(timestamp); }
+    explicit datetime(long long timestamp) : INVALID(false) { *this = after(timestamp); }
 
     /**
      * Constructor of datetime. Enforce the month to be valid (1 <= _month <= 12) and the day to be valid...
      */
     datetime(long long _day, long long _month, long long _year) :
-            day(_day - 1), month(_month - 1), year(_year) {}
+            day(_day - 1), month(_month - 1), year(_year), INVALID(false) {}
 
     /**
      * Constructor of datetime. Enforce the following constraints: 1 <= _month <= 12, 0 <= ...
@@ -523,6 +524,10 @@ public:
 
     period operator-(datetime &&dt) const { return operator-(dt); }
 
+    bool isDefined() const {
+        return !INVALID;
+    }
+
     bool isOK() const {
         return !(month < 0 || month >= 12) &&
                !(day < 0 || day >= days_of_this_month()) &&
@@ -570,6 +575,39 @@ public:
     long long int getMonth() const { return month + 1; }
 
     long long int getYear() const { return year; }
+
+    /**
+ * Setter functions.
+ */
+    void setDay(long long int _day) {
+        datetime::day = _day;
+        INVALID = false;
+    }
+
+    void setMonth(long long int _month) {
+        datetime::month = _month;
+        INVALID = false;
+    }
+
+    void setYear(long long int _year) {
+        datetime::year = _year;
+        INVALID = false;
+    }
+
+    void setHrs(long long int _hrs) {
+        datetime::hrs = _hrs;
+        INVALID = false;
+    }
+
+    void setMin(long long int _min) {
+        datetime::min = _min;
+        INVALID = false;
+    }
+
+    void setSec(long long int _sec) {
+        datetime::sec = _sec;
+        INVALID = false;
+    }
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
