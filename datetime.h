@@ -304,9 +304,17 @@ private:
     long long min = 0;
     long long sec = 0;
     bool UNTOUCHED = true;
+    period *curr;// if this were a datetime
 
 public:
     datetime_formatter format;
+
+    /**
+ * Construct an uninitialized datetime
+ */
+    datetime(period *ptr) { //if this were a datetime
+        curr = ptr; //if this were a datetime
+    }
 
     /**
      * Construct a datetime which is the epoch time
