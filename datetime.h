@@ -21,7 +21,7 @@ private:
 public:
     explicit dd(long long _param) : param(_param) {}
 
-    long long int get() const { return param; }
+    long long get() const { return param; }
 };
 
 class hh {
@@ -30,7 +30,7 @@ private:
 public:
     explicit hh(long long _param) : param(_param) {}
 
-    long long int get() const { return param; }
+    long long get() const { return param; }
 };
 
 class mm {
@@ -39,7 +39,7 @@ private:
 public:
     explicit mm(long long _param) : param(_param) {}
 
-    long long int get() const { return param; }
+    long long get() const { return param; }
 };
 
 class ss {
@@ -48,7 +48,7 @@ private:
 public:
     explicit ss(long long _param) : param(_param) {}
 
-    long long int get() const { return param; }
+    long long get() const { return param; }
 };
 
 
@@ -247,7 +247,7 @@ public:
 
     long long getHrs() const { return hours; }
 
-    long long int getDays() const { return days; }
+    long long getDays() const { return days; }
 
     void setDays(long long _days) { period::days = _days; }
 
@@ -346,10 +346,10 @@ private:
      */
     static long long f(long long x, long long y) { return (y - x) * 365 + fK(x, y); }
 
-    static int days_of_month(unsigned int _month, long long _year) {
-        return ( //if leap _year add 1 day to the normal number of dd of February.
-                       _month == 1 && ((_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0))
-               ) + days_of_months[_month];
+    static bool is_leap_year(long long _year) { return (_year % 400 == 0) || (_year % 4 == 0 && _year % 100 != 0); }
+
+    static int days_of_month(long long _month, long long _year) {
+        return days_of_months[_month] + (_month == 1 && is_leap_year(_year));
     }
 
     /**
@@ -460,9 +460,7 @@ public:
         curr->hrs = _hrs;
     }
 
-    ~datetime() {
-        delete curr;
-    }
+    ~datetime() { delete curr; }
 
     datetime &operator=(const datetime &dt) {
         if (&dt == this) {
@@ -638,44 +636,32 @@ public:
     /**
      * Getter functions.
      */
-    long long int getSec() const { return curr->sec; }
+    long long getSec() const { return curr->sec; }
 
-    long long int getMin() const { return curr->min; }
+    long long getMin() const { return curr->min; }
 
-    long long int getHrs() const { return curr->hrs; }
+    long long getHrs() const { return curr->hrs; }
 
-    long long int getDay() const { return curr->day + 1; }
+    long long getDay() const { return curr->day + 1; }
 
-    long long int getMonth() const { return curr->month + 1; }
+    long long getMonth() const { return curr->month + 1; }
 
-    long long int getYear() const { return curr->year; }
+    long long getYear() const { return curr->year; }
 
     /**
  * Setter functions.
  */
-    void setDay(long long int _day) {
-        curr->day = _day - 1;
-    }
+    void setDay(long long _day) { curr->day = _day - 1; }
 
-    void setMonth(long long int _month) {
-        curr->month = _month - 1;
-    }
+    void setMonth(long long _month) { curr->month = _month - 1; }
 
-    void setYear(long long int _year) {
-        curr->year = _year;
-    }
+    void setYear(long long _year) { curr->year = _year; }
 
-    void setHrs(long long int _hrs) {
-        curr->hrs = _hrs;
-    }
+    void setHrs(long long _hrs) { curr->hrs = _hrs; }
 
-    void setMin(long long int _min) {
-        curr->min = _min;
-    }
+    void setMin(long long _min) { curr->min = _min; }
 
-    void setSec(long long int _sec) {
-        curr->sec = _sec;
-    }
+    void setSec(long long _sec) { curr->sec = _sec; }
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
@@ -750,21 +736,17 @@ public:
             return *this;
     }
 
+    bool is_leap_year() const { return is_leap_year(curr->year); }
+
     /**
      * @return the number of dd of @this year.
      */
-    int days_of_this_year() const {
-        return 365 + ((curr->year % 400 == 0) || (curr->year % 4 == 0 && curr->year % 100 != 0));
-    }
+    int days_of_this_year() const { return 365 + is_leap_year(); }
 
     /**
      * @return the number of dd of @this month.
      */
-    int days_of_this_month() const {
-        return ( //if leap year add 1 day to the normal number of dd of February.
-                       curr->month == 1 && ((curr->year % 400 == 0) || (curr->year % 4 == 0 && curr->year % 100 != 0))
-               ) + days_of_months[curr->month];
-    }
+    int days_of_this_month() const { return days_of_month(curr->month, curr->year); }
 
     /**
      * @return @this whose day is the last of the month.
@@ -778,21 +760,14 @@ public:
     /**
      * @return the ss from @epoch to @this.
      */
-    long long to_timestamp() const {
-        auto dtt = datetime(1, 1, 1970);
-        return seconds_from(dtt);
-    }
+    long long to_timestamp() const { return seconds_from(datetime(1, 1, 1970)); }
 
     /**
      * @return the ss from @d2 to @this.
      */
-    long long seconds_from(const datetime &d2) const {
-        return d2.seconds_to(*this);
-    }
+    long long seconds_from(const datetime &d2) const { return d2.seconds_to(*this); }
 
-    period extract_time_of_day() const {
-        return {hh(curr->hrs), mm(curr->min), ss(curr->sec)};
-    }
+    period extract_time_of_day() const { return {hh(curr->hrs), mm(curr->min), ss(curr->sec)}; }
 };
 
 /**
@@ -803,7 +778,7 @@ period operator-(period &p) { return {dd(-p.getDays()), hh(-p.getHrs()), mm(-p.g
 period operator-(period &&p) { return -p; }
 
 void replace(string &input, const string &from, const string &to) {
-    unsigned int pos = 0;
+    int pos = 0;
     while (true) {
         size_t startPosition = input.find(from, pos);
         if (startPosition == string::npos)
@@ -871,7 +846,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     bool h24 = dd.format.h24;
     bool keep_original_length = dd.format.keep_original_length;
 
-    unsigned int num = output.find_last_of('~') - output.find('~') + 1;
+    int num = output.find_last_of('~') - output.find('~') + 1;
     std::string W = to_week_day(dd.get_week_day());
     if (!keep_original_length) {
         W = W.substr(0, num);
