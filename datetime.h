@@ -143,12 +143,12 @@ public:
 
     bool operator>=(period &&pd) const { return this->operator>=(pd); }
 
-    period operator++(int) {
+    period operator++(int) { // NOLINT(cert-dcl21-cpp)
         *this += dd(1);
         return *this;
     };
 
-    period operator--(int) {
+    period operator--(int) { // NOLINT(cert-dcl21-cpp)
         *this -= dd(1);
         return *this;
     };
@@ -304,7 +304,7 @@ public:
 
 int days_of_months[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-class _datetime {
+class _datetime { // NOLINT(bugprone-reserved-identifier)
 public:
     //do not use unsigned to avoid bad surprises on narrowing etc. casting!
     long long day = 0;
@@ -549,12 +549,12 @@ public:
 
     bool operator>=(datetime &&d2) const { return this->operator>=(d2); }
 
-    datetime operator++(int) {
+    datetime operator++(int) { // NOLINT(cert-dcl21-cpp)
         *this += dd(1);
         return *this;
     };
 
-    datetime operator--(int) {
+    datetime operator--(int) { // NOLINT(cert-dcl21-cpp)
         *this -= dd(1);
         return *this;
     };
@@ -778,7 +778,7 @@ period operator-(period &p) { return {dd(-p.getDays()), hh(-p.getHrs()), mm(-p.g
 period operator-(period &&p) { return -p; }
 
 void replace(string &input, const string &from, const string &to) {
-    int pos = 0;
+    unsigned int pos = 0;
     while (true) {
         size_t startPosition = input.find(from, pos);
         if (startPosition == string::npos)
@@ -846,7 +846,7 @@ std::ostream &operator<<(std::ostream &os, datetime const &dd) {
     bool h24 = dd.format.h24;
     bool keep_original_length = dd.format.keep_original_length;
 
-    int num = output.find_last_of('~') - output.find('~') + 1;
+    unsigned int num = output.find_last_of('~') - output.find('~') + 1;
     std::string W = to_week_day(dd.get_week_day());
     if (!keep_original_length) {
         W = W.substr(0, num);
