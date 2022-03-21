@@ -309,67 +309,15 @@ class datetime {
 private:
     _datetime *curr = nullptr;
 
-public:
-    datetime_formatter format;
-
-    /**
-     * Construct a null datetime
-     */
-    datetime() = default;
-
-    datetime(_datetime *ptr) {}
-
-    datetime &operator=(const datetime &dt) { //handle self assignment
-        curr = new _datetime();
-        curr->day = curr->day;
-        curr->month = curr->month;
-        curr->year = curr->year;
-        curr->sec = curr->sec;
-        curr->min = curr->min;
-        curr->hrs = curr->hrs;
-        return *this;
+    void _copyvalues(const datetime &dt) {
+        curr->day = dt.curr->day;
+        curr->month = dt.curr->month;
+        curr->year = dt.curr->year;
+        curr->hrs = dt.curr->hrs;
+        curr->min = dt.curr->min;
+        curr->sec = dt.curr->sec;
     }
 
-    datetime &operator=(datetime &&dt) noexcept {
-        curr = new _datetime();
-        curr->day = curr->day;
-        curr->month = curr->month;
-        curr->year = curr->year;
-        curr->sec = curr->sec;
-        curr->min = curr->min;
-        curr->hrs = curr->hrs;
-        return *this;
-    }
-
-    datetime(const datetime &dt) {}
-
-    datetime(datetime &&dt) noexcept {}
-
-    explicit datetime(long long timestamp) {
-        curr = new _datetime();
-        *this = after(timestamp);
-    }
-
-    datetime(long long _day, long long _month, long long _year) {
-        curr = new _datetime();
-        curr->day = _day - 1;
-        curr->month = _month - 1;
-        curr->year = _year;
-    }
-
-
-    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
-            datetime(_day, _month, _year) {
-        curr->sec = _sec;
-        curr->min = _min;
-        curr->hrs = _hrs;
-    }
-
-    ~datetime() {
-        delete curr;
-    }
-
-private:
     /**
      * Auxiliary function for @f.
      */
@@ -456,6 +404,71 @@ private:
     }
 
 public:
+    datetime_formatter format;
+
+    /**
+     * Construct a null datetime
+     */
+    datetime() = default;
+
+    /**
+     * Construct a datetime from an existing lvalue datetime
+     */
+    datetime(const datetime &dt) {
+        curr = new _datetime();
+        _copyvalues(dt);
+    }
+
+    /**
+     * Construct a datetime from an existing rvalue datetime
+     */
+    datetime(datetime &&dt) noexcept {
+        curr = new _datetime();
+        _copyvalues(dt);
+    }
+
+    /**
+ * Construct a datetime from an existing number of seconds from epoch (1.1.1970)
+ */
+    explicit datetime(long long timestamp) {
+        curr = new _datetime();
+        *this = after(timestamp);
+    }
+
+    datetime(long long _day, long long _month, long long _year) {
+        curr = new _datetime();
+        curr->day = _day - 1;
+        curr->month = _month - 1;
+        curr->year = _year;
+    }
+
+
+    datetime(long long _day, long long _month, long long _year, long long _hrs, long long _min, long long _sec) :
+            datetime(_day, _month, _year) {
+        curr->sec = _sec;
+        curr->min = _min;
+        curr->hrs = _hrs;
+    }
+
+    ~datetime() {
+        delete curr;
+    }
+
+    datetime &operator=(const datetime &dt) {
+        if (&dt == this) {
+            return *this;
+        }
+        _copyvalues(dt);
+        return *this;
+    }
+
+    datetime &operator=(datetime &&dt) noexcept {
+        _copyvalues(dt);
+        return *this;
+    }
+
+
+public:
 
     /**
      * @return = @this == @dt
@@ -492,7 +505,7 @@ public:
      * @return = @this > @dt
      */
     bool operator>(const datetime &dt) const {
-        return getYear() > dt.getYear() || getYear() == dt.getYear() && (
+        return curr->year > dt.getYear() || getYear() == dt.getYear() && (
                 getMonth() > dt.getMonth() || getMonth() == dt.getMonth() && (
                         getDay() > dt.getDay() || getDay() == dt.getDay() && (
                                 getHrs() > dt.getHrs() || getHrs() == dt.getHrs() && (

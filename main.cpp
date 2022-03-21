@@ -112,9 +112,6 @@ int main() {
 
     auto epoch = datetime();
 
-    auto ee = datetime(1, 2, 3);
-    auto tt = ee.to_timestamp();
-
     cout << datetime(-1, 1, 2022).fix() << endl;
     cout << datetime(-1, 1, 2022).fix(false) << endl;
 
