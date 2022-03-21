@@ -264,16 +264,14 @@ public:
      * NB: this is a non-explicit constructor.
      */
     period in_canonical_form() const {
-        period pd;
-        long long _seconds = this->to_seconds();
-        pd.days = _seconds / 86400;
-        long long ss = pd.days * 86400;
-        pd.hours = (_seconds - ss) / 3600;
-        ss += pd.hours * 3600;
-        pd.minutes = (_seconds - ss) / 60;
-        ss += pd.minutes * 60;
-        pd.seconds = _seconds - ss;
-        return pd;
+        auto _seconds = this->to_seconds();
+        auto _days = _seconds / 86400;
+        auto _ss = _seconds % 86400;
+        auto _hours = _ss / 3600;
+        _ss = _ss % 3600;
+        auto _minutes = _ss / 60;
+        _ss %= 60;
+        return {dd(_days), hh(_hours), mm(_minutes), ss(_ss)};
     }
 
     /**
