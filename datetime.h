@@ -440,8 +440,7 @@ public:
  */
     explicit datetime(long long timestamp) {
         curr = new _datetime();
-        if (timestamp != 0)
-            *this = after(timestamp);
+        *this = after(timestamp);
     }
 
     datetime(long long _day, long long _month, long long _year) {
@@ -758,7 +757,7 @@ public:
     /**
      * @return the ss from @epoch to @this.
      */
-    long long to_timestamp() const { return seconds_from(datetime(0)); }
+    long long to_timestamp() const { return seconds_from(datetime(1, 1, 1970)); }
 
     /**
      * @return the ss from @d2 to @this.
