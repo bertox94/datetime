@@ -114,18 +114,14 @@ public:
     /**
     * @return = @this < @pd
     */
-    bool operator<(period &pd) const {
-        return to_seconds() < pd.to_seconds();
-    }
+    bool operator<(period &pd) const { return to_seconds() < pd.to_seconds(); }
 
     bool operator<(period &&pd) const { return this->operator<(pd); }
 
     /**
     * @return = @this > @pd
     */
-    bool operator>(period &pd) const {
-        return to_seconds() > pd.to_seconds();
-    }
+    bool operator>(period &pd) const { return to_seconds() > pd.to_seconds(); }
 
     bool operator>(period &&pd) const { return this->operator>(pd); }
 
