@@ -485,7 +485,7 @@ public:
             }
         } else {
             if (dt.curr != nullptr) {
-                curr = new _datetime;
+                curr = new _datetime();
                 _copyvalues(dt);
             }
         }
@@ -503,7 +503,7 @@ public:
             }
         } else {
             if (dt.curr != nullptr) {
-                curr = new _datetime;
+                curr = new _datetime();
                 _copyvalues(dt);
             }
         }
