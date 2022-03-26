@@ -245,13 +245,25 @@ public:
 
     long long getDays() const { return days; }
 
-    void setDays(long long _days) { period::days = _days; }
+    period setDays(long long _days) {
+        period::days = _days;
+        return *this;
+    }
 
-    void setHrs(long long _hrs) { period::hours = _hrs; }
+    period setHrs(long long _hrs) {
+        period::hours = _hrs;
+        return *this;
+    }
 
-    void setMin(long long _min) { period::minutes = _min; }
+    period setMin(long long _min) {
+        period::minutes = _min;
+        return *this;
+    }
 
-    void setSec(long long _sec) { period::seconds = _sec; }
+    period setSec(long long _sec) {
+        period::seconds = _sec;
+        return *this;
+    }
 
     /**
      * Creates a period in canonical form from @param _seconds.
@@ -459,11 +471,15 @@ public:
     datetime &operator=(const datetime &dt) {
         if (&dt == this)
             return *this;
+        delete curr;
+        curr = new _datetime;
         _copyvalues(dt);
         return *this;
     }
 
     datetime &operator=(datetime &&dt) noexcept {
+        delete curr;
+        curr = new _datetime;
         _copyvalues(dt);
         return *this;
     }
@@ -644,17 +660,35 @@ public:
     /**
  * Setter functions.
  */
-    void setDay(long long _day) { curr->day = _day - 1; }
+    datetime setDay(long long _day) {
+        curr->day = _day - 1;
+        return *this;
+    }
 
-    void setMonth(long long _month) { curr->month = _month - 1; }
+    datetime setMonth(long long _month) {
+        curr->month = _month - 1;
+        return *this;
+    }
 
-    void setYear(long long _year) { curr->year = _year; }
+    datetime setYear(long long _year) {
+        curr->year = _year;
+        return *this;
+    }
 
-    void setHrs(long long _hrs) { curr->hrs = _hrs; }
+    datetime setHrs(long long _hrs) {
+        curr->hrs = _hrs;
+        return *this;
+    }
 
-    void setMin(long long _min) { curr->min = _min; }
+    datetime setMin(long long _min) {
+        curr->min = _min;
+        return *this;
+    }
 
-    void setSec(long long _sec) { curr->sec = _sec; }
+    datetime setSec(long long _sec) {
+        curr->sec = _sec;
+        return *this;
+    }
 
     /**
      * @return is the number of months from @this and @param dt regardless of the dd,
