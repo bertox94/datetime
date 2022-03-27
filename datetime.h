@@ -895,6 +895,10 @@ string to_month(int mm) {
 }
 
 std::ostream &operator<<(std::ostream &os, datetime const &dd) {
+
+    if (dd == nullptr)
+        return os << "null";
+
     string output = dd.format.format;
     bool month_str = dd.format.month_str;
     bool h24 = dd.format.h24;
