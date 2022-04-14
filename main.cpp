@@ -113,7 +113,9 @@ int main() {
     auto epoch = datetime();
 
     cout << datetime(-1, 1, 2022).fix() << endl;
+    cout << datetime(0, 1, 2022).fix(false) << endl;
     cout << datetime(-1, 1, 2022).fix(false) << endl;
+    cout << datetime(EndOfMonth, 1, 2022).fix(false) << endl;
 
     long long size = 15000000000;
     test3(size);
