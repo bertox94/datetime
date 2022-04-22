@@ -854,6 +854,16 @@ public:
     }
 
     /**
+ * @return @this whose day is the last of the year.
+ */
+    datetime end_of_year() const {
+        datetime dt = *this;
+        dt.curr->month = 11;
+        dt.curr->day = dt.days_of_this_month() - 1;
+        return dt;
+    }
+
+    /**
      * @return the ss from @epoch to @this.
      */
     long long to_timestamp() const { return seconds_from(datetime(1, 1, 1970)); }
