@@ -288,7 +288,6 @@ public:
      * Creates a period in canonical form from @param _seconds.
      * A period is in canonical form iff (_days <= 0 && _hrs <= 0 && _min <= 0 && _sec <= 0) ||
      *                              (_days >= 0 && _hrs >= 0 && _min >= 0 && _sec >= 0)
-     * NB: this is a non-explicit constructor.
      */
     period in_canonical_form() const {
         auto _seconds = this->to_seconds();
