@@ -533,36 +533,25 @@ public:
         if (&dt == this)
             return *this;
 
-        if (curr != nullptr) {
-            if (dt.curr != nullptr) {
-                _copyvalues(dt);
-            } else {
-                delete curr;
-                curr = nullptr;
-            }
-        } else {
-            if (dt.curr != nullptr) {
+        if (dt.curr != nullptr) {
+            if (curr == nullptr)
                 curr = new _datetime();
-                _copyvalues(dt);
-            }
+            _copyvalues(dt);
+        } else {
+            delete curr;
+            curr = nullptr;
         }
-
         return *this;
     }
 
     datetime &operator=(datetime &&dt) noexcept {
-        if (curr != nullptr) {
-            if (dt.curr != nullptr) {
-                _copyvalues(dt);
-            } else {
-                delete curr;
-                curr = nullptr;
-            }
-        } else {
-            if (dt.curr != nullptr) {
+        if (dt.curr != nullptr) {
+            if (curr == nullptr)
                 curr = new _datetime();
-                _copyvalues(dt);
-            }
+            _copyvalues(dt);
+        } else {
+            delete curr;
+            curr = nullptr;
         }
 
         return *this;
